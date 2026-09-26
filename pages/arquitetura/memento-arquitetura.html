@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memento de Arquitetura</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#F3F5F7; --surface:#FFFFFF; --sunk:#E8ECF0; --ink:#17212B; --ink-2:#4A5866; --ink-3:#7A8794;
+  --line:#D5DCE3; --accent:#24477A; --accent-soft:#E3EAF5; --accent-ink:#FFFFFF;
+  --ok:#1F7A4D; --ok-bg:#E2F2E9; --part:#A86A00; --part-bg:#FBF0DA; --gap:#B3261E; --gap-bg:#FBE4E1; --na:#667380; --na-bg:#E9EDF1;
+  --crit:#B3261E; --high:#A86A00; --med:#4A5866;
+  --f-disp:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#0F151B; --surface:#161E26; --sunk:#1D2731; --ink:#E4EAF0; --ink-2:#A9B5C1; --ink-3:#7C8995;
+    --line:#2A3642; --accent:#8FB0E6; --accent-soft:#1F2F47; --accent-ink:#0F151B;
+    --ok:#5DC48F; --ok-bg:#15301F; --part:#E3AE4A; --part-bg:#33280F; --gap:#F08A80; --gap-bg:#3A1a18; --na:#95A2AE; --na-bg:#222C36;
+    --crit:#F08A80; --high:#E3AE4A; --med:#A9B5C1;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#0F151B; --surface:#161E26; --sunk:#1D2731; --ink:#E4EAF0; --ink-2:#A9B5C1; --ink-3:#7C8995;
+  --line:#2A3642; --accent:#8FB0E6; --accent-soft:#1F2F47; --accent-ink:#0F151B;
+  --ok:#5DC48F; --ok-bg:#15301F; --part:#E3AE4A; --part-bg:#33280F; --gap:#F08A80; --gap-bg:#3A1a18; --na:#95A2AE; --na-bg:#222C36;
+  --crit:#F08A80; --high:#E3AE4A; --med:#A9B5C1;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:0 48px}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--ground);border-bottom:1px solid var(--line);margin-inline:-16px;padding:12px 16px}
+.top-in{max-width:1180px;margin:0 auto;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;min-width:0;flex:1 1 260px}
+.brand h1{font-family:var(--f-disp);font-weight:700;font-size:22px;letter-spacing:.01em;margin:0;line-height:1.1}
+.brand span{font-size:12.5px;color:var(--ink-3)}
+.meter{display:flex;align-items:center;gap:12px;flex:1 1 300px}
+.bar{flex:1;height:10px;border-radius:5px;background:var(--sunk);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.bar .b-ok{background:var(--ok)} .bar .b-part{background:var(--part)} .bar .b-gap{background:var(--gap)} .bar .b-na{background:var(--na);opacity:.5}
+.score{font-family:var(--f-mono);font-size:13px;color:var(--ink-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.score b{font-family:var(--f-disp);font-size:22px;color:var(--ink);font-weight:700}
+
+/* meta */
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:20px 0 8px}
+.field label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px;font-weight:600}
+.field input,.field select{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+
+/* summary */
+.summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin:18px 0}
+.disc{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:8px}
+.disc:hover{border-color:var(--accent)}
+.disc[aria-current="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.disc-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.disc-h strong{font-family:var(--f-disp);font-size:16px;font-weight:600}
+.disc-h code{font-family:var(--f-mono);font-size:11px;color:var(--ink-3)}
+.disc .bar{height:6px}
+.disc-f{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.disc-f .alert{color:var(--gap);font-weight:600}
+
+/* toolbar */
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 14px;padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:transparent;padding:6px 10px;font-size:13px;cursor:pointer;color:var(--ink-2)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.search{flex:1 1 200px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:13px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:6px 12px;font-size:13px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--gap)}
+.spacer{flex:1}
+
+/* sections */
+section.grp{margin-top:26px}
+.grp-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:6px}
+.grp-h h2{font-family:var(--f-disp);font-size:24px;font-weight:700;margin:0;text-wrap:balance}
+.grp-h .refs{font-size:12.5px;color:var(--ink-3)}
+.grp-intro{color:var(--ink-2);max-width:72ch;margin:0 0 10px;font-size:14px}
+
+.item{display:grid;grid-template-columns:4px 1fr auto;gap:0 14px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px 12px 0;margin-bottom:8px;overflow:hidden}
+.item .stripe{grid-row:1/span 3;background:var(--line);border-radius:0 3px 3px 0}
+.item[data-s="ok"] .stripe{background:var(--ok)} .item[data-s="part"] .stripe{background:var(--part)} .item[data-s="gap"] .stripe{background:var(--gap)} .item[data-s="na"] .stripe{background:var(--na);opacity:.5}
+.item[data-s="na"] .q{color:var(--ink-3)}
+.head{min-width:0}
+.idl{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-bottom:3px}
+.idl code{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3)}
+.crit{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.crit.c3{color:var(--crit)} .crit.c2{color:var(--high)} .crit.c1{color:var(--med)}
+.ref{font-size:11.5px;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:1px 6px}
+.q{font-weight:600;margin:0;font-size:15px}
+.d{margin:3px 0 0;color:var(--ink-2);font-size:13.5px;max-width:80ch}
+.ev{margin:6px 0 0;font-size:12.5px;color:var(--ink-3)}
+.ev b{font-weight:600;color:var(--ink-2)}
+.status{display:flex;gap:4px;align-self:start;flex-wrap:wrap;justify-content:flex-end}
+.status button{border:1px solid var(--line);background:transparent;border-radius:5px;padding:4px 8px;font-size:12px;cursor:pointer;color:var(--ink-2);white-space:nowrap}
+.status button[data-v="ok"][aria-pressed="true"]{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.status button[data-v="part"][aria-pressed="true"]{background:var(--part-bg);color:var(--part);border-color:var(--part)}
+.status button[data-v="gap"][aria-pressed="true"]{background:var(--gap-bg);color:var(--gap);border-color:var(--gap)}
+.status button[data-v="na"][aria-pressed="true"]{background:var(--na-bg);color:var(--na);border-color:var(--na)}
+.note{grid-column:2/span 2;margin-top:8px}
+.note textarea{width:100%;min-height:38px;resize:vertical;background:var(--ground);border:1px dashed var(--line);border-radius:6px;padding:6px 10px;font-size:13px}
+.note textarea:focus{border-style:solid}
+
+.empty{padding:30px;text-align:center;color:var(--ink-3);border:1px dashed var(--line);border-radius:8px}
+
+/* panel */
+.panel{background:var(--surface);border:1px solid var(--accent);border-radius:8px;padding:14px;margin-bottom:14px}
+.panel h3{font-family:var(--f-disp);margin:0 0 8px;font-size:18px}
+.panel textarea{width:100%;min-height:220px;font-family:var(--f-mono);font-size:12px;background:var(--ground);border:1px solid var(--line);border-radius:6px;padding:10px}
+.panel .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center}
+.msg{font-size:13px;color:var(--ok)}
+.confirm{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--gap)}
+
+.legend{font-size:12.5px;color:var(--ink-3);margin:4px 0 0;max-width:90ch}
+.legend b{color:var(--ink-2)}
+
+@media (max-width:720px){
+  .item{grid-template-columns:4px 1fr;padding-right:12px}
+  .status{grid-column:2;justify-content:flex-start;margin-top:8px}
+  .note{grid-column:2}
+  .grp-h h2{font-size:21px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <h1>Memento de Arquitetura</h1>
+      <span>Checklist de avaliação de solução · 8 disciplinas · referências de mercado</span>
+    </div>
+    <div class="meter">
+      <div class="bar" id="gbar" aria-hidden="true"></div>
+      <div class="score"><b id="gscore">0%</b> aderência · <span id="gcount">0/0</span> avaliados</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="meta">
+    <div class="field"><label for="m-sol">Solução / iniciativa</label><input id="m-sol" placeholder="Ex.: Plataforma de originação de crédito rural PF"></div>
+    <div class="field"><label for="m-rev">Revisor(es)</label><input id="m-rev" placeholder="Nome(s)"></div>
+    <div class="field"><label for="m-date">Data da avaliação</label><input id="m-date" type="date"></div>
+    <div class="field"><label for="m-phase">Fase</label>
+      <select id="m-phase"><option>Ideação / Discovery</option><option selected>Desenho (HLD)</option><option>Detalhamento (LLD)</option><option>Pré-produção (Go-live)</option><option>Pós-implantação</option></select></div>
+  </div>
+  <p class="legend"><b>Aderência</b> = (Atende + ½ Parcial) ÷ itens aplicáveis. N/A sai do denominador. Criticidade <b style="color:var(--crit)">Crítico</b> indica item que normalmente bloqueia aprovação em comitê (ARB/CAB) se não atendido.</p>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="tools">
+    <div class="seg" role="group" aria-label="Filtrar por status">
+      <button data-f="all" aria-pressed="true">Todos</button>
+      <button data-f="pend" aria-pressed="false">Pendentes</button>
+      <button data-f="issues" aria-pressed="false">Gaps + Parciais</button>
+    </div>
+    <div class="seg" role="group" aria-label="Filtrar por criticidade">
+      <button data-c="0" aria-pressed="true">Qualquer</button>
+      <button data-c="3" aria-pressed="false">Crítico</button>
+      <button data-c="2" aria-pressed="false">Alto+</button>
+    </div>
+    <input class="search" id="q" type="search" placeholder="Buscar item, framework, ID…">
+    <span class="spacer"></span>
+    <button class="btn primary" id="b-export">Gerar relatório</button>
+    <button class="btn" id="b-import">Importar</button>
+    <span id="reset-wrap"><button class="btn danger" id="b-reset">Limpar</button></span>
+  </div>
+
+  <div class="panel" id="panel" hidden>
+    <h3 id="p-title">Relatório</h3>
+    <div class="row" id="p-mode">
+      <div class="seg" role="group" aria-label="Formato">
+        <button data-fmt="md" aria-pressed="true">Markdown</button>
+        <button data-fmt="json" aria-pressed="false">JSON (backup)</button>
+      </div>
+    </div>
+    <textarea id="p-text" spellcheck="false" aria-label="Conteúdo"></textarea>
+    <div class="row">
+      <button class="btn primary" id="p-act">Copiar</button>
+      <button class="btn" id="p-close">Fechar</button>
+      <span class="msg" id="p-msg" role="status"></span>
+    </div>
+  </div>
+
+  <div id="list"></div>
+</main>
+
+<script>
+/* [id, criticidade(3=Crítico,2=Alto,1=Médio), pergunta, descrição, referência, evidência esperada] */
+const D = [
+ {k:"BIZ", n:"Arquitetura de Negócios", refs:"TOGAF (Business Architecture) · BIZBOK · BIAN · BPMN 2.0",
+  intro:"A solução existe por um motivo de negócio mensurável e se encaixa no mapa de capacidades da organização.",
+  items:[
+  ["BIZ-01",3,"Problema e objetivo de negócio explícitos","Problema, público afetado e resultado esperado descritos sem jargão técnico; objetivos ligados a OKRs/estratégia.","BIZBOK · TOGAF Fase A","Business case / one-pager aprovado pelo sponsor"],
+  ["BIZ-02",2,"Capacidades de negócio mapeadas","Capacidades impactadas identificadas no mapa de capacidades (nível 1–3) e, em banco, alinhadas ao BIAN Service Landscape.","BIZBOK · BIAN","Heatmap de capacidades impactadas"],
+  ["BIZ-03",2,"Value streams e processos modelados","Jornada/value stream ponta a ponta e processos AS-IS/TO-BE com pontos de automação e handoffs.","BPMN 2.0 · Value Stream Mapping","Diagramas BPMN ou value stream"],
+  ["BIZ-04",3,"Stakeholders e RACI definidos","Sponsor, product owner, donos de processo, risco, compliance e operação identificados, com matriz RACI.","TOGAF Stakeholder Mgmt","Mapa de stakeholders + RACI"],
+  ["BIZ-05",2,"KPIs de sucesso com baseline","Indicadores de resultado (ex.: tempo de contratação, custo por operação, inadimplência) com linha de base e meta.","OKR · Balanced Scorecard","Tabela de KPIs, baseline e meta"],
+  ["BIZ-06",2,"Business case e TCO","ROI/payback, TCO em 3–5 anos (build, run, licenças, pessoas) e custo de não fazer.","TOGAF · FinOps","Planilha de TCO/ROI validada com finanças"],
+  ["BIZ-07",3,"Requisitos regulatórios mapeados","Normas aplicáveis levantadas (ex.: MCR/BACEN, CMN, LGPD, SFN) e donos de cada obrigação.","Compliance · LGPD","Matriz de obrigações regulatórias"],
+  ["BIZ-08",1,"Impacto organizacional e mudança","Mudanças em papéis, treinamento, comunicação e canais de atendimento avaliados.","ADKAR · Prosci","Plano de gestão da mudança"],
+ ]},
+ {k:"EA", n:"Arquitetura Corporativa", refs:"TOGAF 10 ADM · Zachman · Gartner TIME · Tech Radar",
+  intro:"A solução respeita princípios, padrões e roadmap corporativos — e reduz, em vez de aumentar, a complexidade do portfólio.",
+  items:[
+  ["EA-01",3,"Aderência aos princípios de arquitetura","Cada princípio corporativo avaliado; desvios justificados e aprovados formalmente.","TOGAF Architecture Principles","Tabela princípio × aderência"],
+  ["EA-02",3,"Padrões tecnológicos do catálogo","Tecnologias em uso constam no catálogo/tech radar como 'adotar' ou 'experimentar'; exceções têm waiver com prazo.","Tech Radar · TOGAF SIB","Lista de stack × status no radar"],
+  ["EA-03",2,"Reuso antes de construir","Verificado se capacidades, plataformas ou APIs existentes atendem (reuse > buy > build).","TOGAF Enterprise Continuum","Análise reuse/buy/build"],
+  ["EA-04",2,"Posição no portfólio de aplicações","Sistemas impactados classificados (Tolerate/Invest/Migrate/Eliminate); redundâncias funcionais evitadas.","Gartner TIME · APM","Mapa de aplicações afetadas"],
+  ["EA-05",2,"Alinhamento ao roadmap e arquiteturas de transição","Estado-alvo e estados de transição coerentes com o roadmap corporativo e dependências de outras iniciativas.","TOGAF Fases E–F","Roadmap com transition architectures"],
+  ["EA-06",3,"Decisões registradas em ADR","Decisões relevantes com contexto, alternativas, trade-offs e consequências; versionadas junto ao código/documentação.","ADR (Nygard) · MADR","Repositório de ADRs"],
+  ["EA-07",2,"Governança e comitê de arquitetura","Passagem pelos checkpoints do ARB previstos para a fase; pendências com dono e prazo.","TOGAF Architecture Governance","Ata/parecer do comitê"],
+  ["EA-08",2,"Dívida técnica explicitada","Dívida criada ou herdada registrada, com plano de pagamento e impacto estimado.","Technical Debt Quadrant","Backlog de dívida técnica"],
+  ["EA-09",1,"Modelo de informação corporativo","Entidades de negócio usam o vocabulário/modelo canônico da empresa (glossário).","TOGAF Data Architecture","Mapeamento para modelo canônico"],
+ ]},
+ {k:"SOL", n:"Arquitetura de Soluções", refs:"ISO/IEC 25010 · C4 Model · DDD · 12-Factor · arc42",
+  intro:"O desenho atende aos requisitos funcionais e não funcionais com trade-offs conscientes e documentados.",
+  items:[
+  ["SOL-01",3,"Requisitos não funcionais quantificados","Desempenho, disponibilidade, escalabilidade, manutenibilidade etc. com números (ex.: p95 < 300 ms, 99,9%).","ISO/IEC 25010 · arc42 §10","Árvore de qualidade / cenários de atributos"],
+  ["SOL-02",2,"Visões arquiteturais documentadas","Contexto, containers e componentes (C4) + visões de implantação e dinâmica para fluxos críticos.","C4 Model · ISO/IEC 42010","Diagramas C4 atualizados"],
+  ["SOL-03",2,"Fronteiras de domínio claras","Bounded contexts definidos; acoplamento baixo, coesão alta; propriedade de dados por serviço.","DDD (Evans) · Context Mapping","Context map"],
+  ["SOL-04",3,"Integrações contratadas e versionadas","APIs e eventos com contrato (OpenAPI/AsyncAPI), política de versionamento e compatibilidade retroativa.","API-first · OpenAPI · AsyncAPI","Contratos publicados no portal/catálogo"],
+  ["SOL-05",3,"Padrões de resiliência aplicados","Timeouts, retries com backoff, circuit breaker, bulkhead, idempotência e filas de erro (DLQ).","Release It! · Well-Architected Reliability","Matriz dependência × padrão"],
+  ["SOL-06",2,"Consistência e transações distribuídas","Estratégia explícita (Saga, outbox, compensação); consistência eventual comunicada ao negócio.","Microservices Patterns (Richardson)","Diagrama de sequência das sagas"],
+  ["SOL-07",2,"Aplicação cloud-native","Config externalizada, stateless, logs como stream, paridade de ambientes, descarte rápido.","12-Factor App","Checklist 12-factor"],
+  ["SOL-08",3,"Observabilidade desde o desenho","Logs estruturados, métricas RED/USE, tracing distribuído com correlação, dashboards e alertas por SLO.","OpenTelemetry · Google SRE","Plano de observabilidade"],
+  ["SOL-09",2,"Estratégia de testes","Pirâmide de testes, testes de contrato, carga/estresse, caos para caminhos críticos.","Test Pyramid · Pact · k6","Plano de testes + resultados de carga"],
+  ["SOL-10",2,"CI/CD e estratégia de release","Pipeline automatizado, deploy sem downtime (blue/green, canário), feature flags, rollback testado.","DORA · Continuous Delivery","Pipeline e runbook de rollback"],
+  ["SOL-11",2,"Estratégia de migração e convivência","Para legado: strangler fig, anti-corruption layer, migração de dados e plano de desligamento.","Strangler Fig · 7 Rs de migração","Plano de migração e sunset"],
+  ["SOL-12",1,"Alternativas avaliadas","Pelo menos duas opções comparadas com critérios ponderados antes da recomendação.","ATAM (SEI)","Matriz de decisão"],
+ ]},
+ {k:"SEC", n:"Arquitetura de Segurança", refs:"NIST CSF 2.0 · OWASP ASVS · ISO/IEC 27001 · Res. CMN 4.893",
+  intro:"Segurança por design, com controles proporcionais ao risco e evidências auditáveis.",
+  items:[
+  ["SEC-01",3,"Modelagem de ameaças realizada","Ameaças levantadas sobre o DFD (STRIDE/LINDDUN), com mitigação e risco residual aceito formalmente.","STRIDE · OWASP Threat Modeling","Threat model versionado"],
+  ["SEC-02",3,"Identidade e acesso","Autenticação federada (OIDC/OAuth 2.x), MFA para acessos privilegiados, menor privilégio, RBAC/ABAC, revisão periódica.","NIST SP 800-63 · Zero Trust (SP 800-207)","Matriz de perfis e fluxos de autenticação"],
+  ["SEC-03",3,"Proteção de dados em trânsito e repouso","TLS 1.2+ (preferir 1.3), criptografia em repouso com chaves gerenciadas (KMS/HSM), rotação definida.","NIST SP 800-57 · PCI DSS 4.0","Política de criptografia aplicada"],
+  ["SEC-04",3,"Gestão de segredos","Nenhum segredo em código, imagem ou variável exposta; uso de cofre (Vault, Secrets Manager, Key Vault) com rotação.","OWASP ASVS V6/V13 (config.)","Scan de segredos no pipeline"],
+  ["SEC-05",3,"Segurança de aplicação e APIs","Requisitos ASVS no nível adequado; mitigação do OWASP Top 10 e API Security Top 10; WAF/API gateway.","OWASP ASVS · Top 10 · API Top 10","Relatório de pentest / DAST"],
+  ["SEC-06",2,"Cadeia de suprimentos de software","SAST, SCA, scan de container e IaC no pipeline; SBOM gerado; artefatos assinados.","SLSA · OWASP SAMM · SBOM (SPDX/CycloneDX)","Relatórios do pipeline + SBOM"],
+  ["SEC-07",2,"Segmentação e Zero Trust de rede","Microssegmentação, sem exposição pública desnecessária, egress controlado, mTLS entre serviços.","NIST SP 800-207","Diagrama de rede com zonas"],
+  ["SEC-08",2,"Logs de segurança e detecção","Eventos de segurança enviados ao SIEM, trilha de auditoria imutável, casos de uso de detecção definidos.","NIST CSF DE · MITRE ATT&CK","Integração SIEM + casos de uso"],
+  ["SEC-09",3,"Privacidade por design (LGPD)","Base legal por finalidade, minimização, RIPD/DPIA quando aplicável, direitos do titular atendidos.","LGPD (Lei 13.709/2018) · ISO/IEC 27701","RIPD e registro de operações"],
+  ["SEC-10",3,"Aderência regulatória de cibersegurança","Requisitos da política de segurança cibernética e de contratação de serviços de nuvem atendidos (instituições financeiras).","Res. CMN 4.893/2021 · Res. BCB 85/2021","Parecer de segurança/compliance"],
+  ["SEC-11",2,"Resposta a incidentes","Playbooks para a solução, contatos, classificação de severidade e comunicação regulatória prevista.","NIST SP 800-61","Playbook de incidentes"],
+ ]},
+ {k:"INF", n:"Infraestrutura e Operação", refs:"ITIL 4 · Google SRE · ISO 22301 · IaC",
+  intro:"A solução roda de forma confiável, recuperável e operável pelo time que vai sustentá-la.",
+  items:[
+  ["INF-01",3,"SLOs, SLIs e SLA acordados","SLIs mensuráveis, SLOs com error budget e SLA compatível com dependências (disponibilidade composta calculada).","Google SRE","Documento de SLO + cálculo de disponibilidade"],
+  ["INF-02",3,"Alta disponibilidade sem ponto único de falha","Redundância em múltiplas zonas; componentes stateful replicados; failover testado.","Well-Architected Reliability","Diagrama de HA + evidência de teste"],
+  ["INF-03",3,"DR com RTO/RPO definidos e testados","RTO/RPO derivados da criticidade de negócio (BIA); estratégia (backup/restore, pilot light, warm standby, ativo-ativo) testada.","ISO 22301 · BIA","Relatório do último teste de DR"],
+  ["INF-04",3,"Backup e restauração verificados","Política de backup, retenção, cópia imutável/isolada contra ransomware e teste periódico de restore.","Regra 3-2-1-1-0","Log de restore bem-sucedido"],
+  ["INF-05",2,"Capacidade e escalabilidade","Dimensionamento com base em volumetria projetada e picos sazonais (ex.: Plano Safra); autoscaling configurado.","Capacity Planning · ITIL","Planilha de volumetria + teste de carga"],
+  ["INF-06",2,"Infraestrutura como código","Toda infra provisionada via IaC versionado, revisado e com detecção de drift; sem mudanças manuais.","Terraform/Bicep/CDK · GitOps","Repositório IaC + pipeline"],
+  ["INF-07",2,"Gestão de mudanças e patching","Janela e processo de mudança definidos; patching de SO/imagens automatizado; imagens base padronizadas.","ITIL 4 Change Enablement","Política de patch + registro de mudanças"],
+  ["INF-08",2,"Monitoramento e plantão","Alertas acionáveis ligados a runbooks, escalonamento e on-call definidos; sem alertas órfãos.","Google SRE · ITIL Monitoring","Runbooks + escala de plantão"],
+  ["INF-09",2,"Transição para operação","Handover para sustentação: documentação, treinamento, período de hypercare e critérios de aceite operacional.","ITIL Service Transition","Checklist de aceite operacional"],
+ ]},
+ {k:"CLD", n:"Arquitetura Cloud", refs:"AWS / Azure / Google Cloud Well-Architected · CAF · FinOps Framework",
+  intro:"Uso da nuvem de forma segura, econômica e sustentável, com saída planejada.",
+  items:[
+  ["CLD-01",2,"Revisão Well-Architected feita","Os pilares (excelência operacional, segurança, confiabilidade, desempenho, custo, sustentabilidade) avaliados na ferramenta do provedor.","AWS WAF · Azure WAF · Google Cloud Architecture Framework","Relatório da revisão com riscos altos tratados"],
+  ["CLD-02",3,"Landing zone e guardrails","Contas/subscrições/projetos segregados por ambiente, políticas preventivas (SCP/Azure Policy/Org Policy) e rede hub-spoke.","CAF (AWS/Azure/GCP)","Desenho da landing zone"],
+  ["CLD-03",2,"Preferência por serviços gerenciados","PaaS/serverless avaliados antes de IaaS; justificativa quando o time opera o próprio middleware.","Well-Architected Operational Excellence","Análise build vs managed"],
+  ["CLD-04",3,"Custo estimado e alocado (FinOps)","Estimativa por ambiente, tagging obrigatório para showback/chargeback, orçamento e alertas de anomalia.","FinOps Framework (Inform)","Estimativa + política de tags"],
+  ["CLD-05",2,"Otimização de custo contínua","Rightsizing, autoscaling até zero onde possível, compromissos (Savings Plans/Reservas/CUDs), lifecycle de storage.","FinOps Framework (Optimize)","Plano de otimização"],
+  ["CLD-06",2,"Unit economics definidos","Custo por unidade de negócio (ex.: custo por proposta, por contrato) monitorado ao longo do tempo.","FinOps Unit Economics","Métrica de custo unitário no dashboard"],
+  ["CLD-07",2,"Lock-in avaliado e estratégia de saída","Dependências proprietárias conscientes; plano de saída/portabilidade exigido para serviços relevantes.","Res. CMN 4.893 · Exit strategy","Análise de lock-in + plano de saída"],
+  ["CLD-08",3,"Residência e soberania de dados","Regiões usadas, transferência internacional e acesso do provedor avaliados contra LGPD e requisitos regulatórios.","LGPD Cap. V · Res. CMN 4.893","Mapa de regiões e fluxos de dados"],
+  ["CLD-09",1,"Sustentabilidade","Escolha de região, rightsizing e arquiteturas eficientes considerando pegada de carbono.","Well-Architected Sustainability · GSF","Relatório de pegada de carbono"],
+ ]},
+ {k:"DAT", n:"Arquitetura de Dados", refs:"DAMA-DMBOK 2 · Data Mesh · DCAM · ISO 8000",
+  intro:"Dados tratados como ativo: com dono, qualidade medida, linhagem rastreável e uso em conformidade.",
+  items:[
+  ["DAT-01",3,"Ownership e responsabilidades","Data owner e data steward definidos para cada domínio/produto de dados.","DAMA-DMBOK (Governança) · Data Mesh","Matriz de ownership"],
+  ["DAT-02",3,"Classificação da informação","Dados classificados (público, interno, confidencial, restrito; pessoais/sensíveis) com controles por classe.","ISO/IEC 27001 A.5.12 · LGPD","Inventário com classificação"],
+  ["DAT-03",2,"Modelagem e padrões","Modelos conceitual/lógico/físico, padrões de nomenclatura e escolha de banco justificada pelo padrão de acesso.","DAMA-DMBOK (Modelagem)","Modelos de dados + ADR de persistência"],
+  ["DAT-04",2,"Catálogo e metadados","Datasets, APIs e eventos registrados no catálogo com descrição, dono, SLA e glossário de negócio.","DAMA-DMBOK (Metadados)","Entradas no catálogo"],
+  ["DAT-05",2,"Linhagem de ponta a ponta","Origem, transformações e consumidores rastreáveis, inclusive para dados regulatórios e modelos.","OpenLineage · BCBS 239","Grafo de linhagem"],
+  ["DAT-06",3,"Qualidade de dados monitorada","Dimensões (completude, exatidão, consistência, pontualidade) com regras, limites e alertas.","ISO 8000 · DAMA-DMBOK (Qualidade)","Painel de qualidade"],
+  ["DAT-07",2,"Contratos de dados","Esquemas versionados com compatibilidade garantida entre produtores e consumidores (schema registry).","Data Contracts · Data Mesh","Contratos e schema registry"],
+  ["DAT-08",3,"Retenção e descarte","Prazo de retenção por finalidade/obrigação legal; expurgo ou anonimização automatizados.","LGPD art. 15–16 · políticas internas","Tabela de temporalidade"],
+  ["DAT-09",2,"Dados mestres e referência","Fonte única de verdade para entidades mestres (cliente, produto, propriedade rural); sem cópias divergentes.","DAMA-DMBOK (MDM)","Mapa de golden sources"],
+  ["DAT-10",2,"Arquitetura analítica","Fluxo operacional → analítico definido (lakehouse, CDC, eventos) sem sobrecarregar sistemas transacionais.","Lakehouse · CQRS · CDC","Diagrama do pipeline de dados"],
+ ]},
+ {k:"IA", n:"Arquitetura de IA", refs:"NIST AI RMF 1.0 · ISO/IEC 42001 · OWASP Top 10 for LLM · EU AI Act",
+  intro:"IA usada onde agrega valor, com riscos gerenciados, qualidade medida e humanos no controle das decisões relevantes.",
+  items:[
+  ["IA-01",3,"Caso de uso justificado e classificado por risco","Por que IA (e não regra/heurística); classificação de risco do caso de uso; impacto de erro no cliente.","NIST AI RMF (Map) · EU AI Act","Ficha do caso de uso + classificação"],
+  ["IA-02",3,"Governança de IA","Dono do modelo/agente, comitê ou fluxo de aprovação, inventário de modelos e revisão periódica.","ISO/IEC 42001 · NIST AI RMF (Govern)","Registro no inventário de IA"],
+  ["IA-03",3,"Avaliação (evals) antes e depois do go-live","Conjunto de avaliação representativo, métricas de qualidade (exatidão, groundedness, taxa de alucinação) e critérios de aceite.","NIST AI RMF (Measure)","Relatório de evals versionado"],
+  ["IA-04",3,"Segurança específica de LLM","Mitigação de prompt injection direta/indireta, vazamento de dados, saída insegura, agência excessiva e abuso de ferramentas.","OWASP Top 10 for LLM Apps","Threat model de IA + testes de red team"],
+  ["IA-05",3,"Guardrails e human-in-the-loop","Filtros de entrada/saída, limites de escopo e revisão humana para decisões que afetam direitos ou crédito.","NIST AI RMF (Manage) · LGPD art. 20","Desenho do fluxo com pontos de revisão"],
+  ["IA-06",2,"Explicabilidade e transparência","Usuário sabe que interage com IA; decisões automatizadas explicáveis; fontes citadas em RAG.","LGPD art. 20 · EU AI Act (transparência)","Exemplo de explicação/citação exibida"],
+  ["IA-07",2,"Viés e equidade","Testes de viés em atributos sensíveis ou proxies (região, gênero, porte) com limites aceitáveis.","NIST SP 1270 · ISO/IEC TR 24027","Relatório de fairness"],
+  ["IA-08",2,"Governança dos dados de treino e RAG","Origem, licença, base legal e atualização das bases de conhecimento; controle de acesso por documento.","ISO/IEC 42001 Anexo A · LGPD","Inventário de fontes + ACL do índice"],
+  ["IA-09",2,"MLOps / LLMOps","Versionamento de modelos, prompts e datasets; registry; deploy reprodutível; rollback de prompt/modelo.","Google MLOps Maturity · MLflow","Pipeline e registry"],
+  ["IA-10",2,"Monitoramento em produção","Drift de dados/modelo, qualidade das respostas, feedback do usuário, latência e incidentes de IA.","NIST AI RMF (Manage)","Dashboard de monitoramento de IA"],
+  ["IA-11",2,"Custo e desempenho de inferência","Custo por interação estimado (tokens/GPU), cache, roteamento entre modelos, limites de uso.","FinOps for AI","Estimativa de custo por interação"],
+  ["IA-12",2,"Fallback e degradação graciosa","Comportamento definido quando o modelo falha, fica indisponível ou tem baixa confiança.","Well-Architected ML Lens","Fluxo de fallback documentado"],
+ ]},
+];
+
+const S = {ok:"Atende",part:"Parcial",gap:"Não atende",na:"N/A"};
+const CRIT = {3:"Crítico",2:"Alto",1:"Médio"};
+const KEY = "memento-arq-v1";
+let st = {meta:{}, s:{}, n:{}};
+let F = {f:"all", c:0, q:"", d:null};
+
+function load(){ try{ const r = localStorage.getItem(KEY); if(r){ const o = JSON.parse(r); st = {meta:o.meta||{}, s:o.s||{}, n:o.n||{}}; } }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(st)); }catch(e){} }
+
+function stats(items){
+  let ok=0,part=0,gap=0,na=0,critGap=0;
+  items.forEach(it=>{ const v=st.s[it[0]]; if(v==="ok")ok++; else if(v==="part")part++; else if(v==="gap"){gap++; if(it[1]===3)critGap++;} else if(v==="na")na++; });
+  const total=items.length, app=total-na, done=ok+part+gap+na;
+  const pct = (ok+part+gap)? Math.round((ok+part*0.5)/((ok+part+gap))*100) : null;
+  return {ok,part,gap,na,total,done,app,pct,critGap};
+}
+function barHTML(s){
+  const w=v=> (v/s.total*100).toFixed(2)+"%";
+  return `<i class="b-ok" style="width:${w(s.ok)}"></i><i class="b-part" style="width:${w(s.part)}"></i><i class="b-gap" style="width:${w(s.gap)}"></i><i class="b-na" style="width:${w(s.na)}"></i>`;
+}
+const esc = t => String(t).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function renderSummary(){
+  const all = D.flatMap(d=>d.items); const g = stats(all);
+  document.getElementById("gbar").innerHTML = barHTML(g);
+  document.getElementById("gscore").textContent = g.pct===null ? "—" : g.pct+"%";
+  document.getElementById("gcount").textContent = `${g.done}/${g.total}`;
+  document.getElementById("summary").innerHTML = D.map(d=>{
+    const s=stats(d.items);
+    return `<button class="disc" data-d="${d.k}" aria-current="${F.d===d.k}">
+      <span class="disc-h"><strong>${esc(d.n)}</strong><code>${d.k}</code></span>
+      <span class="bar" aria-hidden="true">${barHTML(s)}</span>
+      <span class="disc-f"><span>${s.done}/${s.total} · ${s.pct===null?"—":s.pct+"%"}</span>${s.critGap?`<span class="alert">${s.critGap} crítico${s.critGap>1?"s":""} em gap</span>`:(s.gap?`<span>${s.gap} gap${s.gap>1?"s":""}</span>`:"<span></span>")}</span>
+    </button>`;
+  }).join("");
+}
+
+function visible(it){
+  const v = st.s[it[0]];
+  if(F.f==="pend" && v) return false;
+  if(F.f==="issues" && !(v==="gap"||v==="part")) return false;
+  if(F.c && it[1] < F.c) return false;
+  if(F.q){ const h=(it.join(" ")+" "+(st.n[it[0]]||"")).toLowerCase(); if(!h.includes(F.q)) return false; }
+  return true;
+}
+
+function renderList(){
+  let html="", count=0;
+  D.forEach(d=>{
+    if(F.d && F.d!==d.k) return;
+    const its = d.items.filter(visible); if(!its.length) return;
+    count+=its.length;
+    html += `<section class="grp" id="g-${d.k}"><div class="grp-h"><h2>${esc(d.n)}</h2><span class="refs">${esc(d.refs)}</span></div><p class="grp-intro">${esc(d.intro)}</p>`;
+    its.forEach(it=>{
+      const [id,c,q,desc,ref,ev]=it; const v=st.s[id]||"";
+      html += `<article class="item" data-id="${id}" data-s="${v}">
+        <span class="stripe"></span>
+        <div class="head">
+          <div class="idl"><code>${id}</code><span class="crit c${c}">${CRIT[c]}</span><span class="ref">${esc(ref)}</span></div>
+          <p class="q">${esc(q)}</p>
+          <p class="d">${esc(desc)}</p>
+          <p class="ev"><b>Evidência:</b> ${esc(ev)}</p>
+        </div>
+        <div class="status" role="group" aria-label="Status de ${id}">
+          ${Object.entries(S).map(([k,l])=>`<button data-v="${k}" aria-pressed="${v===k}">${l}</button>`).join("")}
+        </div>
+        <div class="note"><textarea id="n-${id}" rows="1" placeholder="Observação, evidência ou ação corretiva…" aria-label="Observação ${id}">${esc(st.n[id]||"")}</textarea></div>
+      </article>`;
+    });
+    html += `</section>`;
+  });
+  document.getElementById("list").innerHTML = count ? html : `<div class="empty">Nenhum item com esses filtros.</div>`;
+}
+function render(){ renderSummary(); renderList(); }
+
+/* events */
+document.getElementById("list").addEventListener("click", e=>{
+  const b=e.target.closest(".status button"); if(!b) return;
+  const art=b.closest(".item"), id=art.dataset.id, v=b.dataset.v;
+  st.s[id] = st.s[id]===v ? undefined : v; if(!st.s[id]) delete st.s[id];
+  save();
+  art.dataset.s = st.s[id]||"";
+  art.querySelectorAll(".status button").forEach(x=>x.setAttribute("aria-pressed", x.dataset.v===st.s[id]));
+  renderSummary();
+});
+document.getElementById("list").addEventListener("input", e=>{
+  if(e.target.tagName!=="TEXTAREA") return;
+  const id=e.target.id.slice(2); const t=e.target.value;
+  if(t.trim()) st.n[id]=t; else delete st.n[id]; save();
+});
+document.getElementById("summary").addEventListener("click", e=>{
+  const b=e.target.closest(".disc"); if(!b) return;
+  F.d = F.d===b.dataset.d ? null : b.dataset.d; render();
+  document.getElementById("list").scrollIntoView({behavior:"smooth",block:"start"});
+});
+document.querySelectorAll("[data-f]").forEach(b=>b.addEventListener("click",()=>{ F.f=b.dataset.f; document.querySelectorAll("[data-f]").forEach(x=>x.setAttribute("aria-pressed",x===b)); renderList(); }));
+document.querySelectorAll("[data-c]").forEach(b=>b.addEventListener("click",()=>{ F.c=+b.dataset.c; document.querySelectorAll("[data-c]").forEach(x=>x.setAttribute("aria-pressed",x===b)); renderList(); }));
+document.getElementById("q").addEventListener("input", e=>{ F.q=e.target.value.trim().toLowerCase(); renderList(); });
+
+["m-sol","m-rev","m-date","m-phase"].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener("input",()=>{ st.meta[id]=el.value; save(); });
+});
+function fillMeta(){
+  ["m-sol","m-rev","m-date","m-phase"].forEach(id=>{ if(st.meta[id]!==undefined) document.getElementById(id).value=st.meta[id]; });
+  if(!st.meta["m-date"]) document.getElementById("m-date").value = new Date().toISOString().slice(0,10);
+}
+
+/* export / import */
+const P = {el:document.getElementById("panel"), t:document.getElementById("p-text"), msg:document.getElementById("p-msg"), mode:"export", fmt:"md"};
+function mdReport(){
+  const m=id=>document.getElementById(id).value||"—";
+  const all=D.flatMap(d=>d.items), g=stats(all);
+  let o=`# Avaliação de Arquitetura — ${m("m-sol")}\n\n- **Revisor(es):** ${m("m-rev")}\n- **Data:** ${m("m-date")}\n- **Fase:** ${m("m-phase")}\n- **Aderência geral:** ${g.pct===null?"—":g.pct+"%"} (${g.done}/${g.total} itens avaliados)\n\n## Resumo por disciplina\n\n| Disciplina | Aderência | Atende | Parcial | Não atende | N/A | Pendente |\n|---|---|---|---|---|---|---|\n`;
+  D.forEach(d=>{ const s=stats(d.items); o+=`| ${d.n} | ${s.pct===null?"—":s.pct+"%"} | ${s.ok} | ${s.part} | ${s.gap} | ${s.na} | ${s.total-s.done} |\n`; });
+  const issues = all.filter(it=>st.s[it[0]]==="gap"||st.s[it[0]]==="part").sort((a,b)=>b[1]-a[1]||(st.s[a[0]]==="gap"?-1:1));
+  o+=`\n## Gaps e pontos parciais (${issues.length})\n\n`;
+  if(!issues.length) o+="Nenhum registrado.\n";
+  issues.forEach(it=>{ o+=`- **${it[0]}** [${CRIT[it[1]]} · ${S[st.s[it[0]]]}] ${it[2]}${st.n[it[0]]?` — _${st.n[it[0]].replace(/\n/g," ")}_`:""}\n`; });
+  const pend = all.filter(it=>!st.s[it[0]]);
+  if(pend.length){ o+=`\n## Itens não avaliados (${pend.length})\n\n`+pend.map(it=>`- ${it[0]} ${it[2]}`).join("\n")+"\n"; }
+  const na = all.filter(it=>st.s[it[0]]==="na");
+  if(na.length){ o+=`\n## Não aplicáveis\n\n`+na.map(it=>`- ${it[0]} ${it[2]}${st.n[it[0]]?` — ${st.n[it[0]].replace(/\n/g," ")}`:""}`).join("\n")+"\n"; }
+  return o;
+}
+function jsonBackup(){ return JSON.stringify({v:1, meta:Object.fromEntries(["m-sol","m-rev","m-date","m-phase"].map(id=>[id,document.getElementById(id).value])), s:st.s, n:st.n}, null, 2); }
+function openPanel(mode){
+  P.mode=mode; P.el.hidden=false; P.msg.textContent="";
+  document.getElementById("p-mode").hidden = mode!=="export";
+  document.getElementById("p-title").textContent = mode==="export" ? "Relatório" : "Importar backup JSON";
+  document.getElementById("p-act").textContent = mode==="export" ? "Copiar" : "Importar";
+  P.t.readOnly = mode==="export";
+  P.t.value = mode==="export" ? (P.fmt==="md"?mdReport():jsonBackup()) : "";
+  P.t.placeholder = mode==="import" ? "Cole aqui o JSON gerado em Gerar relatório → JSON (backup)" : "";
+  P.el.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+document.getElementById("b-export").onclick=()=>openPanel("export");
+document.getElementById("b-import").onclick=()=>openPanel("import");
+document.getElementById("p-close").onclick=()=>{P.el.hidden=true;};
+document.querySelectorAll("[data-fmt]").forEach(b=>b.addEventListener("click",()=>{ P.fmt=b.dataset.fmt; document.querySelectorAll("[data-fmt]").forEach(x=>x.setAttribute("aria-pressed",x===b)); openPanel("export"); }));
+document.getElementById("p-act").onclick=()=>{
+  if(P.mode==="export"){
+    const done=()=>{P.msg.textContent="Copiado para a área de transferência.";};
+    try{ navigator.clipboard.writeText(P.t.value).then(done).catch(()=>{P.t.select(); P.msg.textContent="Texto selecionado — use Ctrl+C.";}); }
+    catch(e){ P.t.select(); P.msg.textContent="Texto selecionado — use Ctrl+C."; }
+  } else {
+    try{
+      const o=JSON.parse(P.t.value);
+      st={meta:o.meta||{}, s:o.s||{}, n:o.n||{}}; save(); fillMeta(); render();
+      P.msg.style.color="var(--ok)"; P.msg.textContent=`Importado: ${Object.keys(st.s).length} itens avaliados.`;
+    }catch(e){ P.msg.style.color="var(--gap)"; P.msg.textContent="JSON inválido — cole o conteúdo completo do backup."; }
+  }
+};
+
+/* reset with inline confirm */
+const rw=document.getElementById("reset-wrap");
+rw.addEventListener("click",e=>{
+  const t=e.target;
+  if(t.id==="b-reset"){ rw.innerHTML=`<span class="confirm">Apagar todas as respostas? <button class="btn danger" id="r-yes">Apagar</button><button class="btn" id="r-no">Cancelar</button></span>`; }
+  else if(t.id==="r-yes"){ st={meta:{},s:{},n:{}}; save(); ["m-sol","m-rev"].forEach(id=>document.getElementById(id).value=""); fillMeta(); render(); rw.innerHTML=`<button class="btn danger" id="b-reset">Limpar</button>`; }
+  else if(t.id==="r-no"){ rw.innerHTML=`<button class="btn danger" id="b-reset">Limpar</button>`; }
+});
+
+load();
+/* exemplo inicial: se nada salvo, mostra alguns itens já avaliados para ilustrar */
+if(!Object.keys(st.s).length && !Object.keys(st.meta).length){
+  st.s={"BIZ-01":"ok","BIZ-02":"part","EA-06":"gap","SOL-01":"ok","SEC-01":"gap","CLD-04":"part","IA-03":"na"};
+  st.n={"BIZ-02":"Exemplo — mapa de capacidades nível 1 apenas.","EA-06":"Exemplo — decisões só em ata de reunião.","SEC-01":"Exemplo — threat model não iniciado."};
+  st.meta={"m-sol":"Exemplo — substitua pelo nome da sua solução"};
+}
+fillMeta(); render();
+</script>
+<a href="../../index.html" class="hub-back" aria-label="Voltar ao índice do hub">◂ HUB</a>
+<style>.hub-back{position:fixed;left:16px;bottom:16px;z-index:9999;font:600 12px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;color:#35E0FF!important;background:rgba(6,10,18,.88)!important;border:1px solid rgba(53,224,255,.45);padding:9px 13px;border-radius:999px;text-decoration:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 0 18px rgba(53,224,255,.25)}.hub-back:hover{background:#35E0FF!important;color:#060A12!important}@media print{.hub-back{display:none}}</style>
+</body>
+</html>

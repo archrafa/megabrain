@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Performance computacional — conceitos, método e bibliografia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDF1F2;
+    --paper-2:#E3E9EA;
+    --ink:#0C1A1F;
+    --ink-soft:#3C4E54;
+    --deep:#103A42;
+    --cool:#2E7D8C;
+    --signal:#C4304F;
+    --amber:#C98416;
+    --rule:#C6D1D3;
+    --measure:66ch;
+    --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
+    --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:17px;
+    line-height:1.62;
+    font-weight:400;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px 96px}
+
+  /* ---------- Hero ---------- */
+  header.hero{
+    background:var(--deep);
+    color:#E8F0F1;
+    padding:44px 0 36px;
+    border-bottom:6px solid var(--signal);
+  }
+  header.hero .wrap{padding-bottom:0}
+  h1{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(2rem,8vw,3.1rem);
+    line-height:1.02;
+    letter-spacing:-.02em;
+    margin:0 0 14px;
+  }
+  .dek{
+    font-size:1.02rem;
+    color:#AFC6C9;
+    max-width:52ch;
+    margin:0 0 34px;
+  }
+  .scale{margin:0;padding:0;list-style:none}
+  .scale-title{
+    font-family:var(--sans);
+    font-size:.82rem;
+    font-weight:600;
+    color:#7FA4A9;
+    margin:0 0 14px;
+    letter-spacing:.01em;
+  }
+  .scale li{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:2px 10px;
+    align-items:baseline;
+    padding:7px 0;
+    border-top:1px solid rgba(255,255,255,.12);
+  }
+  .scale li:first-of-type{border-top:none}
+  .scale .what{font-size:.9rem;color:#E8F0F1}
+  .scale .howlong{
+    font-family:var(--mono);
+    font-size:.8rem;
+    color:#9DBCC0;
+    white-space:nowrap;
+  }
+  .scale .bar{
+    grid-column:1 / -1;
+    height:5px;
+    background:rgba(255,255,255,.1);
+    position:relative;
+    margin-top:3px;
+  }
+  .scale .bar span{
+    position:absolute;inset:0 auto 0 0;
+    background:var(--cool);
+    transform-origin:left;
+    animation:grow .9s cubic-bezier(.2,.7,.3,1) both;
+  }
+  .scale li.hot .bar span{background:var(--signal)}
+  @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @media (prefers-reduced-motion:reduce){
+    .scale .bar span{animation:none}
+  }
+  .scale-note{
+    font-size:.84rem;
+    color:#7FA4A9;
+    margin:16px 0 0;
+    padding-bottom:6px;
+  }
+
+  /* ---------- Índice ---------- */
+  nav.toc{
+    background:var(--paper-2);
+    border-bottom:1px solid var(--rule);
+    padding:22px 0;
+  }
+  nav.toc .wrap{padding-bottom:0}
+  nav.toc h2{
+    font-family:var(--sans);
+    font-size:.82rem;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin:0 0 10px;
+  }
+  nav.toc ol{
+    margin:0;padding:0;list-style:none;
+    columns:2;column-gap:24px;
+  }
+  nav.toc li{margin:0 0 6px;break-inside:avoid;font-size:.92rem}
+  nav.toc a{color:var(--deep);text-decoration:none;border-bottom:1px solid var(--rule)}
+  nav.toc a:hover{border-color:var(--signal)}
+  @media (max-width:520px){nav.toc ol{columns:1}}
+
+  /* ---------- Tipografia de conteúdo ---------- */
+  section{padding-top:46px;scroll-margin-top:12px}
+  h2.sec{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:1.62rem;
+    line-height:1.14;
+    letter-spacing:-.015em;
+    margin:0 0 6px;
+    max-width:var(--measure);
+  }
+  .sec-lead{
+    color:var(--ink-soft);
+    margin:0 0 22px;
+    max-width:var(--measure);
+  }
+  h3{
+    font-family:var(--sans);
+    font-weight:600;
+    font-size:1.08rem;
+    margin:30px 0 8px;
+    max-width:var(--measure);
+  }
+  p{max-width:var(--measure);margin:0 0 16px}
+  ul,ol{max-width:var(--measure);padding-left:20px}
+  li{margin-bottom:8px}
+  strong{font-weight:600}
+  code{
+    font-family:var(--mono);
+    font-size:.86em;
+    background:var(--paper-2);
+    padding:1px 4px;
+    border-radius:2px;
+  }
+  a{color:var(--deep)}
+
+  /* ---------- Blocos especiais ---------- */
+  .law{
+    border-left:3px solid var(--cool);
+    padding:14px 0 2px 16px;
+    margin:22px 0;
+    max-width:var(--measure);
+  }
+  .law h3{margin-top:0}
+  .formula{
+    font-family:var(--mono);
+    font-size:.86rem;
+    background:var(--deep);
+    color:#CFE0E2;
+    padding:10px 12px;
+    overflow-x:auto;
+    margin:10px 0 12px;
+  }
+  .formula b{color:#F0C674;font-weight:400}
+
+  .warn{
+    border:1px solid var(--signal);
+    border-left-width:4px;
+    padding:14px 16px 2px;
+    margin:24px 0;
+    max-width:var(--measure);
+    background:rgba(196,48,79,.05);
+  }
+  .warn h3{margin-top:0;color:var(--signal)}
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.9rem;
+    margin:14px 0 20px;
+    display:block;
+    overflow-x:auto;
+  }
+  th,td{
+    text-align:left;
+    padding:9px 14px 9px 0;
+    border-bottom:1px solid var(--rule);
+    vertical-align:top;
+  }
+  th{
+    font-family:var(--sans);
+    font-weight:600;
+    font-size:.82rem;
+    color:var(--ink-soft);
+    border-bottom:1px solid var(--ink-soft);
+  }
+  td.num{font-family:var(--mono);white-space:nowrap;font-size:.84rem}
+
+  ol.steps{list-style:none;padding-left:0;counter-reset:s}
+  ol.steps > li{
+    counter-increment:s;
+    padding-left:44px;
+    position:relative;
+    margin-bottom:18px;
+  }
+  ol.steps > li::before{
+    content:counter(s);
+    position:absolute;left:0;top:1px;
+    width:30px;height:30px;
+    display:grid;place-items:center;
+    font-family:var(--sans);font-weight:600;font-size:.9rem;
+    color:#fff;background:var(--deep);
+    border-radius:50%;
+  }
+  ol.steps h3{margin:0 0 4px}
+
+  .books{margin:0;padding:0;list-style:none;max-width:var(--measure)}
+  .books li{
+    padding:14px 0;
+    border-top:1px solid var(--rule);
+    margin:0;
+  }
+  .books li:first-child{border-top:1px solid var(--ink-soft)}
+  .books .t{
+    font-family:var(--sans);
+    font-weight:600;
+    font-size:1rem;
+    display:block;
+    line-height:1.3;
+  }
+  .books .a{
+    display:block;
+    font-size:.88rem;
+    color:var(--ink-soft);
+    margin:2px 0 6px;
+  }
+  .books .why{font-size:.94rem;margin:0}
+  .tag{
+    display:inline-block;
+    font-family:var(--sans);
+    font-size:.7rem;
+    font-weight:600;
+    color:var(--amber);
+    border:1px solid var(--amber);
+    padding:1px 6px;
+    margin-left:6px;
+    vertical-align:2px;
+    border-radius:2px;
+  }
+
+  footer{
+    margin-top:64px;
+    border-top:1px solid var(--rule);
+    padding-top:20px;
+    font-size:.88rem;
+    color:var(--ink-soft);
+    max-width:var(--measure);
+  }
+  a:focus-visible,.books a:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Performance<br>computacional</h1>
+    <p class="dek">Conceitos, leis de escala, método de investigação e estratégias de aplicação — do ciclo de clock ao sistema distribuído.</p>
+
+    <p class="scale-title">Ordens de grandeza, em escala logarítmica</p>
+    <ul class="scale">
+      <li><span class="what">Acesso ao cache L1</span><span class="howlong">~1 ns</span><span class="bar"><span style="width:1%;animation-delay:.00s"></span></span></li>
+      <li><span class="what">Acesso ao cache L3</span><span class="howlong">~20 ns</span><span class="bar"><span style="width:14%;animation-delay:.05s"></span></span></li>
+      <li><span class="what">Acesso à memória principal (DRAM)</span><span class="howlong">~100 ns</span><span class="bar"><span style="width:22%;animation-delay:.10s"></span></span></li>
+      <li><span class="what">Troca de contexto entre threads</span><span class="howlong">~3 µs</span><span class="bar"><span style="width:39%;animation-delay:.15s"></span></span></li>
+      <li><span class="what">Leitura de 4 KB em SSD NVMe</span><span class="howlong">~80 µs</span><span class="bar"><span style="width:55%;animation-delay:.20s"></span></span></li>
+      <li class="hot"><span class="what">Ida e volta na rede do mesmo datacenter</span><span class="howlong">~0,5 ms</span><span class="bar"><span style="width:63%;animation-delay:.25s"></span></span></li>
+      <li class="hot"><span class="what">Busca em disco magnético</span><span class="howlong">~8 ms</span><span class="bar"><span style="width:77%;animation-delay:.30s"></span></span></li>
+      <li class="hot"><span class="what">Ida e volta São Paulo → Virgínia</span><span class="howlong">~120 ms</span><span class="bar"><span style="width:90%;animation-delay:.35s"></span></span></li>
+      <li class="hot"><span class="what">Limite da percepção de "instantâneo"</span><span class="howlong">~1 s</span><span class="bar"><span style="width:100%;animation-delay:.40s"></span></span></li>
+    </ul>
+    <p class="scale-note">Cada passo na barra vale um fator de 10. São ordens de grandeza aproximadas em hardware de servidor atual — o que importa não é o número exato, e sim a distância entre eles: uma chamada de rede custa o equivalente a alguns milhões de acessos a L1.</p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <h2>Neste material</h2>
+    <ol>
+      <li><a href="#vocabulario">Vocabulário mínimo</a></li>
+      <li><a href="#leis">As leis que limitam o ganho</a></li>
+      <li><a href="#filas">Filas, utilização e cauda</a></li>
+      <li><a href="#hardware">Onde o tempo se perde no hardware</a></li>
+      <li><a href="#concorrencia">Concorrência e contenção</a></li>
+      <li><a href="#distribuidos">Sistemas distribuídos</a></li>
+      <li><a href="#dados">Dados e persistência</a></li>
+      <li><a href="#metodo">Método de investigação</a></li>
+      <li><a href="#medicao">Medir sem se enganar</a></li>
+      <li><a href="#playbook">Playbook de aplicação</a></li>
+      <li><a href="#antipadroes">Antipadrões</a></li>
+      <li><a href="#custo">Performance e custo</a></li>
+      <li><a href="#livros">Biblioteca</a></li>
+      <li><a href="#trilha">Trilha de estudo</a></li>
+    </ol>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<section id="vocabulario">
+  <h2 class="sec">Vocabulário mínimo</h2>
+  <p class="sec-lead">Quase toda discussão improdutiva sobre performance vem de duas pessoas usando "está lento" para falar de coisas diferentes.</p>
+
+  <table>
+    <thead><tr><th>Termo</th><th>O que é</th><th>Onde engana</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Latência</strong></td><td>Tempo para uma unidade de trabalho terminar.</td><td>É uma distribuição, não um número. Média esconde tudo.</td></tr>
+      <tr><td><strong>Vazão</strong></td><td>Unidades de trabalho concluídas por segundo.</td><td>Pode subir enquanto a latência piora — e normalmente sobe.</td></tr>
+      <tr><td><strong>Utilização</strong></td><td>Fração do tempo em que o recurso está ocupado.</td><td>80% de CPU não significa 80% de capacidade restante.</td></tr>
+      <tr><td><strong>Saturação</strong></td><td>Trabalho enfileirado esperando o recurso.</td><td>É o sinal que antecede a queda, mais do que a utilização.</td></tr>
+      <tr><td><strong>Concorrência</strong></td><td>Requisições em voo ao mesmo tempo.</td><td>Confundida com paralelismo (execução simultânea de fato).</td></tr>
+      <tr><td><strong>Serviço vs. espera</strong></td><td>Tempo trabalhando vs. tempo na fila.</td><td>Em sistema carregado, a maior parte do tempo é espera.</td></tr>
+      <tr><td><strong>Trabalho útil</strong></td><td>O que o negócio pediu.</td><td>Serialização, cópia de buffer e log costumam dominar o resto.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Percentis, e por que a média mente</h3>
+  <p>Descreva latência por percentis: p50 (o caso típico), p95, p99, p99,9 (a cauda). Num sistema com p50 de 20 ms e p99 de 2 s, a média pode ficar em simpáticos 40 ms enquanto 1% dos usuários sofre — e esse 1% é justamente quem faz mais requisições, logo a chance de um usuário real encostar na cauda é bem maior que 1%.</p>
+  <p>Duas regras práticas: percentis <strong>não se somam</strong> (o p99 de uma chamada composta não é a soma dos p99), e percentis <strong>não se calculam a partir de médias</strong> de janelas agregadas — precisa de histograma.</p>
+</section>
+
+<section id="leis">
+  <h2 class="sec">As leis que limitam o ganho</h2>
+  <p class="sec-lead">Antes de otimizar, vale saber qual é o teto matemático do que você está prestes a fazer.</p>
+
+  <div class="law">
+    <h3>Lei de Amdahl — o limite da paralelização</h3>
+    <div class="formula">S(s) = 1 / ( (1 − <b>p</b>) + <b>p</b>/s )</div>
+    <p>Se <code>p</code> é a fração paralelizável e <code>s</code> o fator de aceleração dessa parte, o ganho total trava na parte serial. Com 90% paralelizável e infinitos núcleos, o teto é 10×. É o argumento mais forte contra "joga mais máquina nisso" — e a justificativa para atacar primeiro o trecho serial.</p>
+  </div>
+
+  <div class="law">
+    <h3>Lei de Gustafson — a réplica otimista</h3>
+    <p>Amdahl assume problema de tamanho fixo. Na prática, quando ganhamos máquina, aumentamos o problema (mais dados, mais usuários, mais modelo). Nesse regime o ganho escala bem melhor. Use Amdahl para raciocinar sobre <em>latência de uma tarefa</em> e Gustafson para <em>capacidade de um sistema</em>.</p>
+  </div>
+
+  <div class="law">
+    <h3>Lei Universal de Escalabilidade (Gunther) — a mais útil no dia a dia</h3>
+    <div class="formula">C(N) = N / ( 1 + <b>α</b>(N−1) + <b>β</b>N(N−1) )</div>
+    <p>Acrescenta a Amdahl um segundo custo: <code>α</code> é contenção (fila por recurso compartilhado) e <code>β</code> é coerência (o custo de manter réplicas/caches/nós de acordo). Como <code>β</code> cresce com N², existe um ponto em que <strong>adicionar nós piora o desempenho</strong>. Todo mundo que já viu throughput cair ao subir instâncias estava olhando para o termo β.</p>
+    <p>Aplicação prática: ajuste a curva USL sobre pontos reais de teste de carga (N = concorrência) e você obtém uma previsão do pico antes de bater nele em produção.</p>
+  </div>
+
+  <div class="law">
+    <h3>Lei de Little — a relação que fecha tudo</h3>
+    <div class="formula">L = <b>λ</b> × W &nbsp;&nbsp;(itens no sistema = chegada × tempo de resposta)</div>
+    <p>Simples e implacável: se chegam 500 req/s e cada uma leva 200 ms, há 100 requisições em voo — logo seu pool de conexões, threads ou workers precisa comportar isso. Serve para dimensionar pool, prever profundidade de fila e sanity-check de teste de carga (se os números não fecham, a medição está errada).</p>
+  </div>
+</section>
+
+<section id="filas">
+  <h2 class="sec">Filas, utilização e cauda</h2>
+  <p class="sec-lead">Performance em sistemas reais é, na maior parte, teoria de filas disfarçada.</p>
+  <p>Para uma fila simples com chegadas aleatórias, o tempo de espera cresce com o fator <code>1/(1−ρ)</code>, onde ρ é a utilização. Isso dá a famosa curva "taco de hóquei":</p>
+  <table>
+    <thead><tr><th>Utilização</th><th>Multiplicador da latência</th></tr></thead>
+    <tbody>
+      <tr><td class="num">50%</td><td class="num">2×</td></tr>
+      <tr><td class="num">70%</td><td class="num">3,3×</td></tr>
+      <tr><td class="num">80%</td><td class="num">5×</td></tr>
+      <tr><td class="num">90%</td><td class="num">10×</td></tr>
+      <tr><td class="num">95%</td><td class="num">20×</td></tr>
+      <tr><td class="num">99%</td><td class="num">100×</td></tr>
+    </tbody>
+  </table>
+  <p>Daí três consequências de projeto: capacidade acima de ~70% de utilização em recurso sensível a latência é ilusória; variabilidade de serviço (alguns pedidos muito caros) piora a fila mesmo com utilização baixa; e enfileirar sem limite transforma sobrecarga em colapso — <strong>fila ilimitada é um bug</strong>, não uma folga.</p>
+
+  <div class="warn">
+    <h3>Amplificação de cauda em fan-out</h3>
+    <p>Se uma requisição consulta 20 serviços em paralelo e espera todos, a chance de encostar na cauda de pelo menos um é alta: com p99 individual, a probabilidade de a requisição composta ser lenta chega a ~18%. Seu p50 vira o p99 dos outros. Mitigação: reduzir fan-out, tornar partes opcionais, usar deadline propagado e <em>hedged requests</em> (disparar a segunda cópia quando o p95 estoura).</p>
+  </div>
+</section>
+
+<section id="hardware">
+  <h2 class="sec">Onde o tempo se perde no hardware</h2>
+  <p class="sec-lead">O modelo mental de "uma instrução por vez, memória plana" morreu nos anos 1990. Código rápido é código que respeita como o processador realmente funciona.</p>
+
+  <h3>A hierarquia de memória manda</h3>
+  <p>A CPU é rápida demais para a DRAM; tudo é construído para esconder essa distância. Dados vêm em <strong>linhas de cache</strong> (64 bytes): ler 1 byte custa o mesmo que ler 64. Por isso uma estrutura de dados contígua percorrida em ordem é dramaticamente mais rápida que uma lista encadeada com os mesmos elementos espalhados, mesmo com a mesma complexidade assintótica. <code>O(n)</code> não diz nada sobre a constante, e a constante aqui vale 10–100×.</p>
+  <ul>
+    <li><strong>Localidade espacial e temporal</strong> — vetor sobre ponteiro; struct of arrays quando você só lê alguns campos.</li>
+    <li><strong>Prefetcher</strong> — acessos previsíveis (stride constante) são adivinhados pelo hardware; acesso aleatório não.</li>
+    <li><strong>Falso compartilhamento</strong> — duas threads escrevendo em variáveis diferentes na mesma linha de cache se anulam mutuamente. Custa padding para resolver.</li>
+    <li><strong>NUMA</strong> — em servidores multi-socket, memória "do outro soquete" custa bem mais; afinidade de thread e memória importa.</li>
+  </ul>
+
+  <h3>Dentro do núcleo</h3>
+  <ul>
+    <li><strong>Pipeline e previsão de desvio</strong> — um <code>if</code> imprevisível joga fora ~15–20 ciclos. Código sem ramificação (branchless) e dados ordenados ajudam.</li>
+    <li><strong>Execução fora de ordem e ILP</strong> — dependências entre instruções limitam o paralelismo; quebrar cadeias de dependência acelera laços.</li>
+    <li><strong>SIMD/vetorização</strong> — processar 4, 8 ou 16 elementos por instrução. Autovetorização do compilador só acontece se o laço for simples e sem aliasing.</li>
+    <li><strong>Custo de abstração</strong> — indireção virtual, boxing, alocação por item, exceções em caminho quente: cada camada elegante paga em cache miss.</li>
+  </ul>
+
+  <h3>Gerenciamento de memória e GC</h3>
+  <p>Em plataformas gerenciadas (.NET, Java, Go), a pressão de alocação costuma ser o gargalo real antes da CPU. Alocar barato não é o problema; <strong>coletar é</strong>. Objetos que sobrevivem à geração 0 e vazam para gerações antigas, arrays grandes indo para heap especial, e pausas de coleta aparecem exatamente como picos de p99. Estratégias: reduzir alocação por requisição, reaproveitar buffers (pooling), usar tipos por valor e <em>spans</em>/slices, evitar closures e concatenação em laço quente.</p>
+</section>
+
+<section id="concorrencia">
+  <h2 class="sec">Concorrência e contenção</h2>
+  <p class="sec-lead">Threads não são capacidade. São uma forma de sobrepor espera — e, mal usadas, uma nova fonte de fila.</p>
+  <ul>
+    <li><strong>Lock sem contenção é barato; com contenção é catastrófico.</strong> O custo não é o lock, é o bloqueio, a troca de contexto e a invalidação de cache que vem junto.</li>
+    <li><strong>Granularidade</strong> — locks finos reduzem contenção e aumentam risco de deadlock; sharding de estado (uma estrutura por partição) costuma ser a saída melhor.</li>
+    <li><strong>Estruturas lock-free</strong> resolvem casos específicos e não são universalmente mais rápidas; sob alta contenção elas trocam bloqueio por retrabalho.</li>
+    <li><strong>Assíncrono ≠ rápido.</strong> I/O assíncrono aumenta a concorrência suportada com menos threads; não reduz a latência de uma requisição isolada.</li>
+    <li><strong>Pools</strong> (thread, conexão, HTTP client) são a materialização da Lei de Little. Dimensione a partir de λ e W, não por chute — e nunca deixe pool crescer sem limite.</li>
+    <li><strong>Contrapressão</strong> — quando o consumidor não dá conta, o sistema precisa desacelerar o produtor ou rejeitar. Sem isso, a memória vira a fila.</li>
+    <li><strong>Isolamento (bulkhead)</strong> — separar pools por dependência evita que um downstream lento consuma todas as threads do serviço.</li>
+  </ul>
+</section>
+
+<section id="distribuidos">
+  <h2 class="sec">Sistemas distribuídos</h2>
+  <p class="sec-lead">Aqui o custo dominante deixa de ser instrução e passa a ser viagem: cada salto de rede é, em ordem de grandeza, um universo inteiro de CPU desperdiçado.</p>
+  <ul>
+    <li><strong>Conversa demais (chattiness)</strong> — o clássico N+1 em API distribuída. Uma chamada que devolve 100 itens e 100 chamadas de 1 item têm custo brutalmente diferente. Prefira lotes e agregação.</li>
+    <li><strong>Serialização</strong> — JSON é confortável e caro; formatos binários (Protobuf, Avro) reduzem CPU e banda. Meça: em serviço "leve", serializar costuma ser o maior consumidor de CPU.</li>
+    <li><strong>Handshake e conexão</strong> — TCP + TLS custa RTTs; sem keep-alive e pool de conexões você paga isso em toda chamada.</li>
+    <li><strong>Cache</strong> — a otimização de maior alavancagem e a de maior risco. Decida explicitamente: onde fica (cliente, borda/CDN, aplicação, distribuído), qual TTL, como invalida, o que acontece no <em>cache stampede</em> (use bloqueio de repopulação ou expiração com jitter).</li>
+    <li><strong>Timeout, retry e jitter</strong> — timeout sem retry desperdiça; retry sem limite e sem jitter cria tempestade sincronizada e derruba o serviço que estava só lento.</li>
+    <li><strong>Deadline propagado</strong> — o prazo do usuário deve viajar com a requisição: trabalho cuja resposta ninguém mais espera é puro consumo de capacidade.</li>
+    <li><strong>Degradação graciosa</strong> — responder incompleto e rápido é melhor que completo e tarde. Circuit breaker, shedding de carga e resposta parcial são decisões de performance, não só de resiliência.</li>
+  </ul>
+</section>
+
+<section id="dados">
+  <h2 class="sec">Dados e persistência</h2>
+  <p class="sec-lead">Na maioria dos sistemas corporativos, o gargalo está no banco — e no acesso a ele, não dentro dele.</p>
+  <ul>
+    <li><strong>Índices</strong> — entenda o plano de execução antes de criar. Índice resolve leitura e onera escrita; índice não usado é custo puro.</li>
+    <li><strong>Seletividade e cardinalidade</strong> — o otimizador decide com estatísticas; estatísticas desatualizadas produzem planos catastróficos que "aparecem do nada".</li>
+    <li><strong>Estrutura de armazenamento</strong> — B-tree favorece leitura e atualização pontual; LSM-tree favorece escrita intensa ao custo de amplificação de leitura e compactação. Orientado a coluna vence em análise agregada.</li>
+    <li><strong>Amplificação</strong> — de leitura, de escrita e de espaço: os três eixos de compromisso de qualquer motor de armazenamento.</li>
+    <li><strong>Transações e isolamento</strong> — nível de isolamento mais forte custa bloqueio; transação longa é a maior fonte de contenção em OLTP.</li>
+    <li><strong>Paginação por offset</strong> degrada linearmente; paginação por cursor (keyset) é constante.</li>
+    <li><strong>Volume de dados trafegado</strong> — <code>SELECT *</code>, resultado sem limite e ORM materializando grafo inteiro são gargalos disfarçados de conveniência.</li>
+  </ul>
+</section>
+
+<section id="metodo">
+  <h2 class="sec">Método de investigação</h2>
+  <p class="sec-lead">A diferença entre engenharia de performance e tentativa e erro é ter um método que termina.</p>
+
+  <h3>USE — para recursos (Brendan Gregg)</h3>
+  <p>Para cada recurso (CPU, memória, disco, rede, interconexão), verifique <strong>utilização</strong>, <strong>saturação</strong> e <strong>erros</strong>. É um varredor completo: percorrer a lista de recursos encontra o gargalo sem depender de palpite.</p>
+
+  <h3>RED / Sinais Dourados — para serviços</h3>
+  <p>Para cada serviço: taxa de requisições, taxa de erros, distribuição de duração (RED). Os Sinais Dourados do SRE acrescentam saturação. É a visão de fora, do ponto de vista de quem sofre.</p>
+
+  <h3>Análise da carga vs. análise do recurso</h3>
+  <p>Duas direções complementares: partir do trabalho que chega (o que o sistema está sendo pedido a fazer, e isso é razoável?) ou partir do recurso (o que está saturado e por quê?). Quando as duas convergem no mesmo ponto, você achou o gargalo.</p>
+
+  <h3>Perfilamento</h3>
+  <ul>
+    <li><strong>Amostragem</strong> (sampling): interrompe periodicamente e registra a pilha. Baixo overhead, adequado em produção, estatístico.</li>
+    <li><strong>Instrumentação</strong>: conta e cronometra pontos específicos. Preciso, com overhead e risco de distorcer o que mede.</li>
+    <li><strong>Flame graph</strong>: pilhas agregadas por largura = tempo. A leitura é horizontal (quem consome), não vertical.</li>
+    <li><strong>Off-CPU</strong>: metade dos problemas é tempo <em>esperando</em>, e não aparece em profiler de CPU. Perfilar bloqueio, I/O e lock é obrigatório.</li>
+    <li><strong>Rastreamento distribuído</strong>: em arquitetura de serviços, o span é o que localiza o salto culpado.</li>
+  </ul>
+</section>
+
+<section id="medicao">
+  <h2 class="sec">Medir sem se enganar</h2>
+  <p class="sec-lead">A maior parte dos números de performance que circulam em apresentações não sobreviveria a uma revisão estatística.</p>
+  <ul>
+    <li><strong>Aquecimento</strong> — em runtime com JIT, as primeiras execuções medem o compilador, não o código. Descarte o warmup; e lembre que em produção com escalonamento frequente o warmup é problema real, não artefato.</li>
+    <li><strong>Microbenchmark mente</strong> — o compilador elimina código sem efeito, o dado cabe inteiro no cache e não há concorrência. Use ferramenta séria (BenchmarkDotNet, JMH, Criterion) e desconfie do resultado mesmo assim.</li>
+    <li><strong>Variação é informação</strong> — reporte mediana e dispersão, não o melhor caso. Ambiente ruidoso (nuvem compartilhada, frequência variável, vizinho barulhento) exige repetição.</li>
+    <li><strong>Omissão coordenada</strong> — armadilha clássica de teste de carga: se o gerador espera a resposta para enviar a próxima, ele deixa de registrar justamente o período em que o sistema travou, e o p99 sai lindo. Gere carga em taxa fixa.</li>
+    <li><strong>Carga realista</strong> — distribuição de chaves, tamanho de payload, proporção leitura/escrita e cache frio ou quente mudam tudo. Teste com dados parecidos com os reais.</li>
+    <li><strong>Uma variável por vez</strong> — e registre o experimento. Sem hipótese anotada antes, "melhorou" vira anedota.</li>
+    <li><strong>Meça onde dói</strong> — a métrica que vale é a do usuário na ponta, não a do seu <code>Stopwatch</code> interno.</li>
+  </ul>
+</section>
+
+<section id="playbook">
+  <h2 class="sec">Playbook de aplicação</h2>
+  <p class="sec-lead">Uma sequência que funciona tanto para otimizar um serviço quanto para conduzir uma força-tarefa de performance.</p>
+
+  <ol class="steps">
+    <li>
+      <h3>Definir o objetivo em número</h3>
+      <p>"Rápido" não é meta. "p99 de 300 ms a 2.000 req/s com custo por transação ≤ X" é. Sem alvo explícito, a otimização não tem critério de parada e consome time indefinidamente.</p>
+    </li>
+    <li>
+      <h3>Estabelecer a linha de base</h3>
+      <p>Medir o estado atual com carga representativa e registrar. Tudo depois disso é comparação contra esse ponto.</p>
+    </li>
+    <li>
+      <h3>Localizar o gargalo, não adivinhar</h3>
+      <p>USE nos recursos, RED nos serviços, rastreamento para achar o salto, profiler para achar a função. Só existe um gargalo dominante por vez — encontre-o antes de mexer em qualquer coisa.</p>
+    </li>
+    <li>
+      <h3>Formular uma hipótese com magnitude esperada</h3>
+      <p>"Se eu remover essa serialização dupla, ganho ~30% do tempo de CPU deste serviço." Se você não consegue estimar o ganho, ainda não entendeu o gargalo.</p>
+    </li>
+    <li>
+      <h3>Subir um nível antes de descer</h3>
+      <p>A ordem de alavancagem quase sempre é: <em>não fazer o trabalho</em> (cache, eliminar chamada, lazy) &gt; <em>fazer menos vezes</em> (lote, deduplicação) &gt; <em>fazer melhor</em> (algoritmo, estrutura de dados, índice) &gt; <em>fazer mais rápido</em> (micro-otimização, SIMD) &gt; <em>fazer em mais máquinas</em> (escala). Micro-otimizar algo que não precisava existir é o erro mais comum de engenheiro sênior.</p>
+    </li>
+    <li>
+      <h3>Aplicar uma mudança e medir</h3>
+      <p>Isolada, versionada, com rollback pronto. Ganho abaixo do previsto é sinal de que a hipótese estava errada — e isso é informação valiosa.</p>
+    </li>
+    <li>
+      <h3>Reavaliar: o gargalo se moveu</h3>
+      <p>Toda otimização bem-sucedida cria um novo gargalo em outro lugar. Repita do passo 3 até atingir a meta ou até o custo do próximo ganho superar o benefício.</p>
+    </li>
+    <li>
+      <h3>Proteger o ganho</h3>
+      <p>Teste de performance no pipeline com limiar, painel com percentis e alerta em saturação. Sem isso, a regressão volta na terceira sprint e ninguém percebe até o incidente.</p>
+    </li>
+  </ol>
+</section>
+
+<section id="antipadroes">
+  <h2 class="sec">Antipadrões</h2>
+  <ul>
+    <li><strong>Otimizar sem medir</strong> — a intuição sobre onde o tempo é gasto erra na maioria das vezes, inclusive a de quem escreveu o código.</li>
+    <li><strong>Medir só a média</strong> — e declarar vitória enquanto a cauda mata a experiência.</li>
+    <li><strong>Escalar horizontalmente para esconder ineficiência</strong> — funciona até o termo β da USL cobrar, e a conta de nuvem chega antes disso.</li>
+    <li><strong>Cachear para não consertar</strong> — cache sobre consulta ruim posterga o problema e adiciona invalidação como novo problema.</li>
+    <li><strong>Timeout generoso</strong> — mantém threads presas e transforma lentidão de um serviço em indisponibilidade de todos.</li>
+    <li><strong>Ambiente de teste 10× menor</strong> — resultado não extrapola; comportamento de cache, fila e GC muda de regime.</li>
+    <li><strong>Benchmark de fornecedor</strong> — feito na carga em que aquele produto vence. Reproduza com a sua.</li>
+    <li><strong>Performance como fase final</strong> — decisões de arquitetura (granularidade de serviço, modelo de dados, formato de integração) fixam 80% do teto muito antes do primeiro profiler rodar.</li>
+  </ul>
+</section>
+
+<section id="custo">
+  <h2 class="sec">Performance e custo</h2>
+  <p class="sec-lead">Em nuvem, performance e FinOps são a mesma disciplina vista de dois ângulos: cada milissegundo de CPU desperdiçado tem preço de tabela.</p>
+  <p>A métrica que une as duas conversas é <strong>custo por transação de negócio</strong> — não custo por instância nem tempo de resposta isolado. Ela deixa explícito o compromisso: reduzir p99 replicando cache distribuído pode custar mais que reescrever a consulta; migrar para instância maior pode sair mais barato que três semanas de engenharia.</p>
+  <ul>
+    <li><strong>Eficiência = trabalho útil por unidade de recurso.</strong> Densidade (quantas transações por vCPU) é o número que você defende em comitê.</li>
+    <li><strong>Elasticidade tem latência.</strong> Escalar automático não cobre pico abrupto; o tempo de subida somado ao warmup é o seu período de degradação.</li>
+    <li><strong>Serverless muda o alvo</strong> — cold start, tempo de inicialização e alocação de memória viram variáveis de performance e de custo simultaneamente.</li>
+    <li><strong>Dado em movimento custa duas vezes</strong> — latência e transferência. Colocalizar computação e dados é decisão de arquitetura com efeito nas duas contas.</li>
+    <li><strong>Defina o alvo em conjunto</strong>: meta de latência <em>e</em> teto de custo. Só uma das duas sempre produz a solução errada.</li>
+  </ul>
+</section>
+
+<section id="livros">
+  <h2 class="sec">Biblioteca</h2>
+  <p class="sec-lead">As referências que sustentam tudo acima. Comece pelas marcadas como <span class="tag">base</span>.</p>
+
+  <h3>Fundamentos e método</h3>
+  <ul class="books">
+    <li>
+      <span class="t">Systems Performance: Enterprise and the Cloud <span class="tag">base</span></span>
+      <span class="a">Brendan Gregg — 2ª ed., 2020</span>
+      <p class="why">O manual definitivo de performance de sistemas. Origem do método USE, cobre CPU, memória, disco, rede, kernel e nuvem com ferramental prático. Se for ler um só livro da lista, é este.</p>
+    </li>
+    <li>
+      <span class="t">BPF Performance Tools</span>
+      <span class="a">Brendan Gregg — 2019</span>
+      <p class="why">Continuação instrumental: observabilidade profunda em Linux com eBPF, para quando o profiler comum não alcança.</p>
+    </li>
+    <li>
+      <span class="t">The Art of Computer Systems Performance Analysis</span>
+      <span class="a">Raj Jain — 1991</span>
+      <p class="why">O clássico acadêmico sobre como medir direito: desenho de experimentos, estatística, simulação, teoria de filas. Antigo no exemplo, atual no raciocínio — é o antídoto contra benchmark mal feito.</p>
+    </li>
+    <li>
+      <span class="t">Guerrilla Capacity Planning</span>
+      <span class="a">Neil Gunther — 2007</span>
+      <p class="why">Onde a Lei Universal de Escalabilidade é desenvolvida e aplicada. Ensina a prever o ponto de saturação com poucos dados e pouco tempo.</p>
+    </li>
+    <li>
+      <span class="t">The Every Computer Performance Book</span>
+      <span class="a">Bob Wescott — 2013</span>
+      <p class="why">Curto, direto e pragmático. Boa porta de entrada para quem quer o essencial de capacity planning e medição sem mergulhar na matemática.</p>
+    </li>
+  </ul>
+
+  <h3>Arquitetura de máquina e código de baixo nível</h3>
+  <ul class="books">
+    <li>
+      <span class="t">Computer Architecture: A Quantitative Approach</span>
+      <span class="a">John Hennessy e David Patterson — 6ª ed.</span>
+      <p class="why">A referência sobre por que o hardware se comporta como se comporta: pipeline, hierarquia de memória, paralelismo, aceleradores. Denso e recompensador.</p>
+    </li>
+    <li>
+      <span class="t">Performance Analysis and Tuning on Modern CPUs</span>
+      <span class="a">Denis Bakhvalov — 2020</span>
+      <p class="why">Ponte prática entre microarquitetura e código: contadores de hardware, análise top-down, otimizações reais em CPU moderna. Disponível gratuitamente pelo autor.</p>
+    </li>
+    <li>
+      <span class="t">Computer Systems: A Programmer's Perspective</span>
+      <span class="a">Randal Bryant e David O'Hallaron</span>
+      <p class="why">Explica o que acontece entre o seu código e o processador — memória, ligação, exceções, I/O. Fecha as lacunas de quem aprendeu programação pela camada de cima.</p>
+    </li>
+    <li>
+      <span class="t">Writing Efficient Programs</span>
+      <span class="a">Jon Bentley — 1982</span>
+      <p class="why">Clássico esgotado mas circulante, e as ideias de <em>Programming Pearls</em> do mesmo autor seguem sendo a melhor aula sobre trocar trabalho por estrutura de dados.</p>
+    </li>
+  </ul>
+
+  <h3>Concorrência</h3>
+  <ul class="books">
+    <li>
+      <span class="t">The Art of Multiprocessor Programming</span>
+      <span class="a">Maurice Herlihy e Nir Shavit</span>
+      <p class="why">Fundamento teórico e prático de estruturas concorrentes, lock-free e modelos de memória. Exigente, e a base de qualquer discussão séria sobre contenção.</p>
+    </li>
+    <li>
+      <span class="t">Java Concurrency in Practice</span>
+      <span class="a">Brian Goetz et al. — 2006</span>
+      <p class="why">Mesmo fora do ecossistema Java, é a melhor explicação disponível sobre visibilidade, publicação segura e desenho de pools.</p>
+    </li>
+  </ul>
+
+  <h3>Plataformas gerenciadas</h3>
+  <ul class="books">
+    <li>
+      <span class="t">Pro .NET Memory Management <span class="tag">base</span></span>
+      <span class="a">Konrad Kokosa — 2018</span>
+      <p class="why">Referência definitiva sobre alocação, gerações, GC e vazamentos no .NET. Se a plataforma é .NET, este livro paga o investimento na primeira análise de p99.</p>
+    </li>
+    <li>
+      <span class="t">Writing High-Performance .NET Code</span>
+      <span class="a">Ben Watson — 2ª ed., 2018</span>
+      <p class="why">Mais aplicado: padrões concretos, medição com ETW/PerfView e as armadilhas de custo de abstração em serviços de alta carga.</p>
+    </li>
+    <li>
+      <span class="t">Java Performance / Optimizing Java</span>
+      <span class="a">Scott Oaks; Benjamin Evans, James Gough e Chris Newland</span>
+      <p class="why">Equivalentes do lado JVM: JIT, coletores, tuning e metodologia de benchmark com JMH.</p>
+    </li>
+    <li>
+      <span class="t">Efficient Go</span>
+      <span class="a">Bartłomiej Płotka — 2022</span>
+      <p class="why">Excelente mesmo para quem não escreve Go: o capítulo sobre eficiência como requisito de engenharia e o fluxo de otimização orientado a dados são transferíveis.</p>
+    </li>
+  </ul>
+
+  <h3>Dados, distribuídos e produção</h3>
+  <ul class="books">
+    <li>
+      <span class="t">Designing Data-Intensive Applications <span class="tag">base</span></span>
+      <span class="a">Martin Kleppmann — 2017</span>
+      <p class="why">A referência moderna sobre compromissos em sistemas de dados: replicação, particionamento, consistência, processamento de fluxo. O capítulo sobre percentis e cauda vale sozinho.</p>
+    </li>
+    <li>
+      <span class="t">Database Internals</span>
+      <span class="a">Alex Petrov — 2019</span>
+      <p class="why">Como motores de armazenamento realmente funcionam: B-tree vs. LSM, amplificação, consenso. Transforma "o banco está lento" em diagnóstico.</p>
+    </li>
+    <li>
+      <span class="t">Release It!</span>
+      <span class="a">Michael Nygard — 2ª ed., 2018</span>
+      <p class="why">Padrões e antipadrões de estabilidade sob carga — circuit breaker, bulkhead, timeouts, falhas em cascata. Performance vista pelo ângulo do que quebra às 3h.</p>
+    </li>
+    <li>
+      <span class="t">Site Reliability Engineering</span>
+      <span class="a">Google — 2016, leitura gratuita</span>
+      <p class="why">Origem dos Sinais Dourados, SLO e orçamento de erro: o vocabulário para negociar metas de performance com o negócio.</p>
+    </li>
+    <li>
+      <span class="t">High Performance Browser Networking</span>
+      <span class="a">Ilya Grigorik — 2013, leitura gratuita</span>
+      <p class="why">TCP, TLS, HTTP/2 e latência de rede explicados com rigor. Indispensável para quem projeta APIs e integrações sensíveis a RTT.</p>
+    </li>
+  </ul>
+</section>
+
+<section id="trilha">
+  <h2 class="sec">Trilha de estudo</h2>
+  <p class="sec-lead">Uma ordem que funciona: cada etapa fornece o vocabulário da seguinte.</p>
+  <ol class="steps">
+    <li>
+      <h3>Fundamentos de medição</h3>
+      <p>Percentis, Lei de Little, filas e utilização. Aplique imediatamente: pegue um serviço que você conhece e responda quantas requisições ele tem em voo no pico.</p>
+    </li>
+    <li>
+      <h3>Método e ferramental</h3>
+      <p>USE e RED, profiler de amostragem, flame graph e rastreamento distribuído. Meta prática: encontrar um gargalo real sem palpite, do sinal até a linha de código.</p>
+    </li>
+    <li>
+      <h3>Máquina</h3>
+      <p>Hierarquia de memória, cache, previsão de desvio e GC da sua plataforma. Exercício: escreva duas versões do mesmo laço com localidade diferente e meça o fator.</p>
+    </li>
+    <li>
+      <h3>Escala</h3>
+      <p>Amdahl, Gustafson e USL ajustada sobre dados reais de teste de carga. Entregável: a curva de escalabilidade de um serviço seu, com o pico previsto.</p>
+    </li>
+    <li>
+      <h3>Sistema</h3>
+      <p>Cauda em fan-out, cache, contrapressão, degradação graciosa e custo por transação. É onde arquitetura e performance viram a mesma conversa.</p>
+    </li>
+  </ol>
+</section>
+
+<footer>
+  <p>Material de estudo. Os números de latência são ordens de grandeza aproximadas para hardware de servidor contemporâneo — sempre meça no seu ambiente antes de decidir.</p>
+</footer>
+
+</main>
+<a href="../../index.html" class="hub-back" aria-label="Voltar ao índice do hub">◂ HUB</a>
+<style>.hub-back{position:fixed;left:16px;bottom:16px;z-index:9999;font:600 12px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;color:#35E0FF!important;background:rgba(6,10,18,.88)!important;border:1px solid rgba(53,224,255,.45);padding:9px 13px;border-radius:999px;text-decoration:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 0 18px rgba(53,224,255,.25)}.hub-back:hover{background:#35E0FF!important;color:#060A12!important}@media print{.hub-back{display:none}}</style>
+</body>
+</html>

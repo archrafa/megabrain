@@ -1,0 +1,1230 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prancha Python</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#F1F4F6;
+    --surface:#FFFFFF;
+    --surface-2:#E7ECEF;
+    --ink:#16263A;
+    --ink-soft:#45596B;
+    --line:#C7D2D9;
+    --line-strong:#9FB0BB;
+    --blue:#2C5F8A;
+    --blue-soft:#E4ECF2;
+    --brass:#A9691E;
+    --brass-soft:#F3E3CE;
+    --ok:#3F7A57;
+    --ok-soft:#DCEFE3;
+    --warn:#9C4A3C;
+    --warn-soft:#F5E0DC;
+    --font-display:'IBM Plex Sans Condensed', Arial Narrow, sans-serif;
+    --font-body:'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    --font-mono:'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0E2A43;
+      --surface:#123655;
+      --surface-2:#0C2740;
+      --ink:#E7F0F6;
+      --ink-soft:#AFC7D9;
+      --line:#2E5776;
+      --line-strong:#3E6E90;
+      --blue:#82BEE6;
+      --blue-soft:#173F60;
+      --brass:#E3A857;
+      --brass-soft:#3A2C15;
+      --ok:#86C9A4;
+      --ok-soft:#173A2B;
+      --warn:#E29280;
+      --warn-soft:#3A211C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0E2A43; --surface:#123655; --surface-2:#0C2740; --ink:#E7F0F6; --ink-soft:#AFC7D9;
+    --line:#2E5776; --line-strong:#3E6E90; --blue:#82BEE6; --blue-soft:#173F60;
+    --brass:#E3A857; --brass-soft:#3A2C15; --ok:#86C9A4; --ok-soft:#173A2B; --warn:#E29280; --warn-soft:#3A211C;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--brass-soft); color:var(--ink);}
+  a{color:var(--blue);}
+  button{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--blue); outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  .app{display:flex; min-height:100vh;}
+
+  /* ---------- Sidebar ---------- */
+  .nav{
+    width:308px; flex-shrink:0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 23px, color-mix(in srgb, var(--line) 45%, transparent) 24px),
+      repeating-linear-gradient(90deg, transparent, transparent 23px, color-mix(in srgb, var(--line) 45%, transparent) 24px),
+      var(--surface-2);
+    background-blend-mode:normal;
+    border-right:1px solid var(--line);
+    position:sticky; top:0; height:100vh; overflow-y:auto;
+    display:flex; flex-direction:column;
+  }
+  .nav-head{padding:22px 20px 16px; border-bottom:1px solid var(--line);}
+  .brand{display:flex; align-items:baseline; gap:8px; margin:0;}
+  .brand-mark{
+    font-family:var(--font-mono); font-weight:600; font-size:12px; letter-spacing:.14em;
+    color:var(--brass); border:1px solid var(--brass); padding:2px 5px; border-radius:3px;
+  }
+  .brand-title{font-family:var(--font-display); font-weight:700; font-size:1.28rem; letter-spacing:.01em; margin:0;}
+  .brand-sub{margin:4px 0 0; font-size:.78rem; color:var(--ink-soft); font-family:var(--font-mono); letter-spacing:.04em;}
+
+  .progress-wrap{margin-top:16px;}
+  .progress-track{
+    position:relative; height:6px; background:var(--line); border-radius:3px; overflow:hidden;
+  }
+  .progress-fill{
+    position:absolute; inset:0 auto 0 0; width:0%; background:var(--brass);
+    transition:width .4s ease;
+  }
+  .progress-label{
+    margin-top:6px; font-family:var(--font-mono); font-size:.72rem; color:var(--ink-soft); letter-spacing:.03em;
+  }
+
+  .nav-search{padding:12px 20px; border-bottom:1px solid var(--line);}
+  .nav-search input{
+    width:100%; background:var(--surface); border:1px solid var(--line); border-radius:4px;
+    padding:7px 10px; font-size:.85rem; color:var(--ink); font-family:var(--font-body);
+  }
+  .nav-search input::placeholder{color:var(--ink-soft);}
+
+  .nav-list{padding:8px 12px 24px; overflow-y:auto; flex:1;}
+  details.mod{margin-bottom:2px;}
+  details.mod > summary{
+    list-style:none; cursor:pointer; display:flex; align-items:center; gap:10px;
+    padding:9px 8px; border-radius:4px; font-family:var(--font-display); font-weight:600;
+    font-size:.95rem; color:var(--ink);
+  }
+  details.mod > summary::-webkit-details-marker{display:none;}
+  details.mod > summary:hover{background:var(--blue-soft);}
+  .mod-num{
+    font-family:var(--font-mono); font-weight:600; font-size:.72rem; color:var(--blue);
+    letter-spacing:.05em; flex-shrink:0; width:34px;
+  }
+  .mod-title{flex:1; min-width:0;}
+  .mod-count{font-family:var(--font-mono); font-size:.7rem; color:var(--ink-soft); flex-shrink:0;}
+  .mod-caret{flex-shrink:0; width:10px; height:10px; border-right:2px solid var(--ink-soft); border-bottom:2px solid var(--ink-soft); transform:rotate(-45deg); transition:transform .15s ease; margin-right:2px;}
+  details[open] > summary .mod-caret{transform:rotate(45deg);}
+
+  .lesson-list{list-style:none; margin:2px 0 10px; padding:0 0 0 34px; border-left:1px solid var(--line); margin-left:16px;}
+  .lesson-item{margin:1px 0;}
+  .lesson-btn{
+    display:flex; align-items:center; gap:9px; width:100%; text-align:left; background:none; border:none;
+    padding:6px 8px; border-radius:4px; cursor:pointer; color:var(--ink-soft); font-size:.86rem;
+  }
+  .lesson-btn:hover{background:var(--blue-soft); color:var(--ink);}
+  .lesson-btn.active{background:var(--surface); color:var(--ink); box-shadow:inset 2px 0 0 var(--brass);}
+  .chk{
+    width:13px; height:13px; border:1.5px solid var(--line-strong); border-radius:2px; flex-shrink:0;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .chk.done{background:var(--ok); border-color:var(--ok);}
+  .chk.done::after{content:''; width:5px; height:8px; border-right:1.5px solid var(--surface); border-bottom:1.5px solid var(--surface); transform:rotate(45deg) translate(-1px,-1px);}
+  .lesson-num{font-family:var(--font-mono); font-size:.72rem; color:var(--ink-soft); flex-shrink:0;}
+
+  /* ---------- Main ---------- */
+  main{flex:1; min-width:0; display:flex; justify-content:center;}
+  .sheet{width:100%; max-width:740px; padding:52px 40px 110px;}
+
+  .titleblock{
+    display:flex; justify-content:space-between; align-items:flex-end; gap:16px;
+    padding-bottom:14px; border-bottom:2px solid var(--ink); margin-bottom:26px;
+  }
+  .tb-left{font-family:var(--font-mono); font-size:.76rem; letter-spacing:.08em; color:var(--ink-soft);}
+  .tb-left b{color:var(--blue);}
+  .tb-right{display:flex; align-items:center; gap:10px; flex-shrink:0;}
+  .chip{
+    font-family:var(--font-mono); font-size:.7rem; letter-spacing:.05em; padding:3px 8px; border-radius:20px;
+    border:1px solid var(--line-strong); color:var(--ink-soft);
+  }
+  .chip.ok{background:var(--ok-soft); color:var(--ok); border-color:transparent;}
+
+  h1.lesson-title{
+    font-family:var(--font-display); font-size:2.15rem; font-weight:700; margin:0 0 30px;
+    text-wrap:balance; letter-spacing:-.01em;
+  }
+  .lesson-body{max-width:64ch;}
+  .lesson-body h2{
+    font-family:var(--font-display); font-size:1.18rem; font-weight:600; margin:34px 0 10px;
+    color:var(--ink); text-wrap:balance;
+  }
+  .lesson-body p{margin:0 0 14px; color:var(--ink);}
+  .lesson-body p.lede{font-size:1.05rem; color:var(--ink-soft);}
+  .lesson-body ul, .lesson-body ol{margin:0 0 16px; padding-left:1.2em;}
+  .lesson-body li{margin-bottom:6px;}
+  .lesson-body code.inline{
+    font-family:var(--font-mono); background:var(--blue-soft); color:var(--ink);
+    padding:1px 5px; border-radius:3px; font-size:.88em;
+  }
+
+  .codeblock{
+    position:relative; background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--blue);
+    border-radius:5px; margin:0 0 20px; overflow-x:auto;
+  }
+  .codeblock .tag{
+    position:absolute; top:8px; right:12px; font-family:var(--font-mono); font-size:.65rem;
+    letter-spacing:.1em; color:var(--ink-soft); opacity:.6;
+  }
+  .codeblock pre{margin:0; padding:16px 18px; font-family:var(--font-mono); font-size:.84rem; line-height:1.65;}
+  .tk-kw{color:var(--blue); font-weight:600;}
+  .tk-str{color:var(--ok);}
+  .tk-com{color:var(--ink-soft); font-style:italic;}
+  .tk-num{color:var(--brass);}
+  .tk-def{color:var(--warn); font-weight:600;}
+
+  .note{
+    display:flex; gap:12px; background:var(--brass-soft); border:1px solid color-mix(in srgb, var(--brass) 40%, transparent);
+    border-left:3px solid var(--brass); border-radius:5px; padding:14px 16px; margin:0 0 22px;
+  }
+  .note .n-icon{
+    font-family:var(--font-mono); font-weight:700; font-size:.7rem; color:var(--brass); flex-shrink:0;
+    writing-mode:vertical-rl; text-orientation:mixed; letter-spacing:.1em;
+  }
+  .note .n-label{font-family:var(--font-display); font-weight:600; font-size:.78rem; letter-spacing:.08em; color:var(--brass); text-transform:uppercase; display:block; margin-bottom:4px;}
+  .note p{margin:0; color:var(--ink); font-size:.94rem;}
+
+  .check{border:1px dashed var(--line-strong); border-radius:5px; padding:16px 18px; margin:0 0 26px; background:color-mix(in srgb, var(--surface) 60%, transparent);}
+  .check .c-label{font-family:var(--font-mono); font-size:.7rem; letter-spacing:.1em; color:var(--ink-soft); text-transform:uppercase; display:block; margin-bottom:10px;}
+  .check .c-prompt{font-weight:500; margin:0 0 12px;}
+  .opt-list{display:flex; flex-direction:column; gap:7px; margin-bottom:4px;}
+  .opt{
+    text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:4px;
+    padding:9px 12px; cursor:pointer; font-size:.9rem; color:var(--ink); font-family:var(--font-body);
+  }
+  .opt:hover{border-color:var(--blue);}
+  .opt.correct{background:var(--ok-soft); border-color:var(--ok); color:var(--ink);}
+  .opt.wrong{background:var(--warn-soft); border-color:var(--warn); color:var(--ink);}
+  .opt[disabled]{cursor:default;}
+  .c-explain{margin-top:10px; padding-top:10px; border-top:1px solid var(--line); font-size:.88rem; color:var(--ink-soft);}
+  .reveal-btn{
+    background:var(--ink); color:var(--surface); border:none; border-radius:4px; padding:8px 14px;
+    font-size:.82rem; font-family:var(--font-mono); cursor:pointer; letter-spacing:.03em;
+  }
+  .out-block{margin-top:12px; display:none;}
+  .out-block.show{display:block;}
+  .out-block .out-label{font-family:var(--font-mono); font-size:.68rem; letter-spacing:.1em; color:var(--ok); text-transform:uppercase; display:block; margin-bottom:6px;}
+
+  .lesson-footer{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:44px; padding-top:20px; border-top:1px solid var(--line);}
+  .nav-btn{
+    display:flex; flex-direction:column; gap:2px; background:none; border:1px solid var(--line); border-radius:5px;
+    padding:9px 14px; cursor:pointer; color:var(--ink); flex:1 1 0; min-width:0; max-width:42%;
+  }
+  .nav-btn:hover{border-color:var(--blue);}
+  .nav-btn .k{font-family:var(--font-mono); font-size:.65rem; color:var(--ink-soft); letter-spacing:.08em;}
+  .nav-btn .t{display:block; min-width:0; font-size:.85rem; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .nav-btn.next{text-align:right;}
+  .nav-btn[disabled]{opacity:.35; cursor:default;}
+  .done-toggle{
+    flex-shrink:0; background:var(--ok); color:var(--surface); border:none; border-radius:5px;
+    padding:10px 16px; font-family:var(--font-display); font-weight:600; font-size:.86rem; cursor:pointer;
+    letter-spacing:.02em;
+  }
+  .done-toggle.undone{background:var(--surface); color:var(--ink); border:1px solid var(--line-strong);}
+
+  /* ---------- Cover / home ---------- */
+  .cover-eyebrow{font-family:var(--font-mono); font-size:.78rem; letter-spacing:.12em; color:var(--brass); text-transform:uppercase; margin:0 0 12px;}
+  h1.cover-title{font-family:var(--font-display); font-size:2.6rem; font-weight:700; margin:0 0 16px; text-wrap:balance; letter-spacing:-.01em;}
+  .cover-lede{font-size:1.08rem; color:var(--ink-soft); max-width:60ch; margin:0 0 28px;}
+  .cover-cta{display:flex; gap:12px; margin-bottom:44px; flex-wrap:wrap;}
+  .btn-primary{
+    background:var(--brass); color:#fff; border:none; border-radius:5px; padding:12px 22px;
+    font-family:var(--font-display); font-weight:600; font-size:.95rem; cursor:pointer; letter-spacing:.02em;
+  }
+  .btn-secondary{
+    background:none; color:var(--ink); border:1px solid var(--line-strong); border-radius:5px; padding:12px 22px;
+    font-family:var(--font-display); font-weight:600; font-size:.95rem; cursor:pointer;
+  }
+  .index-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:14px;}
+  .index-card{
+    border:1px solid var(--line); border-radius:6px; background:var(--surface); padding:16px 18px; cursor:pointer;
+    text-align:left; display:flex; flex-direction:column; gap:6px;
+  }
+  .index-card:hover{border-color:var(--blue);}
+  .index-card .ic-top{display:flex; justify-content:space-between; align-items:center;}
+  .index-card .ic-num{font-family:var(--font-mono); font-size:.75rem; color:var(--blue); font-weight:600; letter-spacing:.04em;}
+  .index-card .ic-frac{font-family:var(--font-mono); font-size:.7rem; color:var(--ink-soft);}
+  .index-card .ic-title{font-family:var(--font-display); font-weight:600; font-size:1rem; color:var(--ink);}
+
+  /* ---------- Mobile ---------- */
+  .mobile-bar{display:none;}
+  @media (max-width:880px){
+    .app{position:relative;}
+    main{flex-direction:column; justify-content:flex-start; align-items:stretch;}
+    .nav{
+      position:fixed; z-index:20; left:0; top:0; height:100dvh; transform:translateX(-100%);
+      transition:transform .22s ease; box-shadow:2px 0 24px rgba(0,0,0,.25);
+    }
+    .nav.open{transform:translateX(0);}
+    .nav-backdrop{display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:19;}
+    .nav-backdrop.open{display:block;}
+    .mobile-bar{
+      display:flex; align-items:center; gap:12px; position:sticky; top:0; z-index:10;
+      background:var(--surface); border-bottom:1px solid var(--line); padding:12px 16px;
+    }
+    .hamburger{
+      background:none; border:1px solid var(--line-strong); border-radius:4px; width:34px; height:34px;
+      flex-shrink:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer;
+    }
+    .hamburger span{width:16px; height:2px; background:var(--ink);}
+    .mobile-bar .mt{font-family:var(--font-display); font-weight:600; font-size:.9rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+    .sheet{padding:32px 20px 90px;}
+    .index-grid{grid-template-columns:1fr;}
+    h1.cover-title{font-size:2rem;}
+    h1.lesson-title{font-size:1.6rem;}
+  }
+  @media (min-width:881px){ .nav-backdrop{display:none !important;} }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="nav-backdrop" id="backdrop"></div>
+  <aside class="nav" id="nav">
+    <div class="nav-head">
+      <div class="brand">
+        <span class="brand-mark">PY</span>
+        <h1 class="brand-title">Prancha Python</h1>
+      </div>
+      <p class="brand-sub">curso para arquitetos de solução</p>
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel">0/30 pranchas concluídas</div>
+      </div>
+    </div>
+    <div class="nav-search">
+      <input type="text" id="searchInput" placeholder="Buscar na trilha…" autocomplete="off">
+    </div>
+    <nav class="nav-list" id="navList"></nav>
+  </aside>
+
+  <main>
+    <div class="mobile-bar" style="width:100%;">
+      <button class="hamburger" id="hamburger" aria-label="Abrir índice"><span></span><span></span><span></span></button>
+      <div class="mt" id="mobileTitle">Prancha Python</div>
+    </div>
+    <div class="sheet" id="sheet"></div>
+  </main>
+</div>
+
+<script>
+/* ============================= HELPERS ============================= */
+function esc(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+const KEYWORDS = "import|from|as|with|try|except|return|if|elif|else|for|while|break|continue|in|and|or|not|is|None|True|False|self|lambda|print|open|yield|pass|raise|global|async|await";
+const TOKEN_RE = new RegExp(
+  '(#[^\\n]*)' +                                   // 1: comment
+  '|("(?:[^"\\\\]|\\\\.)*"|\'(?:[^\'\\\\]|\\\\.)*\')' + // 2: string
+  '|\\b(def|class)(\\s+)([A-Za-z_]\\w*)' +          // 3,4,5: def/class NAME
+  '|\\b(' + KEYWORDS + ')\\b' +                     // 6: keyword
+  '|\\b(\\d+\\.?\\d*)\\b',                          // 7: number
+  'g'
+);
+function hl(code){
+  // single-pass tokenizer: walks the RAW source once and escapes every
+  // literal gap as it goes, so already-emitted <span> markup is never
+  // re-scanned (which is what corrupts nested-quote HTML in a multi-pass
+  // approach).
+  let out = "", last = 0, m;
+  TOKEN_RE.lastIndex = 0;
+  while((m = TOKEN_RE.exec(code)) !== null){
+    out += esc(code.slice(last, m.index));
+    if(m[1] !== undefined) out += '<span class="tk-com">' + esc(m[1]) + '</span>';
+    else if(m[2] !== undefined) out += '<span class="tk-str">' + esc(m[2]) + '</span>';
+    else if(m[3] !== undefined) out += '<span class="tk-kw">' + esc(m[3]) + '</span>' + esc(m[4]) + '<span class="tk-def">' + esc(m[5]) + '</span>';
+    else if(m[6] !== undefined) out += '<span class="tk-kw">' + esc(m[6]) + '</span>';
+    else if(m[7] !== undefined) out += '<span class="tk-num">' + esc(m[7]) + '</span>';
+    last = TOKEN_RE.lastIndex;
+  }
+  out += esc(code.slice(last));
+  return out;
+}
+
+/* ============================= DADOS DO CURSO ============================= */
+const COURSE = [
+{
+  num:"01", title:"Fundação — por que Python e como começar",
+  lessons:[
+    { id:"01.1", title:"Por que Python é a ferramenta certa para um arquiteto", min:6,
+      html:`
+        <p class="lede">Você não vai deixar de ser arquiteto pra virar desenvolvedor. Mas todo arquiteto que sobrevive nos próximos anos — em multicloud, em GenAI, em automação — precisa conseguir ler, adaptar e às vezes escrever o código que sustenta as próprias decisões de arquitetura. Python é a linguagem que faz essa ponte com o menor atrito.</p>
+        <h2>O motivo prático</h2>
+        <p>Python é a língua franca de três mundos que você já transita: automação de nuvem (os SDKs de AWS, Azure e GCP são todos Python de primeira classe), engenharia de IA generativa (LangChain, LlamaIndex, os clients de LLM) e prototipagem rápida de qualquer ideia de arquitetura antes de formalizar um ADR. Não é a linguagem mais rápida nem a mais elegante — é a que tem a maior superfície de reuso do seu tempo.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`import json
+
+with open("config.json") as f:
+    config = json.load(f)
+
+print(config["ambiente"])`)}</pre></div>
+        <p>Três linhas pra ler um arquivo de configuração inteiro. É esse tipo de fricção baixa que faz Python ser a escolha padrão quando você precisa provar um conceito rápido, ou automatizar algo que hoje você faz manualmente numa reunião.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Você não precisa competir com um engenheiro de dados em performance de código. Seu diferencial é usar Python pra validar arquitetura rápido — um protótipo que roda vale mais que um diagrama que promete.</p></div></div>
+      `,
+      check:{type:"mcq", prompt:"Qual é o principal motivo para um arquiteto de soluções aprender Python, e não, por exemplo, aprofundar em Java?",
+        options:["Python é sempre mais rápido em produção", "Python tem a maior superfície de reuso entre nuvem, dados e IA generativa", "Java não roda em nenhum cloud provider"],
+        correct:1, explain:"Não é sobre performance — é sobre onde seu tempo de aprendizado rende mais em automação de nuvem, prototipagem e IA."} },
+    { id:"01.2", title:"Instalando o ambiente e rodando o primeiro script", min:7,
+      html:`
+        <p class="lede">Antes de qualquer conceito, você precisa de um jeito confiável de rodar código. A forma mais simples: instalar o Python 3.12+ (python.org, ou <code class="inline">pyenv</code> se quiser gerenciar várias versões) e confirmar no terminal.</p>
+        <div class="codeblock"><span class="tag">shell</span><pre>${hl(`python --version
+# Python 3.12.4`)}</pre></div>
+        <h2>Seu primeiro script</h2>
+        <p>Crie um arquivo <code class="inline">ola.py</code> com este conteúdo:</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`# arquivo: ola.py
+nome = input("Como você se chama? ")
+print(f"Olá, {nome}! Bem-vindo ao Python.")`)}</pre></div>
+        <p>E execute com <code class="inline">python ola.py</code>. Repare: não existe compilação separada, não existe arquivo de projeto obrigatório, não existe boilerplate de classe/main. Isso é uma escolha de design da linguagem — otimizada para você ir da ideia ao resultado o mais rápido possível.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Essa ausência de cerimônia é ótima para prototipagem, mas em produção você vai reintroduzir estrutura (módulos, testes, tipagem) — isso vem nos módulos 04 e 06. Não confunda "simples de começar" com "sem disciplina em produção".</p></div></div>`,
+      check:{type:"predict", prompt:"O que este comando imprime no terminal, supondo que você digitou \"Rafael\" quando perguntado?",
+        code:`nome = input("Como você se chama? ")
+print(f"Olá, {nome}! Bem-vindo ao Python.")`,
+        output:"Olá, Rafael! Bem-vindo ao Python.",
+        explain:"O f-string (f\"...\") insere o valor da variável nome diretamente no texto — é a forma padrão de compor strings em Python moderno."} },
+    { id:"01.3", title:"Variáveis, tipos e operadores", min:8,
+      html:`
+        <p class="lede">Python é dinamicamente tipado: você não declara o tipo de uma variável, o interpretador infere a partir do valor. Isso acelera a escrita, mas exige disciplina sua para não confundir tipos por engano — é justamente por isso que os módulos mais à frente introduzem <em>type hints</em>.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`custo_hora = 185.50        # float
+horas = 12                 # int
+projeto = "Renovação CDN"  # str
+dentro_do_prazo = True     # bool
+
+custo_total = custo_hora * horas
+print(f"{projeto}: R$ {custo_total:.2f}")`)}</pre></div>
+        <h2>Operadores essenciais</h2>
+        <ul>
+          <li><code class="inline">+ - * /</code> — aritmética básica; <code class="inline">/</code> sempre retorna float</li>
+          <li><code class="inline">//</code> — divisão inteira; <code class="inline">%</code> — resto (módulo)</li>
+          <li><code class="inline">**</code> — potenciação</li>
+          <li><code class="inline">==</code> <code class="inline">!=</code> <code class="inline">&gt;</code> <code class="inline">&lt;</code> — comparação, sempre retornam <code class="inline">bool</code></li>
+        </ul>
+        <p>Use <code class="inline">type(variavel)</code> sempre que tiver dúvida sobre o que uma expressão retornou — é a ferramenta de depuração mais barata que existe na linguagem.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Tipagem dinâmica é conveniente sozinho, mas em times grandes vira fonte de bugs silenciosos. A partir do módulo 06 você vai anotar tipos (<code class="inline">valor: float</code>) — isso não muda a execução, mas dá ao seu editor e ao seu time uma rede de segurança equivalente a um contrato de API.</p></div></div>`,
+      check:{type:"predict", prompt:"Qual o valor impresso por custo_total, e com quantas casas decimais?",
+        code:`custo_hora = 185.50
+horas = 12
+custo_total = custo_hora * horas
+print(f"R$ {custo_total:.2f}")`,
+        output:"R$ 2226.00",
+        explain:"185.50 × 12 = 2226.0; o formatador :.2f força exatamente duas casas decimais, independente do resultado real ter menos."} },
+  ]
+},
+{
+  num:"02", title:"Lógica estrutural — controle de fluxo",
+  lessons:[
+    { id:"02.1", title:"Decisões: if / elif / else", min:6,
+      html:`
+        <p class="lede">Toda decisão de arquitetura que você já tomou — "se a latência passar de X, escale" — tem um equivalente direto em código. <code class="inline">if/elif/else</code> é a estrutura mais usada em qualquer script real.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`latencia_ms = 340
+
+if latencia_ms < 100:
+    nivel = "ótimo"
+elif latencia_ms < 300:
+    nivel = "aceitável"
+else:
+    nivel = "crítico"
+
+print(f"Latência {latencia_ms}ms -> {nivel}")`)}</pre></div>
+        <p>Repare na indentação: Python usa espaços (4, por convenção) em vez de chaves para delimitar blocos. Isso não é estético — é a sintaxe. Um bloco mal indentado quebra o programa, então configure seu editor para converter Tab em 4 espaços.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Cadeias longas de <code class="inline">elif</code> são um cheiro de código — o mesmo sinal de alerta que uma árvore de decisão gigante é numa arquitetura. Quando passar de 4-5 ramos, considere um dicionário de despacho ou, mais à frente, polimorfismo com classes.</p></div></div>`,
+      check:{type:"predict", prompt:"O que a variável nivel recebe quando latencia_ms = 340?",
+        code:`latencia_ms = 340
+if latencia_ms < 100:
+    nivel = "ótimo"
+elif latencia_ms < 300:
+    nivel = "aceitável"
+else:
+    nivel = "crítico"`,
+        output:'nivel = "crítico"',
+        explain:"340 não é menor que 100 nem menor que 300, então cai no else. Repare que a condição do elif só é avaliada se a do if for falsa."} },
+    { id:"02.2", title:"Repetição: for, while, break, continue", min:7,
+      html:`
+        <p class="lede">O <code class="inline">for</code> em Python itera sobre qualquer coleção diretamente — sem índice manual, ao contrário de outras linguagens que você já usou.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`regioes = ["sa-east-1", "us-east-1", "eu-west-1"]
+
+for regiao in regioes:
+    if regiao == "us-east-1":
+        continue
+    print(f"Validando {regiao}...")
+
+tentativas = 0
+while tentativas < 3:
+    tentativas += 1
+    print(f"Tentativa {tentativas}")`)}</pre></div>
+        <p><code class="inline">continue</code> pula para a próxima iteração sem executar o resto do bloco; <code class="inline">break</code> interrompe o laço inteiro. Use <code class="inline">while</code> quando a condição de parada depende de algo que só se sabe em tempo de execução (uma resposta de API, um retry) — para percorrer uma coleção conhecida, prefira sempre <code class="inline">for</code>.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Um <code class="inline">while True</code> sem limite de tentativas é o equivalente em código a um retry sem backoff nem circuit breaker — mesma categoria de risco de produção que você já cobra em revisão de arquitetura.</p></div></div>`,
+      check:{type:"mcq", prompt:"Qual a diferença prática entre continue e break dentro de um for?",
+        options:["Não há diferença, são sinônimos", "continue pula só a iteração atual; break encerra o laço inteiro", "continue encerra o laço inteiro; break pula a iteração atual"],
+        correct:1, explain:"continue volta ao topo do laço para o próximo item; break sai do laço imediatamente, não importa quantos itens restam."} },
+    { id:"02.3", title:"Lidando com o inesperado: try/except", min:6,
+      html:`
+        <p class="lede">Toda chamada que pode falhar — I/O, rede, parsing de dados externos — deveria estar protegida. Python usa exceções, não códigos de retorno.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`def custo_por_hectare(custo_total, hectares):
+    try:
+        return custo_total / hectares
+    except ZeroDivisionError:
+        return None
+
+print(custo_por_hectare(50000, 0))`)}</pre></div>
+        <p>Capture o tipo específico de exceção sempre que possível (<code class="inline">ZeroDivisionError</code>, <code class="inline">KeyError</code>, <code class="inline">requests.Timeout</code>) — um <code class="inline">except:</code> genérico esconde bugs reais junto com os erros esperados, exatamente como um catch-all silencioso numa API esconderia uma falha de infraestrutura atrás de um "erro genérico".</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Pense em try/except como o disjuntor (circuit breaker) do seu código: ele isola a falha, mas só é útil se você souber exatamente qual falha está isolando.</p></div></div>`,
+      check:{type:"predict", prompt:"O que a função retorna quando chamada como custo_por_hectare(50000, 0)?",
+        code:`def custo_por_hectare(custo_total, hectares):
+    try:
+        return custo_total / hectares
+    except ZeroDivisionError:
+        return None`,
+        output:"None",
+        explain:"A divisão por zero levanta ZeroDivisionError, que é capturado e tratado retornando None em vez de derrubar o programa."} },
+  ]
+},
+{
+  num:"03", title:"Materiais — estruturas de dados",
+  lessons:[
+    { id:"03.1", title:"Listas e tuplas", min:7,
+      html:`
+        <p class="lede">Listas são coleções ordenadas e mutáveis — o "array" do dia a dia. Tuplas são ordenadas, mas imutáveis: uma vez criadas, não mudam.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`clientes = ["Fazenda Boa Vista", "Agropecuária Rio Claro", "Sítio Três Marias"]
+clientes.append("Cooperativa Vale Verde")
+
+coordenadas = (-23.1857, -46.8847)  # tupla: imutável
+lat, lon = coordenadas               # desempacotamento
+
+print(clientes[0])       # indexação
+print(clientes[-1])      # último item
+print(clientes[1:3])     # slice`)}</pre></div>
+        <p>Índices negativos contam a partir do fim; slices (<code class="inline">[inicio:fim]</code>) retornam uma cópia do intervalo, sem incluir o índice final.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Use tupla sempre que o dado representa algo que não deveria mudar depois de criado — coordenadas, uma chave composta, um par (host, porta). É a mesma intenção de um objeto imutável em qualquer linguagem: proteger invariantes.</p></div></div>`,
+      check:{type:"predict", prompt:"Depois do append, quantos elementos tem a lista clientes?",
+        code:`clientes = ["Fazenda Boa Vista", "Agropecuária Rio Claro", "Sítio Três Marias"]
+clientes.append("Cooperativa Vale Verde")
+print(len(clientes))`,
+        output:"4",
+        explain:"A lista começa com 3 itens; append adiciona um ao final, sem substituir nada."} },
+    { id:"03.2", title:"Dicionários e sets", min:7,
+      html:`
+        <p class="lede">Dicionários mapeiam chave → valor — é literalmente a estrutura por trás de todo JSON que você já consumiu de uma API. Sets guardam valores únicos, sem ordem garantida.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`contrato = {
+    "cliente": "Fazenda Boa Vista",
+    "linha_credito": "Custeio Agrícola",
+    "taxa_juros": 8.5,
+}
+contrato["prazo_meses"] = 24
+print(contrato.get("taxa_juros"))
+
+regioes_ativas = {"sa-east-1", "us-east-1"}
+regioes_ativas.add("sa-east-1")  # não duplica
+print(len(regioes_ativas))`)}</pre></div>
+        <p>Prefira <code class="inline">.get("chave")</code> em vez de <code class="inline">["chave"]</code> quando a chave pode não existir — o primeiro retorna <code class="inline">None</code>, o segundo levanta <code class="inline">KeyError</code>.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Todo payload de API que você já desenhou num contrato OpenAPI é, em Python, literalmente um dicionário depois de <code class="inline">response.json()</code>. Entender dict bem é entender a metade do trabalho de qualquer integração.</p></div></div>`,
+      check:{type:"predict", prompt:"Depois do add repetido, quanto vale len(regioes_ativas)?",
+        code:`regioes_ativas = {"sa-east-1", "us-east-1"}
+regioes_ativas.add("sa-east-1")
+print(len(regioes_ativas))`,
+        output:"2",
+        explain:"Sets garantem unicidade — adicionar um valor já presente não tem efeito nenhum sobre o tamanho."} },
+    { id:"03.3", title:"Compreensões (list/dict comprehensions)", min:6,
+      html:`
+        <p class="lede">Comprehensions são a forma Python de transformar uma coleção em outra em uma linha, sem escrever um loop explícito.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`taxas = [8.5, 12.0, 6.75, 15.2]
+taxas_altas = [t for t in taxas if t > 10]
+print(taxas_altas)
+
+contratos = [{"cliente": "A", "taxa": 8.5}, {"cliente": "B", "taxa": 12.0}]
+por_cliente = {c["cliente"]: c["taxa"] for c in contratos}
+print(por_cliente)`)}</pre></div>
+        <p>Leia da esquerda para a direita como "para cada X na coleção, se a condição bater, produza esta expressão". É açúcar sintático — tudo que uma comprehension faz, um <code class="inline">for</code> tradicional também faz.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Comprehension é ótima até a primeira condição aninhada. Se você precisar de mais de um if ou de lógica de duas linhas dentro dela, volte para um for explícito — legibilidade para o próximo engenheiro do time vale mais que a linha economizada.</p></div></div>`,
+      check:{type:"predict", prompt:"O que taxas_altas contém depois do filtro?",
+        code:`taxas = [8.5, 12.0, 6.75, 15.2]
+taxas_altas = [t for t in taxas if t > 10]
+print(taxas_altas)`,
+        output:"[12.0, 15.2]",
+        explain:"Só passam os valores estritamente maiores que 10 — 8.5 e 6.75 ficam de fora."} },
+  ]
+},
+{
+  num:"04", title:"Componentização — funções e módulos",
+  lessons:[
+    { id:"04.1", title:"Funções, parâmetros e retorno", min:7,
+      html:`
+        <p class="lede">Função é a menor unidade de reuso e teste em Python — o equivalente a um componente com responsabilidade única na sua arquitetura.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`def calcular_parcela(valor, taxa_anual, meses):
+    taxa_mensal = taxa_anual / 12 / 100
+    fator = (1 + taxa_mensal) ** meses
+    return valor * (taxa_mensal * fator) / (fator - 1)
+
+parcela = calcular_parcela(50000, 8.5, 24)
+print(f"Parcela: R$ {parcela:.2f}")`)}</pre></div>
+        <p>Parâmetros podem ter valor padrão (<code class="inline">def f(x, taxa=8.5)</code>), o que evita sobrecarga de função (overloading) — em Python, uma função só, com defaults, cobre o que em outras linguagens exigiria três assinaturas diferentes.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Uma função que faz uma coisa só é testável isoladamente sem mocks complicados. Se você não consegue descrever o que uma função faz em uma frase sem "e", ela provavelmente devia ser duas.</p></div></div>`,
+      check:{type:"mcq", prompt:"Por que usar parâmetros com valor padrão em vez de múltiplas funções sobrecarregadas?",
+        options:["Python não permite duas funções com o mesmo nome de qualquer forma", "Reduz o número de assinaturas que o time precisa manter", "É mais rápido em tempo de execução"],
+        correct:1, explain:"O motivo é de manutenção: uma função com defaults documenta as variações possíveis num único lugar. (E de fato, Python não suporta overloading por assinatura — mas essa não é a razão de design.)"} },
+    { id:"04.2", title:"args, kwargs e funções como cidadãs de primeira classe", min:7,
+      html:`
+        <p class="lede">Quando o número de argumentos varia, ou quando você quer aceitar parâmetros nomeados livres, use <code class="inline">*args</code> e <code class="inline">**kwargs</code>.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`def resumo_contrato(cliente, *linhas_credito, **detalhes):
+    print(f"{cliente}: {len(linhas_credito)} linha(s) de crédito")
+    for chave, valor in detalhes.items():
+        print(f"  {chave}: {valor}")
+
+resumo_contrato(
+    "Fazenda Boa Vista", "Custeio", "Investimento",
+    regiao="sa-east-1", ativo=True
+)
+
+contratos = [{"cliente": "A", "taxa": 12.0}, {"cliente": "B", "taxa": 8.5}]
+por_taxa = sorted(contratos, key=lambda c: c["taxa"])`)}</pre></div>
+        <p>Funções são valores em Python: você pode passá-las como argumento (veja <code class="inline">key=lambda c: c["taxa"]</code> acima), guardá-las em uma lista ou retorná-las de outra função. É essa propriedade que torna decoradores e callbacks possíveis mais à frente.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Frameworks inteiros (FastAPI, pytest, Click) existem porque Python trata função como objeto de primeira classe. Entender isso agora poupa uma "mágica" desnecessária quando você chegar em FastAPI no módulo 08.</p></div></div>`,
+      check:{type:"mcq", prompt:"O que sorted(contratos, key=lambda c: c[\"taxa\"]) faz?",
+        options:["Ordena a lista de contratos pela chave \"taxa\" de cada dicionário", "Remove contratos sem a chave taxa", "Cria uma nova chave chamada taxa em cada contrato"],
+        correct:0, explain:"key recebe uma função que, para cada item, retorna o valor usado como critério de ordenação — aqui, a taxa de cada contrato."} },
+    { id:"04.3", title:"Módulos, pacotes e ambientes virtuais", min:8,
+      html:`
+        <p class="lede">Todo arquivo <code class="inline">.py</code> é um módulo; uma pasta com <code class="inline">__init__.py</code> (ou, hoje, mesmo sem ele) é um pacote. E todo projeto sério precisa de um ambiente virtual isolado.</p>
+        <div class="codeblock"><span class="tag">shell</span><pre>${hl(`python -m venv .venv
+source .venv/bin/activate      # Windows: .venv\\Scripts\\activate
+pip install requests boto3
+pip freeze > requirements.txt`)}</pre></div>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`# arquivo: utils/formatadores.py
+def formatar_moeda(valor):
+    return f"R$ {valor:,.2f}"
+
+# arquivo: main.py
+from utils.formatadores import formatar_moeda
+print(formatar_moeda(50000))`)}</pre></div>
+        <p>Um <code class="inline">venv</code> é uma cópia isolada do interpretador e das bibliotecas, por projeto — sem ele, dois projetos com versões diferentes da mesma biblioteca entram em conflito no mesmo Python global.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Isso é exatamente o princípio de isolamento de dependências que você já defende em contêineres e em ambientes de nuvem separados por conta. Trate <code class="inline">.venv</code> como o "namespace" de dependências do seu projeto.</p></div></div>`,
+      check:{type:"mcq", prompt:"Por que criar um ambiente virtual (venv) por projeto?",
+        options:["Para deixar o código mais rápido", "Para isolar as dependências de cada projeto e evitar conflito de versões", "É obrigatório para importar qualquer módulo"],
+        correct:1, explain:"Sem venv, todos os projetos compartilham as mesmas bibliotecas globais — atualizar uma para o projeto X pode quebrar silenciosamente o projeto Y."} },
+  ]
+},
+{
+  num:"05", title:"Sistemas — orientação a objetos",
+  lessons:[
+    { id:"05.1", title:"Classes e objetos", min:7,
+      html:`
+        <p class="lede">Uma classe agrupa dado e comportamento relacionados. É útil quando você tem várias instâncias da mesma "coisa" com estado próprio — um contrato, um cliente, uma conexão.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`class Contrato:
+    def __init__(self, cliente, valor, taxa_anual):
+        self.cliente = cliente
+        self.valor = valor
+        self.taxa_anual = taxa_anual
+
+    def custo_anual(self):
+        return self.valor * (self.taxa_anual / 100)
+
+c = Contrato("Fazenda Boa Vista", 50000, 8.5)
+print(c.custo_anual())`)}</pre></div>
+        <p><code class="inline">__init__</code> é o construtor; <code class="inline">self</code> é a referência à própria instância — presente explicitamente em todo método, ao contrário de <code class="inline">this</code> implícito em outras linguagens.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Nem tudo precisa ser uma classe. Se o "objeto" não tem estado que muda ao longo do tempo, uma função pura resolve com menos código para manter. Reserve classes para onde identidade e estado realmente importam.</p></div></div>`,
+      check:{type:"predict", prompt:"O que c.custo_anual() retorna?",
+        code:`c = Contrato("Fazenda Boa Vista", 50000, 8.5)
+print(c.custo_anual())`,
+        output:"4250.0",
+        explain:"50000 * (8.5 / 100) = 50000 * 0.085 = 4250.0."} },
+    { id:"05.2", title:"Herança e composição", min:7,
+      html:`
+        <p class="lede">Herança modela "é um" (uma LinhaCredito específica é uma LinhaCredito); composição modela "tem um" (um Contrato tem uma LinhaCredito). A maioria dos bugs de design em OOP vem de usar herança onde composição resolveria melhor.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`class LinhaCredito:
+    def __init__(self, nome, taxa_base):
+        self.nome = nome
+        self.taxa_base = taxa_base
+
+class CusteioAgricola(LinhaCredito):
+    def __init__(self):
+        super().__init__("Custeio Agrícola", 8.5)
+
+class Contrato:
+    def __init__(self, cliente, linha: LinhaCredito):
+        self.cliente = cliente
+        self.linha = linha   # composição
+
+contrato = Contrato("Sítio Três Marias", CusteioAgricola())
+print(contrato.linha.taxa_base)`)}</pre></div>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Isso é o mesmo debate de "monólito com herança profunda" vs. "serviços compostos e desacoplados" que você já resolve em arquitetura de sistemas — só que dentro de uma única aplicação. Prefira composição por padrão; use herança só quando o "é um" for genuíno e estável.</p></div></div>`,
+      check:{type:"mcq", prompt:"Por que Contrato usa composição (guarda uma LinhaCredito) em vez de herdar dela?",
+        options:["Porque um Contrato não é uma LinhaCredito — a relação real é \"tem uma\"", "Porque Python não permite herança múltipla", "Porque composição é sempre mais rápida"],
+        correct:0, explain:"A escolha entre herança e composição deve refletir a relação real do domínio: aqui, Contrato tem uma linha de crédito, não é uma."} },
+    { id:"05.3", title:"Dataclasses e Python moderno", min:6,
+      html:`
+        <p class="lede">Para classes que existem só para guardar dados estruturados, <code class="inline">@dataclass</code> gera <code class="inline">__init__</code>, <code class="inline">__repr__</code> e comparação automaticamente.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`from dataclasses import dataclass
+
+@dataclass
+class Contrato:
+    cliente: str
+    valor: float
+    taxa_anual: float
+    ativo: bool = True
+
+c = Contrato("Fazenda Boa Vista", 50000, 8.5)
+print(c)`)}</pre></div>
+        <p>Os dois-pontos (<code class="inline">cliente: str</code>) são <em>type hints</em> — não são checados em tempo de execução, mas seu editor e ferramentas como <code class="inline">mypy</code> usam para pegar erros antes de rodar o código.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Uma dataclass é, na prática, o equivalente Python de um DTO/schema — a mesma estrutura que você desenharia num contrato de API, só que também é o objeto que circula dentro do próprio código.</p></div></div>`,
+      check:{type:"predict", prompt:"O que print(c) imprime para uma dataclass?",
+        code:`c = Contrato("Fazenda Boa Vista", 50000, 8.5)
+print(c)`,
+        output:'Contrato(cliente=\'Fazenda Boa Vista\', valor=50000, taxa_anual=8.5, ativo=True)',
+        explain:"@dataclass gera automaticamente um __repr__ que mostra a classe e todos os campos com seus valores — sem você escrever nada disso manualmente."} },
+  ]
+},
+{
+  num:"06", title:"Interfaces com o mundo — dados e APIs",
+  lessons:[
+    { id:"06.1", title:"Arquivos, JSON e CSV", min:6,
+      html:`
+        <p class="lede">JSON e CSV são os dois formatos que você mais vai encontrar trocando dados entre sistemas — e a biblioteca padrão do Python já resolve os dois sem instalar nada.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`import json, csv
+
+with open("contratos.json") as f:
+    contratos = json.load(f)
+
+with open("contratos.csv", newline="") as f:
+    leitor = csv.DictReader(f)
+    for linha in leitor:
+        print(linha["cliente"], linha["taxa_juros"])`)}</pre></div>
+        <p>O uso de <code class="inline">with open(...) as f</code> garante que o arquivo é fechado automaticamente, mesmo se ocorrer um erro no meio da leitura — é o padrão idiomático (chamado de <em>context manager</em>) para qualquer recurso que precisa ser liberado.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p><code class="inline">DictReader</code> lê cada linha do CSV como um dicionário usando o cabeçalho como chaves — evita indexar colunas por número, o que quebra silenciosamente se alguém reordenar uma coluna no arquivo fonte.</p></div></div>`,
+      check:{type:"mcq", prompt:"Por que usar with open(...) as f em vez de f = open(...)?",
+        options:["Não faz diferença nenhuma", "Garante que o arquivo será fechado automaticamente, mesmo em caso de erro", "É a única forma de ler JSON"],
+        correct:1, explain:"O bloco with é um context manager: ele cuida de fechar o recurso (arquivo, conexão) mesmo se uma exceção interromper o processamento no meio."} },
+    { id:"06.2", title:"Consumindo APIs REST com requests", min:7,
+      html:`
+        <p class="lede"><code class="inline">requests</code> é a biblioteca de fato para chamar APIs HTTP em Python — não faz parte da biblioteca padrão, mas é praticamente universal (<code class="inline">pip install requests</code>).</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`import requests
+
+resp = requests.get("https://api.exemplo.gov.br/zarc/municipios", timeout=5)
+resp.raise_for_status()
+dados = resp.json()
+print(len(dados), "municípios retornados")`)}</pre></div>
+        <p><code class="inline">timeout</code> e <code class="inline">raise_for_status()</code> juntos são o mínimo de resiliência aceitável: sem timeout, uma API lenta trava seu script indefinidamente; sem <code class="inline">raise_for_status</code>, um erro HTTP 500 passa despercebido como se fosse sucesso.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Isso não é opcional em nenhum script que vai rodar sem supervisão — é o mesmo raciocínio de timeout e tratamento de erro que você exige em qualquer integração de arquitetura, só que aqui é uma linha de código, não uma reunião de design.</p></div></div>`,
+      check:{type:"mcq", prompt:"O que acontece se você chamar requests.get sem timeout e a API travar?",
+        options:["O Python cancela a chamada depois de 30 segundos automaticamente", "Seu script fica bloqueado esperando indefinidamente", "requests lança um erro imediatamente"],
+        correct:1, explain:"Sem timeout explícito, requests espera indefinidamente pela resposta — é uma das causas mais comuns de scripts \"travados\" em produção."} },
+    { id:"06.3", title:"Tipagem estática e qualidade de código", min:6,
+      html:`
+        <p class="lede">Type hints tornam a intenção de uma função explícita para quem lê — e para ferramentas automáticas de checagem.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`def calcular_parcela(valor: float, taxa_anual: float, meses: int) -> float:
+    taxa_mensal = taxa_anual / 12 / 100
+    fator = (1 + taxa_mensal) ** meses
+    return valor * (taxa_mensal * fator) / (fator - 1)`)}</pre></div>
+        <p>Três ferramentas cobrem a maior parte da qualidade de código Python: <code class="inline">mypy</code> (verifica os type hints antes de rodar), <code class="inline">ruff</code> (linter rápido, pega erros e más práticas) e <code class="inline">black</code> (formata o código de forma consistente, sem debate de estilo). As três rodam bem em pre-commit ou CI.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Pense nessas três ferramentas como o equivalente a um gate de qualidade automatizado num pipeline — o mesmo princípio que você já aplica para infraestrutura, aplicado ao código Python que você mesmo escreve.</p></div></div>`,
+      check:{type:"mcq", prompt:"O que mypy verifica que o Python não checa sozinho em tempo de execução?",
+        options:["Se as chamadas de função são consistentes com os type hints declarados", "Se o código está formatado com 4 espaços", "Se há testes automatizados suficientes"],
+        correct:0, explain:"Type hints em Python são só anotações — o interpretador as ignora ao rodar. mypy é uma ferramenta separada que lê essas anotações e sinaliza incompatibilidades antes da execução."} },
+  ]
+},
+{
+  num:"07", title:"Infraestrutura — Python para nuvem e FinOps",
+  lessons:[
+    { id:"07.1", title:"Automatizando AWS com boto3", min:7,
+      html:`
+        <p class="lede"><code class="inline">boto3</code> é o SDK oficial da AWS para Python — cobre praticamente todo serviço, do S3 ao Cost Explorer.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`import boto3
+
+s3 = boto3.client("s3", region_name="sa-east-1")
+resposta = s3.list_buckets()
+for bucket in resposta["Buckets"]:
+    print(bucket["Name"])`)}</pre></div>
+        <p>Repare que o retorno de qualquer chamada boto3 é sempre um dicionário — exatamente a estrutura que você já domina desde o módulo 03. Não existe "objeto AWS" especial para aprender: é dict aninhado, ponto.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Um script boto3 de 15 linhas frequentemente resolve em minutos uma auditoria que, feita manualmente pelo console, levaria uma tarde. Vale a pena ter um repositório pessoal de scripts assim.</p></div></div>`,
+      check:{type:"mcq", prompt:"Em que formato boto3 retorna os dados de qualquer chamada de API da AWS?",
+        options:["XML", "Dicionários Python aninhados", "Objetos de classe customizados por serviço"],
+        correct:1, explain:"Toda resposta boto3 é um dict Python padrão — é por isso que dominar dict/list bem no início paga dividendos aqui."} },
+    { id:"07.2", title:"Automatizando Azure com o SDK", min:7,
+      html:`
+        <p class="lede">O SDK de Azure segue um padrão parecido, mas com autenticação centralizada via <code class="inline">azure-identity</code>.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`from azure.identity import DefaultAzureCredential
+from azure.mgmt.resource import ResourceManagementClient
+
+credencial = DefaultAzureCredential()
+cliente = ResourceManagementClient(credencial, subscription_id="...")
+
+for grupo in cliente.resource_groups.list():
+    print(grupo.name)`)}</pre></div>
+        <p><code class="inline">DefaultAzureCredential</code> tenta várias formas de autenticação em cadeia (variável de ambiente, managed identity, Azure CLI logada) até uma funcionar — você não precisa decidir qual usar no código, só garantir que uma delas está disponível no ambiente de execução.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Como você já transita entre AWS e Azure no dia a dia, o ganho real aqui não é decorar cada SDK — é reconhecer o padrão comum: client autenticado + método por recurso + retorno paginável. Esse padrão se repete em praticamente todo SDK de cloud.</p></div></div>`,
+      check:{type:"mcq", prompt:"O que DefaultAzureCredential faz na prática?",
+        options:["Cria uma nova credencial temporária a cada chamada", "Tenta, em ordem, diferentes métodos de autenticação disponíveis no ambiente até um funcionar", "Exige que a senha seja passada em texto plano no código"],
+        correct:1, explain:"É uma cadeia de tentativas (variável de ambiente, identidade gerenciada, CLI logada etc.) — você escreve o código uma vez e ele funciona em ambientes diferentes sem alterar a lógica de autenticação."} },
+    { id:"07.3", title:"Scripts de FinOps: relatórios de custo automatizados", min:8,
+      html:`
+        <p class="lede">Um dos usos mais diretos de Python para um arquiteto multicloud: puxar dados de custo automaticamente em vez de exportar planilhas manualmente todo mês.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`import boto3
+from datetime import date, timedelta
+
+ce = boto3.client("ce")
+hoje = date.today()
+inicio = hoje - timedelta(days=30)
+
+resposta = ce.get_cost_and_usage(
+    TimePeriod={"Start": str(inicio), "End": str(hoje)},
+    Granularity="MONTHLY",
+    Metrics=["UnblendedCost"],
+)
+total = resposta["ResultsByTime"][0]["Total"]["UnblendedCost"]["Amount"]
+print(f"Custo últimos 30 dias: US$ {float(total):.2f}")`)}</pre></div>
+        <p>Esse mesmo padrão — chamar a API, extrair o número relevante de um dict aninhado, formatar — se repete para qualquer relatório recorrente. Uma vez escrito, você agenda com um scheduler simples (cron, uma function serverless) e o relatório se gera sozinho.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>FinOps automatizado por script é, na prática, a diferença entre reagir a uma fatura surpresa e antecipar a tendência de custo semanas antes. Esse é o tipo de entregável que justifica sozinho o tempo investido neste curso.</p></div></div>`,
+      check:{type:"mcq", prompt:"Qual o principal ganho de automatizar relatórios de custo com um script como esse?",
+        options:["O script reduz automaticamente o custo da conta AWS", "Você deixa de depender de exportação manual e pode rodar o relatório com a frequência que quiser", "É a única forma de acessar dados de custo da AWS"],
+        correct:1, explain:"O script não muda custos — ele automatiza a coleta e formatação, o que viabiliza relatórios recorrentes e alertas de tendência sem trabalho manual repetido."} },
+  ]
+},
+{
+  num:"08", title:"Construção — entregando um produto",
+  lessons:[
+    { id:"08.1", title:"Uma API real com FastAPI", min:8,
+      html:`
+        <p class="lede">FastAPI é hoje o framework padrão para construir APIs em Python — rápido de escrever, com validação automática e documentação OpenAPI gerada sozinha.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/contratos/{cliente}")
+def buscar_contrato(cliente: str):
+    return {"cliente": cliente, "linha": "Custeio Agrícola", "taxa": 8.5}`)}</pre></div>
+        <p>Rode com <code class="inline">uvicorn main:app --reload</code> e acesse <code class="inline">/docs</code> — o FastAPI gera uma interface Swagger completa a partir só das suas anotações de tipo, sem você escrever uma linha de documentação separada.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>A documentação OpenAPI gerada automaticamente é, na prática, o contrato de API que você já formaliza manualmente hoje — aqui ele nasce do próprio código e nunca fica desatualizado em relação à implementação.</p></div></div>`,
+      check:{type:"mcq", prompt:"O que torna a documentação /docs do FastAPI diferente de escrever um Swagger manualmente?",
+        options:["Ela é gerada automaticamente a partir do código e das anotações de tipo, então nunca fica dessincronizada", "Ela precisa ser atualizada manualmente a cada deploy", "Ela só funciona em ambiente de produção"],
+        correct:0, explain:"Como a documentação nasce da introspecção do próprio código (rotas, tipos, modelos Pydantic), qualquer mudança no endpoint já reflete automaticamente na doc."} },
+    { id:"08.2", title:"Validação de dados com Pydantic", min:7,
+      html:`
+        <p class="lede">Pydantic (base do FastAPI) valida dados de entrada contra um schema declarado — se o dado não bate com o tipo ou a regra, a API já rejeita antes de qualquer lógica de negócio rodar.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`from pydantic import BaseModel, Field
+
+class NovoContrato(BaseModel):
+    cliente: str
+    valor: float = Field(gt=0)
+    taxa_anual: float = Field(gt=0, le=100)
+
+@app.post("/contratos")
+def criar_contrato(contrato: NovoContrato):
+    return {"status": "criado", "contrato": contrato}`)}</pre></div>
+        <p>Se alguém enviar <code class="inline">valor: -500</code>, o FastAPI já responde com erro 422 antes mesmo de <code class="inline">criar_contrato</code> ser chamada — a validação vira parte da assinatura da função, não uma checagem manual espalhada pelo código.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Isso é validação de contrato deslocada para a borda do sistema — o mesmo princípio de "falhe cedo, falhe explícito" que você já defende em qualquer integração entre sistemas, só que expresso em três linhas de schema.</p></div></div>`,
+      check:{type:"predict", prompt:"O que acontece se alguém enviar {\"cliente\": \"X\", \"valor\": -500, \"taxa_anual\": 8}?",
+        code:`class NovoContrato(BaseModel):
+    cliente: str
+    valor: float = Field(gt=0)
+    taxa_anual: float = Field(gt=0, le=100)`,
+        output:"Erro 422 — valor deve ser maior que 0",
+        explain:"Field(gt=0) declara a regra \"maior que zero\"; o Pydantic valida antes de qualquer código seu rodar e retorna automaticamente um erro estruturado."} },
+    { id:"08.3", title:"Persistindo dados com SQLite/SQLAlchemy", min:8,
+      html:`
+        <p class="lede">Para persistência simples, SQLAlchemy dá um ORM (mapeamento objeto-relacional) que funciona igual do protótipo local em SQLite até um Postgres em produção — trocando só a string de conexão.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`from sqlalchemy import create_engine, Column, String, Float, Integer
+from sqlalchemy.orm import declarative_base, Session
+
+Base = declarative_base()
+
+class ContratoORM(Base):
+    __tablename__ = "contratos"
+    id = Column(Integer, primary_key=True)
+    cliente = Column(String)
+    valor = Column(Float)
+
+engine = create_engine("sqlite:///contratos.db")
+Base.metadata.create_all(engine)
+
+with Session(engine) as sessao:
+    sessao.add(ContratoORM(cliente="Fazenda Boa Vista", valor=50000))
+    sessao.commit()`)}</pre></div>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Essa troca de engine sem mudar o resto do código é o mesmo princípio de portabilidade que você já busca ao evitar lock-in de banco em uma arquitetura multicloud — só que aqui é uma linha de connection string.</p></div></div>`,
+      check:{type:"mcq", prompt:"O que muda no código acima para trocar de SQLite para Postgres em produção?",
+        options:["Só a string passada em create_engine(...)", "Toda a definição da classe ContratoORM", "É preciso reescrever as queries em SQL puro"],
+        correct:0, explain:"SQLAlchemy abstrai o dialeto do banco — trocar sqlite:/// por postgresql://... é, na maioria dos casos simples, a única mudança necessária."} },
+  ]
+},
+{
+  num:"09", title:"Fundações de produção — empacotar e publicar",
+  lessons:[
+    { id:"09.1", title:"Dependências: requirements, pyproject.toml e Poetry", min:6,
+      html:`
+        <p class="lede">Um projeto real precisa declarar exatamente quais bibliotecas usa e em quais versões — do contrário, "funciona na minha máquina" vira o padrão de falha mais comum em Python.</p>
+        <div class="codeblock"><span class="tag">toml</span><pre>${hl(`# pyproject.toml (Poetry)
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115"
+requests = "^2.32"`)}</pre></div>
+        <div class="codeblock"><span class="tag">shell</span><pre>${hl(`poetry install
+poetry add sqlalchemy`)}</pre></div>
+        <p><code class="inline">requirements.txt</code> (gerado com <code class="inline">pip freeze</code>) é o formato mais simples e universal; <code class="inline">pyproject.toml</code> com Poetry ou <code class="inline">uv</code> é o padrão moderno, com resolução de dependências mais confiável e lockfile automático.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Trate o lockfile (poetry.lock) com a mesma seriedade que trataria uma versão fixa de uma imagem base de container — é o que garante que o ambiente de build de hoje seja reproduzível daqui a seis meses.</p></div></div>`,
+      check:{type:"mcq", prompt:"Qual a vantagem de um lockfile (poetry.lock) sobre um requirements.txt gerado manualmente?",
+        options:["Não há diferença real", "Garante resolução determinística e reprodutível das versões exatas de todas as dependências, inclusive transitivas", "É a única forma de instalar pacotes em Python"],
+        correct:1, explain:"O lockfile fixa não só as dependências diretas, mas toda a árvore de dependências transitivas, com hashes — o mesmo ambiente é reconstruído de forma idêntica em qualquer máquina."} },
+    { id:"09.2", title:"Containerizando com Docker", min:7,
+      html:`
+        <p class="lede">Empacotar sua aplicação Python em uma imagem Docker elimina de vez o problema de ambiente — o container carrega o interpretador certo e as dependências certas juntos.</p>
+        <div class="codeblock"><span class="tag">dockerfile</span><pre>${hl(`FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]`)}</pre></div>
+        <p>A ordem das instruções importa: copiar <code class="inline">requirements.txt</code> antes do resto do código aproveita o cache de camadas do Docker — se só o código mudar (não as dependências), o build reaproveita a camada de <code class="inline">pip install</code> já pronta.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Essa é a mesma imagem que você vai apontar num ECS, num AKS ou num Cloud Run — a partir daqui, "onde roda" vira uma decisão de infraestrutura, não de código.</p></div></div>`,
+      check:{type:"mcq", prompt:"Por que copiar requirements.txt antes do restante do código no Dockerfile?",
+        options:["É obrigatório por sintaxe do Docker", "Aproveita o cache de build: se só o código mudar, a instalação de dependências não precisa rodar de novo", "Reduz o tamanho final da imagem"],
+        correct:1, explain:"O Docker cacheia camadas por ordem — separar a instalação de dependências (que muda pouco) do código (que muda sempre) evita reinstalar tudo a cada build."} },
+    { id:"09.3", title:"Deploy em nuvem e esboço de CI/CD", min:7,
+      html:`
+        <p class="lede">Com a imagem pronta, o deploy vira uma questão de pipeline: build, testes, push do registro, e atualização do serviço-alvo (ECS, App Service, Cloud Run, Kubernetes — a lógica de pipeline é a mesma).</p>
+        <div class="codeblock"><span class="tag">yaml</span><pre>${hl(`# .github/workflows/deploy.yml (esboço)
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t minha-api .
+      - run: docker push registro/minha-api`)}</pre></div>
+        <p>Este é um esqueleto — em produção você adicionaria etapa de testes (<code class="inline">pytest</code>), lint (<code class="inline">ruff</code>) e checagem de tipos (<code class="inline">mypy</code>) antes do build, tudo já coberto no módulo 06.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Neste ponto você fechou o ciclo completo: da variável no módulo 01 até um pipeline que constrói, testa e publica uma imagem. É exatamente esse arco que separa "sei escrever Python" de "consigo arquitetar e entregar um produto em Python".</p></div></div>`,
+      check:{type:"mcq", prompt:"O que normalmente entra num pipeline de CI antes do docker build em produção?",
+        options:["Nada — build e push são suficientes", "Testes automatizados, lint e checagem de tipos", "Apenas a atualização da documentação"],
+        correct:1, explain:"Rodar pytest, ruff e mypy antes do build garante que só código validado vira uma imagem publicada — o build em si não pega bugs de lógica."} },
+  ]
+},
+{
+  num:"10", title:"Prancha final — Python para arquitetura de IA",
+  lessons:[
+    { id:"10.1", title:"Chamando LLMs por API", min:6,
+      html:`
+        <p class="lede">Todo provedor de LLM relevante (OpenAI, Anthropic, os modelos hospedados em Azure/AWS/GCP) expõe uma API HTTP — e todos têm um client Python oficial que abstrai a chamada bruta.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`import os
+from openai import OpenAI
+
+cliente = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+resposta = cliente.chat.completions.create(
+    model="gpt-4.1",
+    messages=[{"role": "user", "content": "Explique o Plano Safra em 2 frases."}],
+)
+print(resposta.choices[0].message.content)`)}</pre></div>
+        <p>Note o padrão: credencial via variável de ambiente (nunca hardcoded), uma lista de mensagens com papel (<code class="inline">role</code>) e conteúdo, e uma resposta estruturada da qual você extrai o texto. Esse é o esqueleto de praticamente qualquer integração de LLM que você vai construir.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Arquitetar uma solução de GenAI começa exatamente aqui: entender que por trás de qualquer "agente" sofisticado existe uma chamada HTTP com prompt e resposta — o resto é orquestração em cima disso.</p></div></div>`,
+      check:{type:"mcq", prompt:"Por que a API key aparece como os.environ[\"OPENAI_API_KEY\"] em vez de escrita direto no código?",
+        options:["Só por estilo, não faz diferença real", "Para não expor credenciais no controle de versão e permitir trocar a chave sem alterar código", "Porque o Python exige que segredos venham de variáveis de ambiente"],
+        correct:1, explain:"Hardcode de segredo em código é o erro de segurança mais básico e mais comum — variáveis de ambiente (ou um cofre de segredos) mantêm a credencial fora do repositório."} },
+    { id:"10.2", title:"Orquestrando com LangChain", min:7,
+      html:`
+        <p class="lede">Quando a lógica cresce além de "uma pergunta, uma resposta" — prompts reutilizáveis, múltiplos passos, contexto de documentos — frameworks como LangChain organizam essas peças de forma composável.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+
+modelo = ChatOpenAI(model="gpt-4.1")
+prompt = ChatPromptTemplate.from_template(
+    "Responda como especialista em crédito rural: {pergunta}"
+)
+
+cadeia = prompt | modelo
+resposta = cadeia.invoke({"pergunta": "O que é o MCR?"})
+print(resposta.content)`)}</pre></div>
+        <p>O operador <code class="inline">|</code> encadeia componentes (prompt, modelo, e mais à frente parsers e ferramentas de busca) num pipeline declarativo — a mesma ideia de compor estágios que você já usa desenhando um fluxo de processamento de dados.</p>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>LangChain não é obrigatório — para casos simples, chamar a API direto (lição anterior) já resolve. Ele ganha valor quando você precisa compor múltiplos passos e reutilizar prompts entre projetos, que é exatamente o caso do projeto final desta prancha.</p></div></div>`,
+      check:{type:"mcq", prompt:"O que o operador | faz entre prompt e modelo nesse exemplo?",
+        options:["É um erro de sintaxe", "Encadeia os dois componentes num pipeline: a saída de um vira a entrada do próximo", "Executa os dois em paralelo"],
+        correct:1, explain:"LangChain usa | (o mesmo símbolo de pipe do shell) para compor uma \"chain\": o prompt formatado alimenta o modelo, sequencialmente."} },
+    { id:"10.3", title:"Projeto capstone: um agente de perguntas sobre crédito rural", min:10,
+      html:`
+        <p class="lede">Chegou a hora de juntar tudo: uma API (módulo 08), validação de entrada (Pydantic) e uma chamada de LLM orquestrada (lição anterior) — o esqueleto de um agente real, no domínio que você já trabalha.</p>
+        <div class="codeblock"><span class="tag">py</span><pre>${hl(`from fastapi import FastAPI
+from pydantic import BaseModel
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+
+app = FastAPI()
+modelo = ChatOpenAI(model="gpt-4.1")
+prompt = ChatPromptTemplate.from_template(
+    "Baseado no MCR e no Plano Safra vigente, responda: {pergunta}"
+)
+
+class Pergunta(BaseModel):
+    texto: str
+
+@app.post("/perguntar")
+def perguntar(pergunta: Pergunta):
+    cadeia = prompt | modelo
+    resposta = cadeia.invoke({"pergunta": pergunta.texto})
+    return {"resposta": resposta.content}`)}</pre></div>
+        <h2>Para onde evoluir a partir daqui</h2>
+        <ul>
+          <li>Trocar o prompt fixo por <strong>RAG</strong>: buscar trechos reais do MCR/ZARC antes de chamar o modelo, em vez de confiar só no conhecimento geral do LLM</li>
+          <li>Adicionar memória de conversa, para perguntas de acompanhamento</li>
+          <li>Persistir cada pergunta/resposta (módulo 08.3) para auditoria e melhoria contínua</li>
+          <li>Empacotar em Docker e publicar (módulo 09) atrás de autenticação</li>
+        </ul>
+        <div class="note"><span class="n-icon">NOTA</span><div><span class="n-label">Nota do arquiteto</span><p>Este esqueleto de 15 linhas é, estruturalmente, o mesmo agente de crédito rural que faz sentido nos seus próprios projetos — só falta ligar a base de conhecimento real. Esse é o próximo passo natural fora deste curso.</p></div></div>
+        <p class="lede" style="margin-top:28px;">Se você chegou até aqui e entendeu cada bloco de código — parabéns: você saiu de "leigo em programação" para alguém capaz de ler, adaptar e publicar Python em produção. O resto agora é prática deliberada.</p>
+      `,
+      check:{type:"mcq", prompt:"Qual seria a evolução mais importante antes de colocar esse agente em produção real?",
+        options:["Trocar FastAPI por outro framework", "Adicionar RAG (busca em documentos reais) em vez de confiar só no conhecimento geral do modelo", "Remover a validação com Pydantic para simplificar"],
+        correct:1, explain:"Sem RAG, o modelo responde com base no que \"acha\" que sabe sobre MCR/Plano Safra — que pode estar desatualizado ou impreciso. RAG ancora a resposta em documentos reais e atuais."} },
+  ]
+},
+];
+
+/* ============================= STATE ============================= */
+const STORAGE_KEY = "prancha-python-v1";
+let state = { completed: [], current: null };
+try{
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw) state = Object.assign(state, JSON.parse(raw));
+}catch(e){ /* localStorage indisponível — segue sem persistência */ }
+
+function save(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+const FLAT = [];
+COURSE.forEach(mod => mod.lessons.forEach(les => FLAT.push({mod, les})));
+const TOTAL = FLAT.length;
+
+/* ============================= RENDER: NAV ============================= */
+const navList = document.getElementById("navList");
+const searchInput = document.getElementById("searchInput");
+
+function normalize(s){
+  return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+}
+
+function renderNav(filter){
+  navList.innerHTML = "";
+  const f = filter ? normalize(filter) : "";
+  COURSE.forEach(mod => {
+    const modMatches = !f || normalize(mod.title).includes(f) || mod.lessons.some(l => normalize(l.title).includes(f));
+    if(!modMatches) return;
+    const det = document.createElement("details");
+    det.className = "mod";
+    det.open = !!f || mod.lessons.some(l => l.id === state.current);
+    const doneCount = mod.lessons.filter(l => state.completed.includes(l.id)).length;
+    det.innerHTML = `<summary>
+        <span class="mod-num">${mod.num}</span>
+        <span class="mod-title">${mod.title.split(" — ")[1] || mod.title}</span>
+        <span class="mod-count">${doneCount}/${mod.lessons.length}</span>
+        <span class="mod-caret"></span>
+      </summary>`;
+    const ul = document.createElement("ul");
+    ul.className = "lesson-list";
+    mod.lessons.forEach(les => {
+      if(f && !normalize(les.title).includes(f) && !normalize(mod.title).includes(f)) return;
+      const li = document.createElement("li");
+      li.className = "lesson-item";
+      const done = state.completed.includes(les.id);
+      const active = state.current === les.id;
+      const btn = document.createElement("button");
+      btn.className = "lesson-btn" + (active ? " active" : "");
+      btn.innerHTML = `<span class="chk${done ? " done" : ""}"></span><span class="lesson-num">${les.id}</span><span>${les.title}</span>`;
+      btn.addEventListener("click", () => { goTo(les.id); closeMobileNav(); });
+      li.appendChild(btn);
+      ul.appendChild(li);
+    });
+    det.appendChild(ul);
+    navList.appendChild(det);
+  });
+  updateProgress();
+}
+
+function updateProgress(){
+  const n = state.completed.length;
+  document.getElementById("progressFill").style.width = (n/TOTAL*100).toFixed(1) + "%";
+  document.getElementById("progressLabel").textContent = `${n}/${TOTAL} pranchas concluídas`;
+}
+
+searchInput.addEventListener("input", e => renderNav(e.target.value));
+
+/* ============================= RENDER: MAIN ============================= */
+const sheetEl = document.getElementById("sheet");
+const mobileTitle = document.getElementById("mobileTitle");
+
+function renderHome(){
+  mobileTitle.textContent = "Início";
+  const totalDone = state.completed.length;
+  const resumeId = state.current;
+  let html = `
+    <p class="cover-eyebrow">Curso interativo · 10 pranchas · 30 lições</p>
+    <h1 class="cover-title">Python do zero à entrega de produtos, com olhar de arquiteto</h1>
+    <p class="cover-lede">Este não é um curso genérico de programação. Cada lição parte de um cenário de arquitetura de soluções — nuvem, automação, FinOps, agentes de IA — e termina com uma nota conectando o conceito de volta à sua prática. No final da prancha 10, você terá o esqueleto de um produto real rodando em Python.</p>
+    <div class="cover-cta">
+      <button class="btn-primary" id="startBtn">${totalDone > 0 ? "Continuar de onde parei" : "Começar pela lição 01.1"}</button>
+      ${totalDone > 0 ? '<button class="btn-secondary" id="restartBtn">Ver o índice completo</button>' : ""}
+    </div>
+    <div class="index-grid">
+      ${COURSE.map(mod => {
+        const done = mod.lessons.filter(l => state.completed.includes(l.id)).length;
+        return `<button class="index-card" data-mod="${mod.num}">
+          <div class="ic-top"><span class="ic-num">PRANCHA ${mod.num}</span><span class="ic-frac">${done}/${mod.lessons.length}</span></div>
+          <span class="ic-title">${mod.title.split(" — ")[1] || mod.title}</span>
+        </button>`;
+      }).join("")}
+    </div>
+  `;
+  sheetEl.innerHTML = html;
+  document.getElementById("startBtn").addEventListener("click", () => {
+    goTo(resumeId || FLAT[0].les.id);
+  });
+  const restartBtn = document.getElementById("restartBtn");
+  if(restartBtn) restartBtn.addEventListener("click", () => { document.getElementById("searchInput").focus(); });
+  sheetEl.querySelectorAll(".index-card").forEach(card => {
+    card.addEventListener("click", () => {
+      const mod = COURSE.find(m => m.num === card.dataset.mod);
+      goTo(mod.lessons[0].id);
+    });
+  });
+  state.current = null;
+  renderNav(searchInput.value);
+}
+
+function findIndex(id){ return FLAT.findIndex(x => x.les.id === id); }
+
+function goTo(id){
+  state.current = id;
+  save();
+  const idx = findIndex(id);
+  if(idx === -1){ renderHome(); return; }
+  const { mod, les } = FLAT[idx];
+  mobileTitle.textContent = les.title;
+  const done = state.completed.includes(les.id);
+  const prev = FLAT[idx-1];
+  const next = FLAT[idx+1];
+
+  let checkHtml = "";
+  if(les.check){
+    if(les.check.type === "mcq"){
+      checkHtml = `
+        <div class="check" data-kind="mcq">
+          <span class="c-label">Verificação rápida</span>
+          <p class="c-prompt">${les.check.prompt}</p>
+          <div class="opt-list">
+            ${les.check.options.map((opt,i) => `<button class="opt" data-i="${i}">${opt}</button>`).join("")}
+          </div>
+          <div class="c-explain" style="display:none;">${les.check.explain}</div>
+        </div>`;
+    } else if(les.check.type === "predict"){
+      checkHtml = `
+        <div class="check" data-kind="predict">
+          <span class="c-label">Preveja a saída</span>
+          <p class="c-prompt">${les.check.prompt}</p>
+          <div class="codeblock" style="margin-bottom:12px;"><pre>${hl(les.check.code)}</pre></div>
+          <button class="reveal-btn">Revelar saída</button>
+          <div class="out-block">
+            <span class="out-label">Saída real</span>
+            <div class="codeblock"><pre>${esc(les.check.output)}</pre></div>
+            <div class="c-explain">${les.check.explain}</div>
+          </div>
+        </div>`;
+    }
+  }
+
+  sheetEl.innerHTML = `
+    <div class="titleblock">
+      <div class="tb-left">PRANCHA <b>${mod.num}</b> — ${(mod.title.split(" — ")[1]||mod.title)} &nbsp;·&nbsp; ${les.id}</div>
+      <div class="tb-right">
+        <span class="chip">${les.min} min</span>
+        <span class="chip${done ? " ok" : ""}" id="statusChip">${done ? "Concluído" : "Em andamento"}</span>
+      </div>
+    </div>
+    <h1 class="lesson-title">${les.title}</h1>
+    <div class="lesson-body">${les.html}</div>
+    ${checkHtml}
+    <div class="lesson-footer">
+      <button class="nav-btn prev" ${prev ? "" : "disabled"}>
+        <span class="k">← ANTERIOR</span><span class="t">${prev ? prev.les.id + " " + prev.les.title : "—"}</span>
+      </button>
+      <button class="done-toggle ${done ? "" : "undone"}" id="doneBtn">${done ? "✓ Concluída" : "Marcar como concluída"}</button>
+      <button class="nav-btn next" ${next ? "" : "disabled"}>
+        <span class="k">PRÓXIMA →</span><span class="t">${next ? next.les.id + " " + next.les.title : "—"}</span>
+      </button>
+    </div>
+  `;
+
+  const prevBtn = sheetEl.querySelector(".nav-btn.prev");
+  const nextBtn = sheetEl.querySelector(".nav-btn.next");
+  if(prev) prevBtn.addEventListener("click", () => goTo(prev.les.id));
+  if(next) nextBtn.addEventListener("click", () => goTo(next.les.id));
+
+  document.getElementById("doneBtn").addEventListener("click", () => {
+    const i = state.completed.indexOf(les.id);
+    if(i === -1) state.completed.push(les.id); else state.completed.splice(i,1);
+    save();
+    goTo(les.id);
+  });
+
+  if(les.check && les.check.type === "mcq"){
+    const opts = sheetEl.querySelectorAll(".opt");
+    opts.forEach(btn => {
+      btn.addEventListener("click", () => {
+        opts.forEach(o => o.disabled = true);
+        const i = Number(btn.dataset.i);
+        if(i === les.check.correct){ btn.classList.add("correct"); }
+        else{
+          btn.classList.add("wrong");
+          opts[les.check.correct].classList.add("correct");
+        }
+        sheetEl.querySelector(".c-explain").style.display = "block";
+      });
+    });
+  }
+  if(les.check && les.check.type === "predict"){
+    const revealBtn = sheetEl.querySelector(".reveal-btn");
+    revealBtn.addEventListener("click", () => {
+      sheetEl.querySelector(".out-block").classList.add("show");
+      revealBtn.style.display = "none";
+    });
+  }
+
+  renderNav(searchInput.value);
+  window.scrollTo({top:0, behavior:"instant"});
+}
+
+/* ============================= MOBILE NAV ============================= */
+const navEl = document.getElementById("nav");
+const backdrop = document.getElementById("backdrop");
+document.getElementById("hamburger").addEventListener("click", () => {
+  navEl.classList.add("open"); backdrop.classList.add("open");
+});
+backdrop.addEventListener("click", closeMobileNav);
+function closeMobileNav(){ navEl.classList.remove("open"); backdrop.classList.remove("open"); }
+
+/* ============================= INIT ============================= */
+if(state.current && findIndex(state.current) !== -1){
+  goTo(state.current);
+} else {
+  renderHome();
+}
+</script>
+
+<a href="../../index.html" class="hub-back" aria-label="Voltar ao índice do hub">◂ HUB</a>
+<style>.hub-back{position:fixed;left:16px;bottom:16px;z-index:9999;font:600 12px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;color:#35E0FF!important;background:rgba(6,10,18,.88)!important;border:1px solid rgba(53,224,255,.45);padding:9px 13px;border-radius:999px;text-decoration:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 0 18px rgba(53,224,255,.25)}.hub-back:hover{background:#35E0FF!important;color:#060A12!important}@media print{.hub-back{display:none}}</style>
+</body>
+</html>

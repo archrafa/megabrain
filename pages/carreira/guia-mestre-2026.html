@@ -1,0 +1,1651 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta name="robots" content="noindex,nofollow">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia Mestre — Rafael Ramalho</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============ Tokens ============ */
+:root{
+  --paper: #f2f5f2;
+  --paper-raised: #ffffff;
+  --paper-sunken: #e9edea;
+  --ink: #16221f;
+  --ink-soft: #4b5a56;
+  --ink-faint: #7c8a85;
+  --line: #d9e0dc;
+  --line-strong: #c1cbc5;
+  --accent: #2b6e5b;
+  --accent-strong: #184a3d;
+  --accent-tint: #e4efea;
+  --gold: #a9782e;
+  --gold-tint: #f5ecdc;
+  --rust: #a24b36;
+  --rust-tint: #f6e6e0;
+  --shadow: 0 1px 2px rgba(20,30,25,0.04), 0 8px 24px -12px rgba(20,30,25,0.12);
+  --radius: 3px;
+  --sidebar-w: 300px;
+  /* Fixed-hue plate — deliberately constant across themes (solid ink-green banner) */
+  --banner-bg: #17453d;
+  --banner-fg: #f2f5f2;
+  --banner-fg-soft: rgba(242,245,242,0.88);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper: #101613;
+    --paper-raised: #171f1b;
+    --paper-sunken: #0b100e;
+    --ink: #e7ece9;
+    --ink-soft: #a9b6b1;
+    --ink-faint: #758079;
+    --line: #263029;
+    --line-strong: #35423a;
+    --accent: #4faf92;
+    --accent-strong: #7fcbb2;
+    --accent-tint: #14261f;
+    --gold: #d3a75b;
+    --gold-tint: #2a2216;
+    --rust: #d08265;
+    --rust-tint: #2a1c16;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+  }
+}
+:root[data-theme="dark"]{
+  --paper: #101613;
+  --paper-raised: #171f1b;
+  --paper-sunken: #0b100e;
+  --ink: #e7ece9;
+  --ink-soft: #a9b6b1;
+  --ink-faint: #758079;
+  --line: #263029;
+  --line-strong: #35423a;
+  --accent: #4faf92;
+  --accent-strong: #7fcbb2;
+  --accent-tint: #14261f;
+  --gold: #d3a75b;
+  --gold-tint: #2a2216;
+  --rust: #d08265;
+  --rust-tint: #2a1c16;
+  --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  *,*::before,*::after{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
+}
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size:16.5px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+
+h1,h2,h3,h4{
+  font-family:"Source Serif 4", Georgia, "Times New Roman", serif;
+  color:var(--ink);
+  text-wrap:balance;
+  font-weight:600;
+  margin:0;
+}
+
+.mono{ font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, monospace; }
+
+a{ color:var(--accent-strong); }
+:root:not([data-theme="light"]) a{ color:var(--accent-strong); }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) a{ color:var(--accent); } }
+:root[data-theme="dark"] a{ color:var(--accent); }
+
+:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+/* ============ Layout shell ============ */
+.app{
+  display:flex;
+  min-height:100vh;
+}
+
+/* ---- Topbar (mobile) ---- */
+.topbar{
+  display:none;
+  position:sticky; top:0; z-index:40;
+  align-items:center; gap:.75rem;
+  padding:.85rem 1rem;
+  background:var(--paper-raised);
+  border-bottom:1px solid var(--line);
+}
+.topbar .title{
+  font-family:"Source Serif 4", serif;
+  font-weight:600;
+  font-size:1.05rem;
+  flex:1;
+}
+.icon-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:2.25rem; height:2.25rem;
+  background:transparent;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  color:var(--ink);
+  cursor:pointer;
+}
+.icon-btn:hover{ border-color:var(--line-strong); background:var(--paper-sunken); }
+.icon-btn svg{ width:1.1rem; height:1.1rem; }
+
+/* ---- Sidebar ---- */
+.backdrop{
+  display:none;
+  position:fixed; inset:0;
+  background:rgba(10,15,13,0.4);
+  z-index:45;
+}
+.sidebar{
+  width:var(--sidebar-w);
+  flex-shrink:0;
+  border-right:1px solid var(--line);
+  background:var(--paper-raised);
+  height:100vh;
+  position:sticky;
+  top:0;
+  display:flex;
+  flex-direction:column;
+}
+.sidebar-head{
+  padding:1.35rem 1.35rem 1rem;
+  border-bottom:1px solid var(--line);
+}
+.brand{
+  display:flex; align-items:baseline; gap:.5rem;
+  margin-bottom:.15rem;
+}
+.brand-mark{
+  font-family:"IBM Plex Mono"; font-size:.68rem; letter-spacing:.12em;
+  color:var(--accent); border:1px solid var(--accent); border-radius:2px;
+  padding:.1rem .3rem;
+}
+.brand-title{
+  font-family:"Source Serif 4", serif; font-weight:700; font-size:1.15rem;
+}
+.brand-sub{ font-size:.78rem; color:var(--ink-soft); margin-top:.2rem; }
+
+.search-wrap{
+  position:relative;
+  margin-top:1rem;
+}
+.search-wrap svg{
+  position:absolute; left:.6rem; top:50%; transform:translateY(-50%);
+  width:.9rem; height:.9rem; color:var(--ink-faint);
+}
+#search{
+  width:100%;
+  padding:.5rem .6rem .5rem 1.9rem;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--paper-sunken);
+  color:var(--ink);
+  font-family:inherit;
+  font-size:.85rem;
+}
+#search::placeholder{ color:var(--ink-faint); }
+#search:focus{ outline:none; border-color:var(--accent); background:var(--paper-raised); }
+.search-hint{
+  font-family:"IBM Plex Mono"; font-size:.65rem; color:var(--ink-faint);
+  position:absolute; right:.55rem; top:50%; transform:translateY(-50%);
+  border:1px solid var(--line); border-radius:2px; padding:.05rem .3rem;
+  pointer-events:none;
+}
+
+nav.toc{
+  flex:1;
+  overflow-y:auto;
+  padding:.5rem 0 1.5rem;
+}
+.toc-group{ margin-top:.9rem; }
+.toc-group:first-child{ margin-top:.6rem; }
+.toc-group-label{
+  display:flex; align-items:baseline; gap:.4rem;
+  font-family:"IBM Plex Mono"; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--accent-strong);
+  padding:.25rem 1.35rem;
+}
+:root:not([data-theme="light"]) .toc-group-label{ color: var(--accent); }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .toc-group-label{ color:var(--accent); } }
+.toc-group-label .part-letter{
+  font-weight:700; font-size:.8rem;
+}
+.toc ul{ list-style:none; margin:0; padding:0; }
+.toc li a{
+  display:flex; align-items:baseline; gap:.55rem;
+  padding:.34rem 1.35rem;
+  color:var(--ink-soft);
+  text-decoration:none;
+  font-size:.87rem;
+  border-left:2px solid transparent;
+  transition:background .12s ease, color .12s ease, border-color .12s ease;
+}
+.toc li a .num{
+  font-family:"IBM Plex Mono"; font-size:.72rem; color:var(--ink-faint);
+  min-width:1.1rem;
+}
+.toc li a:hover{ background:var(--paper-sunken); color:var(--ink); }
+.toc li a.active{
+  background:var(--accent-tint);
+  color:var(--accent-strong);
+  border-left-color:var(--accent);
+  font-weight:600;
+}
+:root:not([data-theme="light"]) .toc li a.active{ color:var(--accent); }
+.toc li.hidden{ display:none; }
+.toc-group.all-hidden{ display:none; }
+
+.sidebar-foot{
+  border-top:1px solid var(--line);
+  padding:.75rem 1.35rem;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:.5rem;
+}
+#theme-toggle{
+  display:inline-flex; align-items:center; gap:.4rem;
+  background:transparent; border:1px solid var(--line); border-radius:var(--radius);
+  padding:.35rem .6rem; font-family:"IBM Plex Mono"; font-size:.7rem; color:var(--ink-soft);
+  cursor:pointer;
+}
+#theme-toggle:hover{ border-color:var(--line-strong); }
+.rev-note{ font-size:.68rem; color:var(--ink-faint); font-family:"IBM Plex Mono"; }
+
+/* ---- Main content ---- */
+main{
+  flex:1;
+  min-width:0;
+  display:flex;
+  justify-content:center;
+}
+.doc{
+  width:100%;
+  max-width:760px;
+  padding:4.5rem 2rem 8rem;
+}
+@media (max-width: 640px){
+  .doc{ padding:2.2rem 1.15rem 6rem; }
+}
+
+/* ---- Hero ---- */
+.hero{ margin-bottom:2.6rem; }
+.hero-eyebrow{
+  font-family:"IBM Plex Mono"; font-size:.75rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--accent-strong); margin-bottom:.9rem; display:block;
+}
+:root:not([data-theme="light"]) .hero-eyebrow{ color:var(--accent); }
+.hero h1{
+  font-size:clamp(2.1rem, 5vw, 3rem);
+  line-height:1.08;
+  margin-bottom:.5rem;
+}
+.hero .subtitle{
+  font-family:"Source Serif 4", serif; font-style:italic; font-weight:400;
+  font-size:1.25rem; color:var(--ink-soft); margin-bottom:1.1rem;
+}
+.hero .byline{ font-size:.95rem; color:var(--ink); font-weight:600; }
+.hero .byline-meta{ font-size:.82rem; color:var(--ink-faint); margin-top:.15rem; }
+.hero .abstract{
+  margin-top:1.4rem; color:var(--ink-soft); font-size:.95rem; max-width:60ch;
+}
+
+/* Premise banner - the thesis */
+.premise{
+  margin:2.4rem 0 3rem;
+  padding:1.7rem 1.9rem;
+  background:var(--banner-bg);
+  color:var(--banner-fg);
+  border-radius:var(--radius);
+  position:relative;
+}
+.premise-label{
+  font-family:"IBM Plex Mono"; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--banner-fg-soft); margin-bottom:.6rem; display:block;
+}
+.premise p{
+  font-family:"Source Serif 4", serif; font-size:1.28rem; line-height:1.4;
+  margin:0 0 .8rem;
+  color:var(--banner-fg);
+}
+.premise p:last-child{ margin-bottom:0; }
+.premise strong{ font-weight:700; }
+.premise .sub{ font-family:"IBM Plex Sans"; font-size:.92rem; font-weight:400; color:var(--banner-fg-soft); line-height:1.55; }
+
+/* ---- Sections ---- */
+.part-divider{
+  margin:4.5rem 0 2.4rem;
+  padding-top:.2rem;
+}
+.part-divider .part-tag{
+  display:inline-flex; align-items:center; gap:.5rem;
+  font-family:"IBM Plex Mono"; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--accent-strong); margin-bottom:.7rem;
+}
+:root:not([data-theme="light"]) .part-divider .part-tag{ color:var(--accent); }
+.part-divider .part-tag .letter{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:1.6rem; height:1.6rem; border:1px solid var(--accent); border-radius:50%;
+  font-weight:700; font-size:.75rem;
+}
+.part-divider h2{ font-size:1.75rem; margin-bottom:.5rem; }
+.part-divider .part-intro{
+  font-family:"Source Serif 4", serif; font-style:italic; color:var(--ink-soft);
+  font-size:1.05rem; max-width:60ch;
+}
+.part-divider hr{ border:none; border-top:1px solid var(--line); margin-top:1.6rem; }
+
+section.chapter{
+  margin:3.4rem 0;
+  scroll-margin-top:2rem;
+}
+.chapter-head{
+  display:flex; align-items:flex-start; gap:1rem;
+  margin-bottom:.5rem;
+}
+.chapter-num{
+  font-family:"IBM Plex Mono"; font-weight:600; font-size:1.05rem;
+  color:var(--ink-faint);
+  padding-top:.28rem;
+  min-width:2ch;
+}
+.chapter-head h2{ font-size:1.55rem; flex:1; }
+.status-tag{
+  display:inline-block;
+  font-family:"IBM Plex Mono"; font-size:.68rem; letter-spacing:.08em; text-transform:uppercase;
+  padding:.22rem .55rem; border-radius:2px;
+  background:var(--accent-tint); color:var(--accent-strong);
+  border:1px solid var(--accent);
+  margin:.3rem 0 1.2rem;
+}
+:root:not([data-theme="light"]) .status-tag{ color:var(--accent); }
+
+.chapter h3{
+  font-size:1.05rem;
+  font-style:italic;
+  color:var(--ink);
+  margin-top:1.8rem; margin-bottom:.6rem;
+}
+.chapter p{ margin:0 0 1rem; max-width:66ch; }
+.chapter ul, .chapter ol{ margin:0 0 1.1rem; padding-left:1.3rem; max-width:64ch; }
+.chapter ul{ list-style:none; padding-left:0; }
+.chapter ul > li{
+  position:relative; padding-left:1.25rem; margin-bottom:.55rem;
+}
+.chapter ul > li::before{
+  content:"—"; position:absolute; left:0; color:var(--accent); font-weight:600;
+}
+.chapter ol{ padding-left:1.4rem; }
+.chapter ol > li{ margin-bottom:.6rem; padding-left:.3rem; }
+.chapter li strong{ color:var(--ink); }
+
+/* ---- Tables ---- */
+.table-wrap{
+  overflow-x:auto;
+  margin:0 0 1.4rem;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--paper-raised);
+}
+table.data{
+  width:100%;
+  border-collapse:collapse;
+  font-size:.87rem;
+  min-width:480px;
+}
+table.data th{
+  text-align:left;
+  font-family:"IBM Plex Mono"; font-size:.68rem; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-strong);
+  background:var(--accent-tint);
+  padding:.6rem .9rem;
+  border-bottom:1px solid var(--line-strong);
+  white-space:nowrap;
+}
+:root:not([data-theme="light"]) table.data th{ color:var(--accent); }
+table.data td{
+  padding:.65rem .9rem;
+  border-bottom:1px solid var(--line);
+  vertical-align:top;
+  color:var(--ink-soft);
+}
+table.data td strong, table.data td.strong{ color:var(--ink); font-weight:600; }
+table.data tr:last-child td{ border-bottom:none; }
+table.data td.num{ font-family:"IBM Plex Mono"; font-variant-numeric:tabular-nums; color:var(--ink); white-space:nowrap; }
+
+/* ---- Callouts ---- */
+.callout{
+  margin:1.6rem 0;
+  padding:1.15rem 1.35rem;
+  background:var(--paper-raised);
+  border:1px solid var(--line);
+  border-left:3px solid var(--accent);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.callout-label{
+  display:block;
+  font-family:"IBM Plex Mono"; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--accent-strong); margin-bottom:.55rem;
+}
+:root:not([data-theme="light"]) .callout-label{ color:var(--accent); }
+.callout p{ margin:0 0 .6rem; font-size:.94rem; }
+.callout p:last-child{ margin-bottom:0; }
+.callout--alert{ border-left-color:var(--gold); background:var(--gold-tint); }
+.callout--alert .callout-label{ color:var(--gold); }
+.callout--quote{
+  border-left:none; border:1px solid var(--accent);
+  background:var(--accent-tint);
+  text-align:left;
+}
+.callout--quote p{
+  font-family:"Source Serif 4", serif; font-style:italic; font-size:1.15rem; line-height:1.5; color:var(--ink);
+}
+
+/* pull quote thesis line */
+.thesis{
+  font-family:"Source Serif 4", serif; font-style:italic; font-size:1.3rem; line-height:1.45;
+  border-top:1px solid var(--line-strong); border-bottom:1px solid var(--line-strong);
+  padding:1.3rem 0; margin:2rem 0; color:var(--ink);
+}
+.thesis strong{ font-style:normal; color:var(--accent-strong); }
+:root:not([data-theme="light"]) .thesis strong{ color:var(--accent); }
+
+hr.rule{ border:none; border-top:1px solid var(--line); margin:2.6rem 0; }
+
+/* Appendix */
+.appendix-foot{
+  margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--line);
+  font-size:.85rem; color:var(--ink-faint);
+}
+.appendix-foot p{ max-width:64ch; }
+
+/* Back to top */
+#top-btn{
+  position:fixed; right:1.6rem; bottom:1.6rem; z-index:30;
+  width:2.6rem; height:2.6rem; border-radius:50%;
+  background:var(--accent-strong); color:#fff;
+  border:none; display:flex; align-items:center; justify-content:center;
+  cursor:pointer; box-shadow:var(--shadow);
+  opacity:0; pointer-events:none; transform:translateY(8px);
+  transition:opacity .18s ease, transform .18s ease;
+}
+#top-btn.visible{ opacity:1; pointer-events:auto; transform:translateY(0); }
+#top-btn svg{ width:1.1rem; height:1.1rem; }
+
+/* ============ Responsive ============ */
+@media (max-width: 900px){
+  .topbar{ display:flex; }
+  .sidebar{
+    position:fixed; z-index:50; top:0; left:0;
+    transform:translateX(-100%);
+    transition:transform .22s ease;
+    box-shadow:var(--shadow);
+  }
+  .sidebar.open{ transform:translateX(0); }
+  .backdrop.open{ display:block; }
+}
+
+/* ============ Print ============ */
+@media print{
+  .topbar,.sidebar,.backdrop,#top-btn{ display:none !important; }
+  main{ display:block; }
+  .doc{ max-width:100%; padding:0; }
+  body{ background:#fff; color:#000; }
+  .premise{ background:#fff; color:#000; border:1px solid #000; }
+  .callout, table.data th{ background:#fff !important; }
+  a{ color:#000; text-decoration:underline; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="icon-btn" id="menu-open" aria-label="Abrir navegação">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+  <span class="title">Guia Mestre</span>
+  <button class="icon-btn" id="theme-toggle-mobile" aria-label="Alternar tema">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+</div>
+
+<div class="backdrop" id="backdrop"></div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="brand">
+        <span class="brand-mark">GM·26</span>
+        <span class="brand-title">Guia Mestre</span>
+      </div>
+      <div class="brand-sub">Vida, Saúde, Estudo e Carreira</div>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" id="search" placeholder="Buscar capítulo…" autocomplete="off">
+        <span class="search-hint">/</span>
+      </div>
+    </div>
+    <nav class="toc" id="toc">
+      <div class="toc-group">
+        <div class="toc-group-label">Abertura</div>
+        <ul>
+          <li><a href="#panorama"><span class="num">01</span> Panorama — onde você está</a></li>
+        </ul>
+      </div>
+      <div class="toc-group">
+        <div class="toc-group-label"><span class="part-letter">A</span> Vida pessoal e saúde</div>
+        <ul>
+          <li><a href="#cap-2"><span class="num">02</span> Equilíbrio e vida pessoal</a></li>
+          <li><a href="#cap-3"><span class="num">03</span> Saúde — sono, movimento e recuperação</a></li>
+          <li><a href="#cap-4"><span class="num">04</span> Nutrição</a></li>
+          <li><a href="#cap-5"><span class="num">05</span> Caminho espiritual</a></li>
+          <li><a href="#cap-6"><span class="num">06</span> A semana ideal</a></li>
+        </ul>
+      </div>
+      <div class="toc-group">
+        <div class="toc-group-label"><span class="part-letter">B</span> Estudo</div>
+        <ul>
+          <li><a href="#cap-7"><span class="num">07</span> O ajuste de maior retorno</a></li>
+          <li><a href="#cap-8"><span class="num">08</span> Sete lacunas técnicas</a></li>
+          <li><a href="#cap-9"><span class="num">09</span> Matriz de competências</a></li>
+          <li><a href="#cap-10"><span class="num">10</span> Biblioteca de referência</a></li>
+          <li><a href="#cap-11"><span class="num">11</span> Certificações</a></li>
+          <li><a href="#cap-12"><span class="num">12</span> Rotina semanal de estudo</a></li>
+        </ul>
+      </div>
+      <div class="toc-group">
+        <div class="toc-group-label"><span class="part-letter">C</span> Carreira</div>
+        <ul>
+          <li><a href="#cap-13"><span class="num">13</span> Leitura de mercado 2025–26</a></li>
+          <li><a href="#cap-14"><span class="num">14</span> As três versões do cargo</a></li>
+          <li><a href="#cap-15"><span class="num">15</span> Diagnóstico do seu perfil</a></li>
+          <li><a href="#cap-16"><span class="num">16</span> Marca e autoridade</a></li>
+          <li><a href="#cap-17"><span class="num">17</span> Portfólio e prova pública</a></li>
+          <li><a href="#cap-18"><span class="num">18</span> Competências não técnicas</a></li>
+          <li><a href="#cap-19"><span class="num">19</span> Rotas de derivação</a></li>
+          <li><a href="#cap-20"><span class="num">20</span> Caminho internacional</a></li>
+          <li><a href="#cap-21"><span class="num">21</span> Renda complementar</a></li>
+        </ul>
+      </div>
+      <div class="toc-group">
+        <div class="toc-group-label"><span class="part-letter">D</span> Direção e execução</div>
+        <ul>
+          <li><a href="#cap-22"><span class="num">22</span> Exercícios de propósito</a></li>
+          <li><a href="#cap-23"><span class="num">23</span> Plano em ondas 2026–31</a></li>
+          <li><a href="#cap-24"><span class="num">24</span> Sinais de monitoramento</a></li>
+          <li><a href="#cap-25"><span class="num">25</span> Painel de referência rápida</a></li>
+        </ul>
+      </div>
+      <div class="toc-group">
+        <div class="toc-group-label">Apêndice</div>
+        <ul>
+          <li><a href="#apendice"><span class="num">—</span> Origem e referências</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="sidebar-foot">
+      <button id="theme-toggle" title="Alternar tema">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <span id="theme-label">tema</span>
+      </button>
+      <span class="rev-note">jul/2026</span>
+    </div>
+  </aside>
+
+  <main>
+    <article class="doc" id="doc">
+      <header class="hero">
+        <span class="hero-eyebrow">Documento único consolidado · Julho de 2026</span>
+        <h1>Guia Mestre</h1>
+        <p class="subtitle">Vida, Saúde, Estudo e Carreira</p>
+        <p class="byline">Rafael Ramalho</p>
+        <p class="byline-meta">Consolida quatro documentos anteriores — o Plano de Evolução, o Guia Integrado, o Guia Integrado v2 e o Relatório de Carreira Técnica 2026–2031 — numa única fonte de verdade, organizada por tema.</p>
+      </header>
+
+      <div class="premise">
+        <span class="premise-label">A premissa que não muda</span>
+        <p><strong>Equilíbrio e saúde são a base, não o que sobra depois do trabalho.</strong></p>
+        <p class="sub">Se um período apertar, corte de baixo para cima na ordem de prioridade: solta primeiro visibilidade, depois estudo, depois carreira. O equilíbrio é a última coisa a sair.</p>
+      </div>
+
+      <h2 style="font-size:1.05rem;font-family:'IBM Plex Mono';letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:1rem;">Como usar este documento</h2>
+      <p>Este é um documento de cabeceira, não um relatório para ler de uma vez. Ele substitui os quatro anteriores: a partir daqui, é aqui que você consulta e é aqui que você atualiza. A organização deixou de ser cronológica (plano anual, edição 1, edição 2, relatório) e passou a ser temática — você abre na seção do assunto que está tratando.</p>
+
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Parte</th><th>O que cobre</th><th>Quando abrir</th></tr></thead>
+          <tbody>
+            <tr><td class="strong">A · Vida pessoal e saúde</td><td>Equilíbrio, sono, movimento, nutrição, caminho espiritual e a semana ideal.</td><td>Sempre que a rotina começar a escorregar. É a prioridade #1.</td></tr>
+            <tr><td class="strong">B · Estudo</td><td>Alocação de frentes, sete lacunas técnicas, matriz de competências, certificações e rotina semanal de estudo.</td><td>No planejamento de cada trimestre e antes de aceitar um novo curso.</td></tr>
+            <tr><td class="strong">C · Carreira</td><td>Mercado 2025–2026, o veredito sobre o cargo, marca, portfólio, rotas de derivação e caminho internacional.</td><td>Nas decisões de posicionamento, entrevista e negociação.</td></tr>
+            <tr><td class="strong">D · Direção e execução</td><td>Exercícios de propósito, plano em ondas até 2031, sinais de monitoramento e painel rápido.</td><td>Na revisão trimestral e quando algo grande mudar.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--alert">
+        <span class="callout-label">Uma ressalva honesta, mantida da última edição</span>
+        <p>A parte profissional deste documento é mais exigente do que a versão de um ano atrás. Isso cria uma tensão real com a Parte A, e ela não se resolve sozinha: se o plano de carreira for executado por cima do sono e do equilíbrio, ele se anula — porque a competência que o mercado vai comprar de você depende de julgamento, e julgamento é a primeira coisa que a exaustão corrói.</p>
+        <p><strong>A resposta não é fazer mais. É fazer menos coisas com mais profundidade.</strong></p>
+      </div>
+
+      <h2 style="font-size:1.05rem;font-family:'IBM Plex Mono';letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:1rem;">O que este documento resolveu de conflito</h2>
+      <p>Os quatro documentos de origem foram escritos em momentos diferentes e discordavam em alguns pontos. A regra aplicada foi simples: prevalece o mais recente. Abaixo, o registro do que mudou, para você não estranhar ao reencontrar a versão antiga.</p>
+
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Tema</th><th>Versão antiga</th><th>O que vale agora</th></tr></thead>
+          <tbody>
+            <tr><td class="strong">Direção de carreira</td><td>Em aberto: mapeando entre Arquiteto Principal, gestão e consultoria, com trilha de exploração ao longo do ano.</td><td>Decidido: trilha técnica, sem migração para gestão, com empregabilidade preservada no Brasil e no exterior. A exploração deu lugar ao plano em ondas até 2031.</td></tr>
+            <tr><td class="strong">Horizonte do plano</td><td>Ciclo de 1 ano, cadência Q1–Q4.</td><td>Quatro ondas de 2026 a 2031, com revisão trimestral mantida como ritual.</td></tr>
+            <tr><td class="strong">Eixo técnico</td><td>Duas frentes de igual peso: DDD aplicado e GenAI arquitetural.</td><td>GenAI arquitetural é o eixo central; DDD permanece como ferramenta a serviço dele. Sete lacunas priorizadas.</td></tr>
+            <tr><td class="strong">Certificações</td><td>Buscar AZ-305, AWS SA Professional e uma credencial de IA aplicada.</td><td>Concluir a que está em curso e encerrar o ciclo. Colecionismo de certificação entrou na lista de desinvestir.</td></tr>
+            <tr><td class="strong">Frentes de estudo</td><td>Rotina de 10,5 h/semana cobrindo duas pós, curso avulso e certificação em paralelo.</td><td>Reduzir para uma pós principal e a outra em manutenção. Menos frentes, mais profundidade, cada uma terminando em artefato público.</td></tr>
+            <tr><td class="strong">Marca pessoal</td><td>LinkedIn em português, tema genérico de arquitetura.</td><td>Nicho explícito — IA aplicada a crédito rural sob regulação brasileira — com produção também em inglês.</td></tr>
+            <tr><td class="strong">Portfólio</td><td>Desejável: organizar um GitHub com projetos de curso.</td><td>Obrigatório e estrutural: é o substituto de referência profissional no mercado internacional. Projeto-âncora definido.</td></tr>
+            <tr><td class="strong">Ideias de negócio</td><td>Seis ideias de renda em horas marginais.</td><td>Substituídas por sete rotas de derivação de carreira. As ideias de renda permanecem, mas como diversificação da Onda 4, não como direção.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="rule">
+
+      <section class="chapter" id="panorama">
+        <div class="chapter-head">
+          <span class="chapter-num">01</span>
+          <h2>Panorama — onde você está</h2>
+        </div>
+        <p><strong>Perfil.</strong> Arquiteto de soluções sênior, 20+ anos em tecnologia e serviços financeiros no Brasil, atuando hoje em crédito rural e agronegócio em banco de grande porte. Passagens por CCR (primeiro pedágio Free Flow do Brasil), Bradesco (modernização de legado, risco e compliance) e Santander/F1RST (GenAI com times internacionais). Largura rara: multicloud, GenAI, FinOps, modernização, TOGAF.</p>
+        <p><strong>Decisão tomada.</strong> Trilha técnica, sem migração para gestão, com empregabilidade preservada dentro e fora do Brasil. Isso encerrou o capítulo de exploração e abriu o de execução.</p>
+
+        <div class="callout callout--quote">
+          <span class="callout-label">A frase que resume tudo</span>
+          <p><strong>Seu diferencial mais difícil de copiar não é IA — é crédito rural sob regulação brasileira.</strong> IA é o que torna esse ativo vendível nos próximos cinco anos, no Brasil e fora dele.</p>
+        </div>
+
+        <h3>O ponto mais desconfortável do diagnóstico</h3>
+        <p>Seu maior ativo hoje — senioridade reconhecida dentro de uma instituição de altíssimo prestígio local — é também sua maior fragilidade externa. Reconhecimento interno não é moeda conversível. Vinte anos de decisões acertadas que só existem em sistemas fechados, atas de comitê e wikis corporativas não são legíveis por um recrutador em Austin, Lisboa ou Berlim.</p>
+        <p class="thesis"><strong>A tarefa central dos próximos 24 meses não é aprender mais coisas.</strong> É tornar legível, verificável e transferível o que você já sabe, enquanto fecha um conjunto pequeno e específico de lacunas técnicas.</p>
+
+        <h3>Resumo em cinco frases</h3>
+        <ol>
+          <li>Seguir como arquiteto de soluções vale a pena, desde que "arquiteto de soluções" passe a significar arquiteto de sistemas de IA em domínio regulado.</li>
+          <li>O maior risco não é a IA — é a distância entre o que você sabe e o que é verificável por quem não trabalha com você.</li>
+          <li>A lacuna técnica prioritária é engenharia de sistemas não-determinísticos (avaliação, regressão, observabilidade) e ela só fecha construindo.</li>
+          <li>Sua vantagem competitiva mais difícil de copiar é crédito rural sob regulação brasileira; IA é o que a torna vendível.</li>
+          <li>Menos frentes de estudo, mais profundidade, e tudo terminando em artefato público — inclusive em inglês.</li>
+        </ol>
+      </section>
+
+      <div class="part-divider" id="parte-a">
+        <span class="part-tag"><span class="letter">A</span> Vida pessoal e saúde</span>
+        <h2>A base</h2>
+        <p class="part-intro">A base. Prioridade #1 por escolha sua, e a única prioridade que não é negociada em função das outras. Com um plano profissional mais denso, essa regra deixou de ser conselho e virou condição de viabilidade.</p>
+        <hr>
+      </div>
+
+      <section class="chapter" id="cap-2">
+        <div class="chapter-head">
+          <span class="chapter-num">02</span>
+          <h2>Equilíbrio e vida pessoal</h2>
+        </div>
+        <span class="status-tag">Prioridade permanente</span>
+        <p>O objetivo não é ter mais tempo, é ter energia de qualidade e fronteiras claras — algo que se erode em silêncio depois de 20+ anos de instituições financeiras de alta pressão.</p>
+
+        <h3>Os dois inegociáveis</h3>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Inegociável</th><th>O que é e por que</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">1 · Horário de desligar</td><td>Um horário fixo em que o dia de trabalho e de estudo termina, com ritual de transição. A análise da sua agenda mostrou rotina de noite cheia até tarde e sono na faixa de 6,5 h, sem janela de desaceleração. É o ponto de maior fragilidade do sistema todo.</td></tr>
+              <tr><td class="strong">2 · Movimento físico</td><td>Já é o seu ponto mais forte — a consistência de atividade física apareceu com clareza na análise de agenda. A instrução aqui é manter, não expandir.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>O que a análise da sua agenda mostrou</h3>
+        <p><strong>Forças a preservar.</strong> Movimento muito consistente (academia, bike, fisioterapia), uso esperto do tempo morto de deslocamento com audiolivros, blocos de estudo de verdade protegidos (~9 h/semana) e domingos genuinamente livres.</p>
+        <p><strong>Atritos — todos contra a prioridade #1.</strong> Sono curto (~6,5 h, 23:30–06:00), o dia empilhando até 23:30 sem ritual de desligar, estudo alocado na pior janela cognitiva (19h–21h, depois de nove horas de trabalho) e nenhuma janela para leitura espiritual nem para marca pessoal.</p>
+
+        <div class="callout">
+          <span class="callout-label">Implicação prática</span>
+          <p>O estudo na pior janela cognitiva é o problema que mais custa caro agora. As lacunas técnicas da Parte B exigem construção, não leitura passiva — e construir cansado produz volume sem profundidade.</p>
+        </div>
+
+        <div class="callout">
+          <span class="callout-label">Sinais de que está funcionando</span>
+          <p>Você desliga sem culpa, tem energia para a vida pessoal nos dias de semana e percebe que aprende e decide melhor quando está descansado.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="cap-3">
+        <div class="chapter-head">
+          <span class="chapter-num">03</span>
+          <h2>Saúde — sono, movimento e recuperação</h2>
+        </div>
+        <p>Três princípios de correção, na ordem em que importam:</p>
+        <ul>
+          <li><strong>Sono primeiro.</strong> Desligar antes para mirar 7h–7h30, comprimindo a cauda noturna. É o único item cujo descumprimento invalida todo o resto do documento.</li>
+          <li><strong>Ritual de desligar fixo.</strong> Telas baixam em horário definido — o primeiro inegociável, transformado em hora do relógio e não em intenção.</li>
+          <li><strong>Movimento mantido, não expandido.</strong> A consistência já existe. O erro possível aqui é usar o tempo de academia como moeda para pagar a agenda de estudo.</li>
+          <li><strong>Recuperação ativa.</strong> Um hobby ou atividade fora da tecnologia que recarregue. Não é luxo do trimestre bom — é o que impede que a única fonte de identidade seja o trabalho.</li>
+        </ul>
+
+        <div class="callout callout--alert">
+          <span class="callout-label">Sinal de alerta ligado ao plano de estudo</span>
+          <p>Planos de estudo intensivos costumam ser financiados, na prática, com refeição pulada e noite curta. Se isso começar a acontecer, é sinal de que a Parte B está grande demais para o momento — e a regra de ouro manda cortar de baixo para cima.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="cap-4">
+        <div class="chapter-head">
+          <span class="chapter-num">04</span>
+          <h2>Nutrição</h2>
+        </div>
+        <span class="status-tag">Material de apoio · validar com os profissionais que acompanham você</span>
+        <p>A abordagem estruturada low-carb com foco em emagrecimento permanece como consolidada, sempre validada com a nutricionista e o médico que acompanham você. Este documento não substitui essa orientação e não é o lugar para ajustá-la — os números abaixo são referência de planejamento, não prescrição.</p>
+
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Indicador</th><th>Faixa-alvo</th><th>Observação</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Energia</td><td class="num">2.500–2.800 kcal/dia</td><td>Déficit leve sobre a TMB de referência (2.836 kcal/dia)</td></tr>
+              <tr><td class="strong">Proteína</td><td class="num">180–200 g</td><td>Prioridade — preserva massa magra dentro do déficit</td></tr>
+              <tr><td class="strong">Carboidrato líquido</td><td class="num">50–70 g</td><td>Carboidrato total menos fibra</td></tr>
+              <tr><td class="strong">Gordura</td><td class="num">150–175 g</td><td>Fonte principal de energia no padrão low-carb</td></tr>
+              <tr><td class="strong">Refeições</td><td class="num">6 ao dia</td><td>06h · 09–10h · 12h · 16–16h30 · 18–18h30 · jantar/pós-treino</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Princípios que orientam as escolhas</h3>
+        <ul>
+          <li><strong>Carboidrato líquido manda.</strong> Ordene os alimentos por carbo líquido (carbo menos fibra). Quanto menor, mais livre para o padrão.</li>
+          <li><strong>Proteína em toda refeição.</strong> É o macro que sustenta saciedade e massa magra dentro do déficit.</li>
+          <li><strong>Gordura é aliada aqui.</strong> Substitui o carboidrato como energia; não corte por reflexo de dieta antiga.</li>
+          <li><strong>Os máximos por refeição são tetos, não alvos simultâneos.</strong> A soma do dia é que precisa bater na faixa de metas.</li>
+        </ul>
+
+        <div class="callout">
+          <span class="callout-label">Documentos de apoio já existentes</span>
+          <p>Plano low-carb com porções por refeição, planilha de macros da dieta atual com substituições e a base de 216 alimentos com carbo líquido permanecem como as fontes operacionais. O meal prep de domingo é o que sustenta a adesão na semana — cozinhar antes elimina decisão no piloto automático.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="cap-5">
+        <div class="chapter-head">
+          <span class="chapter-num">05</span>
+          <h2>Caminho espiritual</h2>
+        </div>
+        <span class="status-tag">Mantido</span>
+        <p>Sua abordagem é de exploração comparada — personalizar em vez de adotar um sistema inteiro. Você acredita em entidades mais desenvolvidas, reencarnação, vida após a morte e um universalismo de ações, e sente forte o desejo de conexão com algo maior e de pertencer a um grupo, sem aceitar nenhuma religião como absoluta. Tudo aqui respeita esse método.</p>
+
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Tradição</th><th>Onde ressoa</th><th>Onde atrita</th><th>Melhor uso</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Espiritismo (Kardec)</td><td>Reencarnação como evolução do espírito, vida após a morte, entidades superiores — o encaixe doutrinário mais próximo</td><td>Tom de "ciência" sem respaldo empírico</td><td>Aderência + comunidade de acesso fácil</td></tr>
+              <tr><td class="strong">Teosofia</td><td>Visão sistêmica e universalista que dialoga com todas as tradições; cosmologia rica</td><td>Densa, sincrética, exige leitura</td><td>Melhor encaixe conceitual</td></tr>
+              <tr><td class="strong">Budismo tibetano</td><td>Bardo e tulkus se aproximam da ideia de entidades que evoluem e retornam</td><td>Não-teísta e o "eu" não transmigra (anatta)</td><td>Prática, meditação e metafísica</td></tr>
+              <tr><td class="strong">Seicho-No-Ie</td><td>Positiva, prática, com comunidade no Brasil</td><td>Menos aderente às suas crenças centrais</td><td>Leitura pontual</td></tr>
+              <tr><td class="strong">Xintoísmo</td><td>Sacralidade do mundo, conexão com o maior</td><td>Muito cultural, pouco doutrinário</td><td>Contexto e contraste</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Roteiro graduado — no seu método</h3>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Etapa</th><th>O que fazer</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Provar</td><td>Leituras panorâmicas e leves para sentir o terreno: uma introdução ao espiritismo e uma à teosofia.</td></tr>
+              <tr><td class="strong">Aprofundar</td><td>Só no que te pegar: obra de base de Kardec, teosofia clássica, ou estudo regular de budismo tibetano num centro.</td></tr>
+              <tr><td class="strong">Experimentar</td><td>Estar-junto: uma reunião de centro espírita (barreira baixíssima) e um sábado num templo. O simples estar-junto já responde parte do que você sente falta.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Centros próximos — priorizando linhagens abertas</h3>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Centro</th><th>Linhagem e nota</th><th>Distância</th><th>Quando ir</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">CEBB Campinas</td><td>Nyingma, aberta. Estudo + meditação, sem pré-requisito</td><td>~45 min</td><td>Estudo regular</td></tr>
+              <tr><td class="strong">Templo Odsal Ling (Cotia)</td><td>Gelug. O templo mais imersivo da região</td><td>~50–60 min</td><td>Sábado ou domingo</td></tr>
+              <tr><td class="strong">Centro Nyingma do Brasil (SP)</td><td>Nyingma, muito aberta. Meditação semanal, Kum Nye</td><td>Capital</td><td>Meio de semana</td></tr>
+              <tr><td class="strong">Peace Dharma Center (SP)</td><td>Grupos de estudo diários, atividades gratuitas</td><td>Capital</td><td>Cursos</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <span class="callout-label">Direcional honesto</span>
+          <p><strong>Sequência sugerida:</strong> vá a um sábado no templo em Cotia para a experiência imersiva; se aquilo te chamar, comece estudo regular no CEBB, onde a parte intelectual e a comunidade alimentam. Os dois cobrem o "sentir" e o "entender".</p>
+          <p><strong>Em paralelo:</strong> uma reunião num centro espírita resolve a aderência doutrinária e a falta de comunidade com barreira mínima.</p>
+          <p><strong>Filtro ligado:</strong> você vai topar com afirmações de tom científico sem respaldo empírico. Leia como quem explora cosmovisões, não como quem busca fatos provados. A busca em si — visitar, ler, comparar, conversar com gente de carne e osso — já é parte do que você procura.</p>
+          <p><strong>Atenção ao rótulo "kadampa":</strong> hoje quase sempre designa a Nova Tradição Kadampa, a porta de entrada mais acessível da região e também a mais exclusivista e centrada numa única autoridade — quase o oposto do seu temperamento universalista. Serve para aprender meditação; para estudo regular, prefira uma linhagem aberta.</p>
+        </div>
+
+        <div class="callout callout--alert">
+          <span class="callout-label">A pergunta que este documento não responde</span>
+          <p>A pergunta de propósito e a pergunta de empregabilidade são diferentes. Este guia responde bem à segunda. A primeira continua sendo trabalho seu, e os exercícios da Parte D existem exatamente para isso.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="cap-6">
+        <div class="chapter-head">
+          <span class="chapter-num">06</span>
+          <h2>A semana ideal</h2>
+        </div>
+        <p>A semana abaixo corrige os quatro atritos identificados sem destruir o que já funciona. Ela é o ponto de encontro das partes A e B: é aqui que a redução de frentes de estudo vira tempo real e o sono volta para a faixa de 7h+.</p>
+
+        <h3>Dias de trabalho em casa — segunda, terça e sexta</h3>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Horário</th><th>Atividade</th><th>Foco</th></tr></thead>
+            <tbody>
+              <tr><td class="num">06:00</td><td>Acordar · meditação (15 min)</td><td>espiritual</td></tr>
+              <tr><td class="num">06:15</td><td>Refeição 1 — café/pré-treino</td><td>R1</td></tr>
+              <tr><td class="num">06:30–08:00</td><td>Academia + audiolivro</td><td>saúde</td></tr>
+              <tr><td class="num">08:00–08:30</td><td>Banho · preparação</td><td>—</td></tr>
+              <tr><td class="num">09:00</td><td>Refeição 2 — café low-carb</td><td>R2</td></tr>
+              <tr><td class="num">09:00–10:30</td><td>Trabalho · foco profundo (sem reuniões)</td><td>técnico</td></tr>
+              <tr><td class="num">10:30–12:00</td><td>Trabalho · reuniões e colaboração</td><td>trabalho</td></tr>
+              <tr><td class="num">12:00–13:00</td><td>Almoço (Refeição 3) · pausa real</td><td>R3</td></tr>
+              <tr><td class="num">13:00–16:00</td><td>Trabalho</td><td>trabalho</td></tr>
+              <tr><td class="num">16:00–16:30</td><td>Refeição 4 — lanche</td><td>R4</td></tr>
+              <tr><td class="num">16:30–18:00</td><td>Trabalho</td><td>trabalho</td></tr>
+              <tr><td class="num">18:00–18:30</td><td>Refeição 5 · passeio do cão</td><td>R5</td></tr>
+              <tr><td class="num">18:30–20:30</td><td>Estudo (pós principal)</td><td>técnico</td></tr>
+              <tr><td class="num">20:30–21:00</td><td>Jantar (Refeição 6)</td><td>R6</td></tr>
+              <tr><td class="num">21:00–21:45</td><td>Recuperação leve OU leitura espiritual / escrita</td><td>rotação</td></tr>
+              <tr><td class="num">21:45–22:15</td><td>Higiene · organizar o dia seguinte</td><td>—</td></tr>
+              <tr><td class="num">22:15</td><td>Ritual de desligar — telas baixam</td><td>desligar</td></tr>
+              <tr><td class="num">22:45</td><td>Dormir (→ 06:00 = 7h15)</td><td>sono</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Dias de escritório — quarta e quinta</h3>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Horário</th><th>Atividade</th><th>Foco</th></tr></thead>
+            <tbody>
+              <tr><td class="num">06:00</td><td>Acordar · meditação (15 min)</td><td>espiritual</td></tr>
+              <tr><td class="num">06:15</td><td>Refeição 1</td><td>R1</td></tr>
+              <tr><td class="num">06:30–06:55</td><td>Banho · preparação</td><td>—</td></tr>
+              <tr><td class="num">07:00–09:00</td><td>Deslocamento · conteúdo técnico em inglês (áudio)</td><td>técnico + idioma</td></tr>
+              <tr><td class="num">09:00</td><td>Refeição 2 — ao chegar</td><td>R2</td></tr>
+              <tr><td class="num">09:00–10:30</td><td>Trabalho · foco profundo</td><td>técnico</td></tr>
+              <tr><td class="num">10:30–12:00</td><td>Trabalho · reuniões</td><td>trabalho</td></tr>
+              <tr><td class="num">12:00–13:00</td><td>Almoço (Refeição 3)</td><td>R3</td></tr>
+              <tr><td class="num">13:00–16:00</td><td>Trabalho</td><td>trabalho</td></tr>
+              <tr><td class="num">16:00–16:30</td><td>Refeição 4</td><td>R4</td></tr>
+              <tr><td class="num">16:30–18:00</td><td>Trabalho</td><td>trabalho</td></tr>
+              <tr><td class="num">18:00</td><td>Refeição 5 — antes de sair</td><td>R5</td></tr>
+              <tr><td class="num">18:00–20:00</td><td>Deslocamento · descompressão / família</td><td>recuperação</td></tr>
+              <tr><td class="num">20:00–20:30</td><td>Jantar (Refeição 6)</td><td>R6</td></tr>
+              <tr><td class="num">20:30–21:30</td><td>Estudo leve OU produção de marca (1 post)</td><td>marca/técnico</td></tr>
+              <tr><td class="num">21:30–22:00</td><td>Higiene · organizar</td><td>—</td></tr>
+              <tr><td class="num">22:00</td><td>Ritual de desligar</td><td>desligar</td></tr>
+              <tr><td class="num">22:30</td><td>Dormir (→ 06:00 = 7h30)</td><td>sono</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Sábado e domingo</h3>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Momento</th><th>Atividade</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Sábado manhã</td><td>Acordar 07:00 · meditação · Refeição 1 · academia (pode ser mais longa) · banho e Refeição 2.</td></tr>
+              <tr><td class="strong">Sábado 09:30–12:00</td><td>Bloco de construção do projeto-âncora. Esta é a melhor janela cognitiva da semana e é dela que sai a profundidade da Parte B.</td></tr>
+              <tr><td class="strong">Sábado tarde</td><td>Livre · experiência espiritual (centro ou templo) · hobby. Refeições 4 e 5 nos horários.</td></tr>
+              <tr><td class="strong">Sábado noite</td><td>Jantar (R6) · tempo livre · dormir no horário.</td></tr>
+              <tr><td class="strong">Domingo manhã</td><td>Leitura espiritual · passeio · família.</td></tr>
+              <tr><td class="strong">Domingo tarde</td><td>Meal prep low-carb da semana · descanso. Domingo permanece genuinamente livre — é uma força a preservar, não um espaço a ocupar.</td></tr>
+              <tr><td class="strong">Domingo noite</td><td>Desligar cedo · preparar a semana · dormir.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <span class="callout-label">Três ajustes que a semana acima implementa</span>
+          <p><strong>Mover a construção para a melhor janela.</strong> Estudo depois da jornada completa serve para consumir conteúdo. As lacunas 1 a 3 da Parte B exigem construir — daí o bloco de sábado de manhã.</p>
+          <p><strong>Liberar espaço cortando frentes, não somando horas.</strong> A redução de duas pós ativas para uma principal libera tempo sem custo de sono. É a única forma sustentável de acomodar o projeto-âncora.</p>
+          <p><strong>Dar lugar ao que nunca teve.</strong> Leitura espiritual e marca pessoal continuavam sem espaço no calendário. Marca pessoal agora é item de plano de carreira, não hobby — precisa de bloco fixo, ainda que curto e quinzenal.</p>
+          <p><strong>Aproveitamento do deslocamento.</strong> Os dias de escritório com deslocamento longo são seu ativo de tempo mais bem usado. Com o objetivo internacional, há um uso novo e óbvio: conteúdo técnico em inglês, por áudio. Resolve dois itens do plano sem consumir nenhuma hora adicional.</p>
+        </div>
+
+        <div class="callout callout--alert">
+          <span class="callout-label">Como manter calibrado</span>
+          <p>Uma vez por mês, marque cada bloco com +, = ou − (energia, não só tempo) e confira três coisas: o sono ficou em 7h+? o foco profundo da manhã aconteceu? a leitura e a escrita ganharam seu slot? Onde a resposta for não, ajuste antes que vire hábito.</p>
+        </div>
+      </section>
+
+      <div class="part-divider" id="parte-b">
+        <span class="part-tag"><span class="letter">B</span> Estudo</span>
+        <h2>Profundidade deliberada</h2>
+        <p class="part-intro">Você já tem largura rara. O movimento certo agora é profundidade deliberada, não mais superfície. Esta parte existe para responder uma pergunta só: o que estudar, em que ordem, e o que parar de estudar.</p>
+        <hr>
+      </div>
+
+      <section class="chapter" id="cap-7">
+        <div class="chapter-head">
+          <span class="chapter-num">07</span>
+          <h2>O ajuste de maior retorno imediato</h2>
+        </div>
+        <span class="status-tag">Diagnóstico</span>
+        <p>O ajuste de maior retorno imediato não é técnico, é de alocação. Duas pós-graduações simultâneas, curso avulso e certificação em paralelo é volume alto que fragmenta. Cinco frentes rasas valem menos, no mercado, do que duas frentes profundas com artefato público ao final.</p>
+
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Decisão</th><th>O que fazer</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Uma pós principal</td><td>Escolher qual das duas é a principal e tratar a outra em ritmo de manutenção — presença, entregas mínimas, sem tentar profundidade nas duas.</td></tr>
+              <tr><td class="strong">Encerrar o ciclo de certificação</td><td>Concluir a que está em curso e parar por ora. Uma ou duas credenciais relevantes somadas a experiência de produção superam uma parede de siglas.</td></tr>
+              <tr><td class="strong">Mudar a janela</td><td>Estudo alocado depois de uma jornada inteira serve para leitura e revisão, não para construção. As lacunas 1 a 3 exigem construir — o que pede a melhor janela cognitiva da semana, não a que sobra.</td></tr>
+              <tr><td class="strong">Terminar em artefato</td><td>Cada frente que sobreviver precisa terminar em algo público: repositório, texto técnico, relatório de avaliação. Estudo que não deixa rastro não é legível pelo mercado.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="chapter" id="cap-8">
+        <div class="chapter-head">
+          <span class="chapter-num">08</span>
+          <h2>As sete lacunas técnicas prioritárias</h2>
+        </div>
+        <span class="status-tag">Eixo central · próximos 24 meses</span>
+        <p>A edição anterior apontava duas frentes de igual peso: DDD aplicado e GenAI arquitetural. O diagnóstico estava certo — e a segunda deixou de ser uma entre duas para virar o eixo central da sua empregabilidade. DDD permanece, mas como ferramenta a serviço dela. As lacunas estão em ordem de retorno sobre esforço.</p>
+
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>#</th><th>Lacuna</th><th>Por que importa e o que fechar</th></tr></thead>
+            <tbody>
+              <tr><td class="num strong">1</td><td class="strong">Engenharia de sistemas não-determinísticos</td><td>É o gap número um de arquitetos clássicos que migram para IA, e o mais subestimado. Evals offline e online, métricas além de acurácia, detecção de regressão entre versões de modelo e de prompt, canário e rollback para componentes de IA. Sem isso, você desenha sistemas que não sabe se estão funcionando.</td></tr>
+              <tr><td class="num strong">2</td><td class="strong">Arquitetura agêntica</td><td>Orquestração multiagente, tool calling, memória e estado, isolamento e blast radius, protocolos de contexto, human-in-the-loop em decisões com consequência financeira, pontos de parada obrigatória.</td></tr>
+              <tr><td class="num strong">3</td><td class="strong">Camada de dados e contexto</td><td>RAG de produção, não demo: chunking, ranqueamento, atualização e invalidação, linhagem, contratos de dados, mascaramento de dado sensível. No crédito, é o que separa piloto de sistema auditável.</td></tr>
+              <tr><td class="num strong">4</td><td class="strong">Segurança aplicada a IA</td><td>Injeção de prompt, exfiltração via ferramenta de agente, envenenamento de contexto, segredos em pipeline agêntico, LGPD aplicada a inferência, Zero Trust. É a objeção que todo comitê de risco levanta — e a resposta é arquitetural.</td></tr>
+              <tr><td class="num strong">5</td><td class="strong">Economia de arquitetura de IA</td><td>Custo por decisão, custo por token em fluxo agêntico, seleção de modelo por perfil custo/latência/qualidade, roteamento e cache semântico. Você já tem FinOps; falta aplicá-lo à camada de inferência, onde quase ninguém sabe fazer.</td></tr>
+              <tr><td class="num strong">6</td><td class="strong">Governança e conformidade de IA</td><td>Classificação de risco, documentação de modelo, explicabilidade em decisão de crédito, trilha de auditoria. Com o Marco Legal em tramitação e a baixa maturidade do setor, é a lacuna com melhor casamento entre o que o mercado vai exigir e o que você já sabe do domínio.</td></tr>
+              <tr><td class="num strong">7</td><td class="strong">Prova pública verificável</td><td>Repositório com projeto real, escrita técnica em inglês, participação em comunidade. Não é vaidade: é o substituto do que, no mercado internacional, seria referência de ex-colega.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="chapter" id="cap-9">
+        <div class="chapter-head">
+          <span class="chapter-num">09</span>
+          <h2>Matriz de competências</h2>
+        </div>
+        <span class="status-tag">Manter · atualizar · adquirir · desinvestir</span>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Bloco</th><th>Competências</th><th>Ação e horizonte</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Manter e aprofundar</td><td>Arquitetura distribuída, integração e mensageria, resiliência, DDD, Clean Architecture, Kubernetes/IaC, FinOps, domínio de crédito rural e regulação bancária, comunicação com executivos.</td><td>Base permanente. O diferencial não é saber, é demonstrar decisões com consequência mensurada. Converta 3 a 5 decisões antigas em estudos de caso escritos: contexto, alternativas descartadas, trade-off, resultado.</td></tr>
+              <tr><td class="strong">Atualizar</td><td>Cloud na camada de IA, observabilidade incluindo traços de LLM, segurança e superfície de ataque de agentes, engenharia de plataforma e golden paths, modernização de legado assistida por IA.</td><td>Próximos 12 meses. Concluir a certificação em curso e encerrar o ciclo por ora.</td></tr>
+              <tr><td class="strong">Adquirir</td><td>Avaliação de sistemas de IA, LLMOps, arquitetura agêntica, RAG de produção, governança e classificação de risco de IA, engenharia de contexto, inglês de reunião e negociação técnica.</td><td>Próximos 24 meses, com foco. Cada item termina em artefato: um sistema rodando, um relatório de avaliação, um documento de arquitetura em inglês publicado.</td></tr>
+              <tr><td class="strong">Desinvestir</td><td>Colecionismo de certificações; cerimônia de framework como identidade profissional; comparativos genéricos de tecnologia; arquitetura de referência sem implementação; profundidade em ferramenta de diagramação.</td><td>Imediato. Manter TOGAF como vocabulário e ferramenta de comunicação, não como centro da proposta de valor — o mercado internacional lê certificação de framework como sinal fraco quando vem desacompanhada de execução.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="chapter" id="cap-10">
+        <div class="chapter-head">
+          <span class="chapter-num">10</span>
+          <h2>Sua biblioteca de referência já construída</h2>
+        </div>
+        <p>Guias produzidos ao longo do último ano. Pare de tratá-los como peças soltas: juntos, são seu acervo de arquiteto, e revisitá-los é metade do aprofundamento.</p>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Guia</th><th>O que cobre</th><th>Use para</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Arquitetura de IA (guia completo)</td><td>Do fundamento ao nível de arquiteto: LLMs, custos e FinOps de inferência, formas de provisionamento, RAG, agentes, engenharia de contexto, protocolos, evals e LLMOps, segurança, governança e blueprints de referência.</td><td>É o instrumento central para fechar as lacunas 1 a 6</td></tr>
+              <tr><td class="strong">Autoavaliação de conceitos (4 guias)</td><td>Arquitetura de Soluções, de Software, Corporativa e de IA — com classificação de vínculo e autoavaliação por termo.</td><td>Diagnóstico de lacunas antes de escolher o que estudar</td></tr>
+              <tr><td class="strong">Padrões GoF e padrões modernos</td><td>Os 23 clássicos e os 20 modernos: Event Sourcing, CQRS, Saga, Circuit Breaker, Strangler Fig, ACL, Sidecar.</td><td>Vocabulário de design, entrevistas e decisões distribuídas</td></tr>
+              <tr><td class="strong">AWS Well-Architected e OWASP Top 10</td><td>Seis pilares, trade-offs, anti-patterns, modelo de maturidade; riscos de segurança de aplicação com exemplos.</td><td>Revisão de arquitetura, ADRs e segurança como requisito</td></tr>
+              <tr><td class="strong">DDD aplicado</td><td>Subdomínios, Bounded Contexts, Linguagem Ubíqua, blocos táticos.</td><td>Modelar crédito rural de verdade, com o negócio junto</td></tr>
+              <tr><td class="strong">Agronegócio e crédito rural</td><td>MCR, Plano Safra, ZARC, SICOR, CAR, CPR, agtech e implicações de arquitetura.</td><td>Domínio do seu trabalho atual — e sua barreira de entrada</td></tr>
+              <tr><td class="strong">Guia prático do Devin</td><td>Mecânica de sessão, skills, comandos e otimização de consumo.</td><td>Ferramenta de trabalho no ambiente corporativo</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="chapter" id="cap-11">
+        <div class="chapter-head">
+          <span class="chapter-num">11</span>
+          <h2>Certificações</h2>
+        </div>
+        <span class="status-tag">Revisado · menos quantidade, mais sinal</span>
+        <p>A orientação anterior listava três credenciais a buscar. A orientação atual é diferente e mais simples: concluir a que está em curso e encerrar o ciclo por ora. O motivo não é que certificação não valha nada — é que, no seu ponto de carreira, ela deixou de ser o sinal que falta. O sinal que falta é execução verificável.</p>
+        <ul>
+          <li><strong>Concluir o que está em curso.</strong> Terminar bem uma credencial de nível arquiteto sênior e parar.</li>
+          <li><strong>Regra para as próximas.</strong> Uma por ciclo, no máximo, e só se fechar lacuna real — nunca de base. E sempre acompanhada de um artefato público que prove o mesmo assunto.</li>
+          <li><strong>O que o mercado internacional lê.</strong> Certificação de framework desacompanhada de execução é sinal fraco. Repositório com sistema rodando e README bem escrito é sinal forte.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="cap-12">
+        <div class="chapter-head">
+          <span class="chapter-num">12</span>
+          <h2>Rotina semanal de estudo revisada</h2>
+        </div>
+        <p>A rotina antiga distribuía 10,5 h/semana entre duas pós, um curso e um capstone. A rotina revisada mantém a carga total próxima, mas troca fragmentação por profundidade e move a construção para a melhor janela.</p>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Dia</th><th>Foco</th><th>Natureza</th><th>Duração</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Segunda</td><td>Pós principal</td><td>Construção leve / exercício</td><td class="num">2,0 h</td></tr>
+              <tr><td class="strong">Terça</td><td>Pós principal</td><td>Construção leve / exercício</td><td class="num">2,0 h</td></tr>
+              <tr><td class="strong">Quarta</td><td>Deslocamento: conteúdo técnico em inglês (áudio)</td><td>Consumo</td><td class="num">2,0 h (tempo já existente)</td></tr>
+              <tr><td class="strong">Quinta</td><td>Deslocamento: conteúdo técnico em inglês (áudio)</td><td>Consumo</td><td class="num">2,0 h (tempo já existente)</td></tr>
+              <tr><td class="strong">Sexta</td><td>Pós em manutenção OU leitura da biblioteca</td><td>Consumo / revisão</td><td class="num">1,5 h</td></tr>
+              <tr><td class="strong">Sábado 09:30–12:00</td><td>Projeto-âncora — construção</td><td>Construção profunda</td><td class="num">2,5 h</td></tr>
+              <tr><td class="strong">Quinzenal</td><td>Produção de marca (post ou estudo de caso)</td><td>Escrita</td><td class="num">1,0 h</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <span class="callout-label">O princípio por trás da tabela</span>
+          <p>Consumo (leitura, vídeo, audiolivro) cabe em janela cansada e em tempo morto. Construção (código, avaliação, arquitetura real) exige a melhor janela cognitiva da semana e é a única que fecha as lacunas 1 a 3. A rotina acima existe para proteger o bloco de construção — se algo tiver que cair numa semana apertada, cai o consumo, não a construção.</p>
+        </div>
+      </section>
+
+      <div class="part-divider" id="parte-c">
+        <span class="part-tag"><span class="letter">C</span> Carreira</span>
+        <h2>O que o mercado está dizendo</h2>
+        <p class="part-intro">O que o mercado está dizendo, o que isso significa para o seu cargo especificamente, e o que fazer a respeito. Dados levantados em julho de 2026.</p>
+        <hr>
+      </div>
+
+      <section class="chapter" id="cap-13">
+        <div class="chapter-head">
+          <span class="chapter-num">13</span>
+          <h2>Leitura de mercado 2025–2026</h2>
+        </div>
+        <h3>Global</h3>
+        <ul>
+          <li>Vagas mencionando IA cresceram cerca de 117% entre 2024 e 2025; menções a IA agêntica em anúncios saltaram quase 986% entre 2023 e 2024, com aceleração continuada em 2026.</li>
+          <li>Estimativas de exposição do papel de arquiteto de soluções à automação ficam na faixa baixa (~25%): a IA assiste bem em padrões de projeto, mas arquitetura que atravessa fronteiras organizacionais exige julgamento humano e responsabilização.</li>
+          <li>O piso de complexidade do que se chama "arquitetar um sistema de IA" subiu bruscamente. Em 2020, um pipeline de ML em lote bem desenhado era um projeto completo. Em 2026, espera-se fluxo agêntico, entrada multimodal, RAG em tempo real, infraestrutura de avaliação e trilha de auditoria no mesmo escopo — o que expande a demanda por arquitetos em vez de reduzi-la.</li>
+          <li>Serviços financeiros aparecem no topo da faixa de remuneração desses perfis, por causa de fraude, decisão de crédito e sistemas de negociação.</li>
+          <li>O título está fragmentando: AI Solutions Architect, AI Platform Architect, LLMOps Architect, GenAI Architect. Quem procura vaga pelo rótulo antigo enxerga um mercado menor do que o real.</li>
+        </ul>
+
+        <div class="callout callout--alert">
+          <span class="callout-label">Contraponto — leia antes de comemorar</span>
+          <p>Parte do sinal positivo vem de escassez temporária de oferta. Se a formação em IA escalar, o prêmio comprime.</p>
+          <p>Orçamento crescente de IA não vira automaticamente mais cadeiras de arquitetura. É plausível que um arquiteto em 2029 cubra o portfólio que exigia três em 2024 — o mercado pode crescer em valor e encolher em número de posições.</p>
+          <p><strong>A implicação é a mesma nos dois cenários:</strong> o retorno vai para quem está no quartil superior de profundidade e evidência, não para quem está na média do título.</p>
+        </div>
+
+        <h3>Brasil</h3>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Indicador</th><th>Leitura</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Crescimento</td><td>O mercado brasileiro de TI cresceu cerca de 18,5% em 2025 (ABES/IDC), acima da média mundial, com projeções de dois dígitos para 2026.</td></tr>
+              <tr><td class="strong">Déficit de talento</td><td>O país forma cerca de 53 mil profissionais por ano contra demanda anual superior a 150 mil (Brasscom); o déficit acumulado 2021–2025 é da ordem de 530 mil posições.</td></tr>
+              <tr><td class="strong">Forma de vínculo</td><td>Entre 2023 e 2025, cerca de 55,6% das novas inserções vieram via MEI/PJ contra 44,4% em CLT. Demanda alta, cadeira CLT sênior escassa.</td></tr>
+              <tr><td class="strong">Remuneração técnica</td><td>Engenharia de IA assumiu o topo das faixas técnicas não-C-level em 2026, acima da faixa tradicional de arquitetura de sistemas.</td></tr>
+              <tr><td class="strong">Regulação</td><td>O PL 2338/2023 (Marco Legal da IA) foi aprovado no Senado e tramita na Câmara, com a proposta do Executivo que cria o SIA. Setores regulados já se anteciparam ao texto final.</td></tr>
+              <tr><td class="strong">Maturidade em IA</td><td>Pesquisa FICO/Corinium indica que apenas cerca de 8% das instituições financeiras se consideram plenamente maduras em estratégia de IA — a maior parte do trabalho de estruturação ainda não foi feita.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p><strong>O que isso significa para você especificamente.</strong> A demanda por competência é alta e o vínculo CLT sênior é o formato que menos cresce. Um arquiteto com 20+ anos, salário compatível e trilha técnica precisa assumir que, nos próximos cinco anos, uma parte relevante das melhores oportunidades chegará em formato PJ, contrato de projeto ou vínculo internacional — e se preparar jurídica, financeira e psicologicamente para isso, mesmo que opte por não usar.</p>
+
+        <h3>A janela internacional</h3>
+        <ul>
+          <li>A contratação de brasileiros por empresas estrangeiras cresceu cerca de 53% em um ano; o Brasil subiu para a 5ª posição entre os países com mais trabalhadores contratados por empresas internacionais.</li>
+          <li>EUA concentram a maior parte das vagas, seguidos por Suíça e Reino Unido. O fuso horário brasileiro é vantagem real frente a Índia e Leste Europeu para times americanos.</li>
+          <li>Os dois requisitos recorrentes são banais e decisivos: inglês de comunicação real e experiência sólida comprovável.</li>
+          <li>Alerta recorrente das fontes: profissionais brasileiros tendem a subprecificar. Pesquisar faixas antes de negociar é higiene, não pretensão.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="cap-14">
+        <div class="chapter-head">
+          <span class="chapter-num">14</span>
+          <h2>As três versões do cargo — e o veredito</h2>
+        </div>
+        <p class="thesis"><strong>Vale a pena seguir como arquiteto de soluções nos próximos cinco anos? Sim</strong> — desde que "arquiteto de soluções" passe a significar outra coisa. A função não corre risco de extinção; corre risco de esvaziamento por dentro. Sai a produção de artefatos e a tradução de requisitos, entra o desenho de sistemas não-determinísticos, a governança de decisões automatizadas e a economia da arquitetura.</p>
+
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Variante</th><th>O que faz na prática</th><th>Trajetória até 2031</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Arquiteto-documento</td><td>Diagramas, catálogos de integração, comparativos, padrões de referência, pareceres. Comitês. Raramente toca no que roda.</td><td>Declinante. É a faixa diretamente comprimida por IA generativa. Sobrevive como governança de baixo prestígio, com teto salarial estagnado.</td></tr>
+              <tr><td class="strong">Arquiteto-plataforma</td><td>Capacidades reutilizadas por várias equipes: integração, dados, malha de serviços, golden paths, FinOps. Contato com produção.</td><td>Resiliente. Segue empregável em 2031, com bom salário local e razoável tradução internacional. É o seu piso seguro.</td></tr>
+              <tr><td class="strong">Arquiteto de IA em domínio regulado</td><td>Sistemas com componentes não-determinísticos sob obrigação regulatória: decisão de crédito assistida por modelo, agentes com human-in-the-loop, avaliação contínua, rastreabilidade e explicabilidade.</td><td>Crescente e escasso. Maior prêmio salarial, maior demanda internacional e menor oferta qualificada — sobretudo para quem já domina o domínio regulado.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--quote">
+          <span class="callout-label">Posicionamento recomendado</span>
+          <p>Convergir deliberadamente para a terceira variante, manter a segunda como piso de segurança e reduzir de forma consciente o tempo alocado na primeira — inclusive dentro do emprego atual.</p>
+          <p style="font-family:'IBM Plex Sans';font-style:normal;font-size:.94rem;">Não significa parar de documentar; significa parar de deixar que a documentação seja a evidência principal do seu valor.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="cap-15">
+        <div class="chapter-head">
+          <span class="chapter-num">15</span>
+          <h2>Diagnóstico do seu perfil</h2>
+        </div>
+        <h3>Ativos defensáveis</h3>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Ativo</th><th>Por que é defensável</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Domínio de crédito rural e agronegócio</td><td>Regulação densa (MCR, resoluções CMN, Proagro, CPR, ZARC), ciclos produtivos e uma base de conhecimento que não se adquire lendo documentação. Modelos de linguagem generalizam mal em domínios regulados com forte componente tácito. É a sua barreira de entrada mais alta e a menos replicável.</td></tr>
+              <tr><td class="strong">Setor financeiro brasileiro</td><td>É o segmento que mais paga por arquitetura no país e um dos mais avançados do mundo em pagamentos e crédito. A leitura internacional é melhor do que a maioria dos brasileiros imagina — desde que traduzida em escala, volume e restrição, não em nome de empresa.</td></tr>
+              <tr><td class="strong">Multicloud real + FinOps</td><td>Em 2026, custo de inferência virou item de projeto de arquitetura, não de fatura. Quem sabe modelar custo unitário de um fluxo agêntico tem vantagem imediata sobre quem só sabe desenhá-lo.</td></tr>
+              <tr><td class="strong">Modernização de legado</td><td>A fila do setor financeiro brasileiro é enorme e agora conta com IA aplicada à compreensão de código legado. Demanda represada, de alto valor e baixo glamour — combinação excelente para empregabilidade.</td></tr>
+              <tr><td class="strong">Sistema de missão crítica fora do banco (Free Flow)</td><td>Prova de que você arquiteta coisas que existem fisicamente no mundo, sob restrição de tempo real e consequência pública. É a melhor história de portfólio que você tem e provavelmente a mais subutilizada.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Riscos e pontos cegos</h3>
+        <ul>
+          <li><strong>Peso excessivo em artefato versus evidência de execução.</strong> Boa parte da sua produção recente é documental — catálogos, comparativos, guias de referência, análises regulatórias. É trabalho de qualidade, mas é exatamente o eixo comprimido pela IA. Nenhum recrutador internacional consegue avaliá-lo, e o mercado interno vai reprecificá-lo para baixo.</li>
+          <li><strong>Fluência de IA de segunda mão.</strong> Usar um agente corporativo para alterar código não é o mesmo que projetar, avaliar e operar sistemas de IA. A diferença aparece em quinze minutos de entrevista técnica. Como o acesso a ferramentas externas é restrito no seu ambiente de trabalho, essa lacuna só fecha em projetos fora do expediente.</li>
+          <li><strong>Senioridade cara, trilha técnica, diferenciação ilegível.</strong> Ao recusar a trilha gerencial — decisão legítima e cada vez mais viável —, você assume o ônus de que sua diferenciação precisa ser demonstrável tecnicamente. Sem gestão de pessoas, a única forma de justificar remuneração de topo é profundidade visível e impacto atribuível.</li>
+          <li><strong>Dispersão de estudo.</strong> Tratada na Parte B. É o ajuste de maior retorno imediato do plano inteiro.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="cap-16">
+        <div class="chapter-head">
+          <span class="chapter-num">16</span>
+          <h2>Marca e autoridade</h2>
+        </div>
+        <span class="status-tag">Revisado · nicho explícito</span>
+        <p>O diagnóstico é simples e quase injusto: você tem uma carreira que muita gente gostaria de ter — e quase ninguém sabe. Ser mais conhecido e mais valorizado é, em boa parte, fechar a distância entre o que você fez e o que o mercado enxerga. O que mudou nesta consolidação é o alvo: em vez de construir presença genérica de arquiteto, construir referência numa interseção específica.</p>
+
+        <div class="callout callout--quote">
+          <span class="callout-label">O nicho, agora explícito</span>
+          <p><strong>IA aplicada a crédito rural e agronegócio sob regulação brasileira.</strong></p>
+          <p style="font-family:'IBM Plex Sans';font-style:normal;font-size:.94rem;">É uma interseção que quase ninguém ocupa, e não porque seja fácil — porque exige simultaneamente domínio regulado denso, vivência bancária e competência em arquitetura de IA. Você é uma das poucas pessoas no país com os dois primeiros itens. O terceiro é o trabalho dos próximos 24 meses.</p>
+          <p style="font-family:'IBM Plex Sans';font-style:normal;font-size:.94rem;"><strong>Meta realista:</strong> ser referência nacional reconhecível nessa interseção em 18 meses. Não é ambição desmedida — é uma leitura fria de quão rala é a concorrência nesse recorte.</p>
+        </div>
+
+        <h3>As três lacunas que seguram seu valor percebido</h3>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Lacuna</th><th>Por que importa</th><th>Como fechar</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Métricas quantificadas</td><td>É a lacuna #1 do seu CV: realização sem número não gruda, e fora do Brasil o nome da empresa não diz nada — o número diz.</td><td>Reescreva cada feito com impacto: escala, volume, percentual, tempo reduzido, restrição, janela de indisponibilidade tolerada.</td></tr>
+              <tr><td class="strong">Rastro público inexistente</td><td>Sem portfólio nem conteúdo, oportunidade depende de indicação — e indicação não atravessa fronteira.</td><td>Repositório ativo, dois ou três textos técnicos em inglês, uma comunidade internacional do seu nicho.</td></tr>
+              <tr><td class="strong">Sinais de senioridade</td><td>Muitas certificações de base diluem o sinal em vez de reforçá-lo.</td><td>Uma credencial de nível arquiteto sênior, concluída, mais evidência de execução. Nada de parede de siglas.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>A escada da autoridade — a ordem importa</h3>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Degrau</th><th>O que fazer</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">1 · Portfólio</td><td>Repositório organizado com o projeto-âncora e um ou dois trabalhos que mostrem raciocínio de arquitetura: diagramas, ADRs, decisões e alternativas descartadas.</td></tr>
+              <tr><td class="strong">2 · Conteúdo em ritmo leve</td><td>LinkedIn, um post a cada duas ou três semanas. História pessoal somada a aprendizado técnico performa mais do que post puramente técnico. Consistência vence pico esporádico.</td></tr>
+              <tr><td class="strong">3 · Produção em inglês</td><td>Dois ou três textos técnicos bem feitos em inglês valem mais, para o objetivo internacional, do que trinta posts em português. Este degrau é novo e não existia na versão anterior.</td></tr>
+              <tr><td class="strong">4 · Primeira palestra</td><td>Um meetup local de arquitetura ou cloud. É o maior acelerador de marca que existe e alimenta os degraus anteriores.</td></tr>
+              <tr><td class="strong">5 · Artigo denso</td><td>Reaproveite os melhores posts num texto de fôlego e mire um evento maior no ciclo seguinte.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Banco de temas — o que só você conta bem</h3>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Categoria</th><th>Temas</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">IA e agentes</td><td>Agentes na prática de arquitetura · AI-first vs. AI-assisted · GenAI em ambiente regulado (BACEN/LGPD) · RAG em produção, além do POC · O arquiteto que usa IA para arquitetar</td></tr>
+              <tr><td class="strong">Arquitetura e carreira</td><td>O que mudou na função em cinco anos · Defender orçamento de arquitetura · POC → produção: onde mora o gap · Mentoria em arquitetura</td></tr>
+              <tr><td class="strong">Cloud e multicloud</td><td>Multicloud não é estratégia, é consequência · FinOps na prática · Por que bancos não vão 100% cloud · A realidade do mainframe em 2026</td></tr>
+              <tr><td class="strong">Setor financeiro</td><td>Arquitetura para riscos e compliance · Open Finance e seus desafios · Soluções analíticas em tempo real · Como o BACEN molda arquitetura</td></tr>
+              <tr><td class="strong">Crédito rural e IA (nicho)</td><td>Modelar o domínio de crédito rural com DDD · O que o MCR exige de uma arquitetura de IA · Explicabilidade em decisão de crédito agrícola · Custo por decisão em fluxo agêntico</td></tr>
+              <tr><td class="strong">Liderança e visão</td><td>20 anos em TI: o que eu faria diferente · Arquiteto sênior vs. estratégico · Projetos globais além do técnico · Free Flow: lições do primeiro pedágio sem parada do Brasil ★</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <span class="callout-label">Comece pelo Free Flow</span>
+          <p>Segue sendo a melhor história de portfólio que você tem e a mais subutilizada. Sistema de missão crítica, tempo real, consequência pública, primeiro do país. É a narrativa que atravessa fronteira sem precisar de contexto local — e é o primeiro estudo de caso a escrever.</p>
+          <p><strong>Rede: construa antes de precisar.</strong> Reputação forte dentro de uma instituição e presença modesta fora dela cria dependência. O momento de construir rede externa e internacional é enquanto você está bem empregado.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="cap-17">
+        <div class="chapter-head">
+          <span class="chapter-num">17</span>
+          <h2>Portfólio e prova pública</h2>
+        </div>
+        <span class="status-tag">De desejável a obrigatório</span>
+        <p>Na versão anterior, portfólio era um capítulo de apoio. Agora é estrutural, por um motivo específico: no mercado internacional, você não tem referência. Ninguém do outro lado conhece seus ex-gestores nem sabe o que significa a senioridade que você tem. O repositório público é o que ocupa esse lugar.</p>
+
+        <div class="callout callout--quote">
+          <span class="callout-label">O projeto-âncora — especificação</span>
+          <p><strong>Um sistema de IA aplicado a crédito rural, construído fora do ambiente corporativo, público e versionado.</strong></p>
+          <p style="font-family:'IBM Plex Sans';font-style:normal;font-size:.94rem;">Precisa conter, obrigatoriamente: componente agêntico com pontos de parada humana; RAG sobre normativos do crédito rural; conjunto de avaliação com métricas e resultados publicados; trilha de auditoria da decisão; e análise de custo por decisão.</p>
+          <p style="font-family:'IBM Plex Sans';font-style:normal;font-size:.94rem;"><strong>README em inglês,</strong> com decisões arquiteturais explicadas e alternativas descartadas. O README é o artefato mais lido de um portfólio sênior — mais do que o código.</p>
+          <p style="font-family:'IBM Plex Sans';font-style:normal;font-size:.94rem;"><strong>Por que esse recorte:</strong> ele fecha, de uma vez, as lacunas 1 a 6 da Parte B, e faz isso dentro do seu domínio, o que nenhum curso genérico consegue oferecer.</p>
+        </div>
+
+        <h3>Ativos secundários — só depois que o âncora estiver de pé</h3>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Projeto</th><th>O que demonstra</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Tech Challenge da pós</td><td>Conduzido com padrão de produção e mantido público depois da entrega, é um segundo ativo válido. O erro comum é deixá-lo morrer junto com a disciplina — repositório que para no dia da nota não convence ninguém.</td></tr>
+              <tr><td class="strong">Estudos de caso escritos</td><td>Três a cinco decisões arquiteturais passadas convertidas em texto: contexto, alternativas descartadas, trade-off, resultado. Começa pelo Free Flow. Custo baixo, retorno alto, e não depende de escrever código novo.</td></tr>
+              <tr><td class="strong">Revisor Well-Architected automatizado</td><td>Agente que avalia uma arquitetura contra os pilares e gera relatório de riscos. Extensão natural do projeto-âncora.</td></tr>
+              <tr><td class="strong">Dashboard de FinOps de inferência</td><td>Mede custo por token e por tarefa entre modelos. Tema quente e raro vindo de quem arquiteta — cobre a lacuna 5 isoladamente.</td></tr>
+              <tr><td class="strong">Núcleo event-driven de crédito rural</td><td>CQRS, Event Sourcing e Saga para o ciclo de uma operação. Junta padrões modernos ao DDD aplicado no seu domínio.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <span class="callout-label">Princípio de portfólio</span>
+          <p>Cada projeto precisa de README com decisão, diagrama e ADRs. Um projeto bem documentado vale mais que cinco repositórios mudos. E um projeto no seu domínio vale mais que dez genéricos.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="cap-18">
+        <div class="chapter-head">
+          <span class="chapter-num">18</span>
+          <h2>Competências não técnicas</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Prioridade</th><th>Competência e por quê</th></tr></thead>
+            <tbody>
+              <tr><td class="strong num">1</td><td><strong>Inglês de reunião, não de leitura.</strong> É o gargalo mensurável mais comum entre seniores brasileiros e o mais decisivo para o objetivo internacional. Ler documentação e conduzir um design review contraditório com um staff engineer americano são habilidades diferentes. Se houver um único investimento não técnico neste ano, é este.</td></tr>
+              <tr><td class="strong num">2</td><td><strong>Influência sem autoridade formal.</strong> É a competência que sustenta trilha técnica sênior sem gestão. Facilitar decisão entre times com interesses conflitantes, dizer não com fundamento e assumir responsabilidade por consequência arquitetural é o que distingue Principal de Sênior.</td></tr>
+              <tr><td class="strong num">3</td><td><strong>Gestão de risco e mudança em IA.</strong> Explicar a um comitê de crédito o que muda no processo, quem responde por uma decisão errada do modelo e onde o humano permanece no circuito. É competência de arquiteto, não de compliance — e é o diferencial mais difícil de copiar.</td></tr>
+              <tr><td class="strong">Ativo</td><td><strong>Escrita de decisão e comunicação executiva.</strong> Aqui você já é forte, e o mercado internacional valoriza escrita técnica mais do que o brasileiro. O ajuste é de idioma e de canal: escrever em inglês e em público. Pratique resumir qualquer decisão em três frases — problema, escolha, impacto.</td></tr>
+              <tr><td class="strong">Alavanca</td><td><strong>Mentoria.</strong> Mentorar um arquiteto ou dev mais júnior gera liderança e visibilidade ao mesmo tempo. Baixo custo de tempo, alto retorno, e é ensaio direto do papel de referência técnica da Onda 3.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="chapter" id="cap-19">
+        <div class="chapter-head">
+          <span class="chapter-num">19</span>
+          <h2>Rotas de derivação</h2>
+        </div>
+        <span class="status-tag">Substitui a antiga lista de ideias de negócio</span>
+        <p>Sete destinos plausíveis a partir do seu ponto de partida. A aderência considera experiência acumulada, não preferência — vale confrontar as duas coisas ao escolher.</p>
+
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Rota</th><th>O que é e por que faz sentido</th><th>Aderência</th><th>Lacuna a fechar</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">AI Solutions Architect (serviços financeiros)</td><td>Sistemas de IA em produção sob restrição regulatória. Modelo em decisão de crédito é caso de uso de alto valor e alta exigência de governança.</td><td>Muito alta</td><td>Evals, arquitetura agêntica, RAG de produção, prova pública.</td></tr>
+              <tr><td class="strong">AI Platform / LLMOps Architect</td><td>A plataforma que os times de produto usam: gateway de modelos, versionamento de prompt, avaliação, observabilidade de custo e latência entre provedores.</td><td>Alta</td><td>Engenharia de plataforma hands-on; operação de inferência em escala.</td></tr>
+              <tr><td class="strong">Principal / Staff Engineer</td><td>O equivalente internacional consolidado da trilha técnica sem gestão. A rota mais bem remunerada globalmente e a que mais exige evidência.</td><td>Média-alta</td><td>Profundidade de código sustentada e portfólio público robusto.</td></tr>
+              <tr><td class="strong">Arquiteto de Governança de Dados e IA</td><td>Como a instituição classifica risco de sistemas de IA, documenta modelos, garante explicabilidade e auditoria. Demanda estrutural com o Marco Legal.</td><td>Alta</td><td>Regulação comparada (UE, Brasil), frameworks de risco de modelo. Risco: virar compliance com teto técnico.</td></tr>
+              <tr><td class="strong">Arquiteto de modernização de legado com IA</td><td>IA para compreensão, extração de regra de negócio e reescrita de legado bancário. Fila represada e alto valor no Brasil.</td><td>Alta</td><td>Ferramental de transformação assistida; métrica de equivalência funcional.</td></tr>
+              <tr><td class="strong">Pré-vendas / customer-facing em fabricante ou parceiro cloud</td><td>Rota clássica de arquiteto sênior, com forte exposição internacional e progressão sem gestão de pessoas. Combina com seu perfil de comunicação.</td><td>Alta</td><td>Inglês de negociação; postura comercial; disposição a viagem e metas.</td></tr>
+              <tr><td class="strong">Consultoria independente / arquiteto fractional em agtech e crédito rural</td><td>Vender o nicho direto para cooperativas, agtechs, fintechs de crédito rural e integradoras. Encaixa no formato PJ dominante.</td><td>Média-alta</td><td>Aquisição de clientes, reputação pública, estrutura jurídica e reserva financeira.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--alert">
+          <span class="callout-label">Sobre a rota Principal / Staff Engineer</span>
+          <p>É a mais bem paga globalmente e a mais coerente com a decisão de não migrar para gestão — mas é a de barreira mais alta para quem passou anos em papel de arquitetura corporativa em banco. O critério de avaliação é código e sistemas, não influência organizacional.</p>
+          <p><strong>Se ela interessa, a decisão precisa ser tomada nos próximos 12 meses,</strong> porque exige reconstruir prática de código sustentada — e isso não se recupera em três meses de sprint antes de uma entrevista.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="cap-20">
+        <div class="chapter-head">
+          <span class="chapter-num">20</span>
+          <h2>Caminho internacional</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Modelo</th><th>Como funciona</th><th>Trade-offs</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Global worker (PJ/contractor, morando no Brasil)</td><td>Prestação de serviço para empresa estrangeira, faturamento em moeda forte via CNPJ, câmbio por plataforma especializada. Formato dominante hoje.</td><td>A favor: arbitragem cambial, tributação frequentemente menor que CLT, sem visto. Contra: zero estabilidade, sem benefícios, previdência por conta própria, menor acesso a promoção. Contratante corta contractor antes de funcionário.</td></tr>
+              <tr><td class="strong">EOR (plataformas de employer of record)</td><td>A empresa estrangeira contrata via intermediário, com vínculo formal no Brasil.</td><td>A favor: formalidade e benefícios sem visto. Contra: menos comum em posições muito sêniores; custo maior para o contratante reduz a faixa de oferta.</td></tr>
+              <tr><td class="strong">Relocation</td><td>Mudança física com visto patrocinado (Portugal, Espanha, Irlanda, Holanda, Canadá, EUA em condições mais restritas).</td><td>A favor: progressão de carreira plena, rede local, teto maior no longo prazo. Contra: custo de vida consome boa parte da diferença nominal; processo longo; decisão familiar de alto impacto.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Preparação mínima, em qualquer modelo</h3>
+        <ul>
+          <li>Currículo e LinkedIn em inglês descrevendo escala e restrição, nunca nome de empresa como argumento.</li>
+          <li>Faixa salarial pesquisada antes de qualquer conversa. A subprecificação é o erro mais documentado entre brasileiros no mercado internacional.</li>
+          <li>Estrutura jurídica e contábil pronta antes de precisar: CNPJ adequado, contador com experiência em exportação de serviço, entendimento de bitributação.</li>
+          <li>Reserva financeira compatível com a volatilidade do modelo escolhido — para contractor sênior, o padrão é reserva maior que a de um CLT.</li>
+          <li>Presença pública mínima: repositório ativo, dois ou três textos técnicos em inglês, uma comunidade internacional do seu nicho.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="cap-21">
+        <div class="chapter-head">
+          <span class="chapter-num">21</span>
+          <h2>Renda complementar sem dedicação exclusiva</h2>
+        </div>
+        <p>Estas ideias deixaram de ser "direção de carreira" — as rotas do capítulo 19 ocuparam esse lugar. Elas permanecem aqui com outra função: diversificação de renda proporcional ao risco, prevista na Onda 4, e ensaio de baixo custo da vida independente.</p>
+
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Ideia</th><th>Como funciona</th><th>Esforço</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Arquiteto fractional / consultoria pontual</td><td>Revisões de arquitetura e ADRs avulsos para fintechs e agtechs, por projeto.</td><td>Baixo–médio</td></tr>
+              <tr><td class="strong">Mentoria paga</td><td>Plataformas de mentoria mais pacotes premium para devs e arquitetos em transição pleno→sênior.</td><td>Baixo</td></tr>
+              <tr><td class="strong">Advisory para agtech/fintech</td><td>Conselho técnico recorrente leve, usando o domínio de crédito rural.</td><td>Baixo</td></tr>
+              <tr><td class="strong">Produto de conteúdo</td><td>Curso ou e-book no nicho: DDD aplicado em banco, ou IA em ambiente regulado.</td><td>Médio (uma vez, vende sempre)</td></tr>
+              <tr><td class="strong">Kits e templates digitais</td><td>Pacotes de ADRs, arquiteturas de referência e checklists.</td><td>Baixo (renda passiva)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <span class="callout-label">Filtro de escolha</span>
+          <p>Comece pelo que tem menor esforço e maior aprendizado sobre você mesmo: mentoria e consultoria pontual ensinam, em semanas, se a vida independente te atrai — sem nenhum risco de ponte queimada. Produto de conteúdo e SaaS vêm depois, quando você já souber a resposta.</p>
+        </div>
+      </section>
+
+      <div class="part-divider" id="parte-d">
+        <span class="part-tag"><span class="letter">D</span> Direção e execução</span>
+        <h2>Da exploração para a execução</h2>
+        <p class="part-intro">Da exploração para a execução. Esta parte diz o que fazer, em que ordem, e o que observar para saber se o plano continua válido.</p>
+        <hr>
+      </div>
+
+      <section class="chapter" id="cap-22">
+        <div class="chapter-head">
+          <span class="chapter-num">22</span>
+          <h2>Exercícios de propósito</h2>
+        </div>
+        <span class="status-tag">Mantido</span>
+        <p>Este documento responde bem à pergunta da empregabilidade; ele não responde à pergunta do sentido. Os exercícios existem para essa segunda pergunta, e nenhuma análise de mercado substitui. Faça-os por escrito, em sessões curtas, ao longo de algumas semanas.</p>
+
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Exercício</th><th>O que fazer</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">1 · Picos de energia</td><td>Liste 6 a 8 momentos da carreira em que o trabalho passou voando e deixou você satisfeito. Para cada um: o que exatamente você fazia? Procure o padrão — criar do zero, resolver o impossível, ensinar, conectar pessoas.</td></tr>
+              <tr><td class="strong">2 · Os 80 anos</td><td>Escreva o discurso que alguém faria sobre você aos 80. O que estiver lá e ainda não existe é direção.</td></tr>
+              <tr><td class="strong">3 · Ikigai cruzado</td><td>Quatro listas: o que você ama, o que faz bem, o que o mundo precisa, pelo que pagam. A interseção é onde propósito e sustento se encontram.</td></tr>
+              <tr><td class="strong">4 · Valores nucleares</td><td>De uma lista de ~20 valores, escolha 5, depois 3. Sua carreira atual honra esses 3? Onde há atrito, há pista.</td></tr>
+              <tr><td class="strong">5 · Carta de um ano</td><td>Escreva-se daqui a 12 meses descrevendo um ano que valeu a pena. Concreto: trabalho, saúde, vínculos. Vira o gabarito da revisão do próximo ciclo.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--quote">
+          <span class="callout-label">O teste que vale rodar antes de executar a Parte C inteira</span>
+          <p style="font-family:'IBM Plex Sans';font-style:normal;font-size:.94rem;">Cruze o resultado do Exercício 1 com as sete rotas do capítulo 19. Se o padrão dos seus picos de energia for "criar do zero", a rota Principal/Staff faz mais sentido que governança. Se for "resolver o impossível com restrição", é arquitetura de IA em domínio regulado. Se for "ensinar e conectar", é pré-vendas ou consultoria.</p>
+          <p><strong>O mercado diz o que é vendável. O exercício diz o que você aguenta fazer por cinco anos.</strong> Você precisa dos dois.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="cap-23">
+        <div class="chapter-head">
+          <span class="chapter-num">23</span>
+          <h2>Plano em ondas — 2026 a 2031</h2>
+        </div>
+        <span class="status-tag">Substitui a trilha de exploração e o ciclo Q1–Q4</span>
+
+        <h3>Onda 1 — próximos 6 meses: consolidar e tornar visível</h3>
+        <ul>
+          <li>Instalar os dois inegociáveis da Parte A antes de tudo isso, não depois.</li>
+          <li>Reduzir frentes de estudo: uma pós principal, a outra em manutenção. Encerrar o ciclo de certificações após a que está em curso.</li>
+          <li>Iniciar o projeto-âncora do capítulo 17, fora do ambiente corporativo — onde as ferramentas de IA são restritas.</li>
+          <li>Converter três decisões arquiteturais passadas em estudos de caso escritos, começando pelo Free Flow.</li>
+          <li>Diagnóstico honesto de inglês falado, com avaliação externa. Se o nível não sustentar um design review, iniciar prática de conversação técnica semanal.</li>
+        </ul>
+
+        <h3>Onda 2 — 6 a 18 meses: virar arquiteto de IA de verdade</h3>
+        <ul>
+          <li>Fechar as lacunas 1 a 3 com projeto real, não com curso.</li>
+          <li>Disputar deliberadamente alocação em iniciativas de IA aplicada a crédito no emprego atual. Se a instituição não oferecer essa frente em 12 meses, isso é um dado relevante sobre onde você está.</li>
+          <li>Publicar de forma consistente na interseção do capítulo 16 — inclusive em inglês.</li>
+          <li>Construir rede internacional ativa: comunidades de arquitetura de IA, autores que você lê, conversas em inglês com estranhos.</li>
+        </ul>
+
+        <h3>Onda 3 — 18 a 36 meses: testar o mercado</h3>
+        <ul>
+          <li>Entrevistar sem intenção de sair, com regularidade, incluindo ao menos um processo internacional por semestre. É a única forma confiável de calibrar preço e detectar lacunas antes que virem problema.</li>
+          <li>Escolher uma rota primária e uma secundária do capítulo 19 e concentrar esforço. Manter sete portas abertas equivale a não ter nenhuma.</li>
+          <li>Assumir papel de referência técnica reconhecida além do time — mentoria, padrão institucional de IA, fórum setorial. É o que sustenta a progressão para Principal sem gestão.</li>
+          <li>Decidir conscientemente o modelo de vínculo dos próximos anos, com as implicações financeiras e previdenciárias calculadas — não descobertas depois.</li>
+        </ul>
+
+        <h3>Onda 4 — 3 a 5 anos: consolidar como especialista escasso</h3>
+        <ul>
+          <li>Objetivo de posicionamento: estar entre as poucas pessoas no Brasil que desenham, avaliam e defendem perante regulador e comitê de risco sistemas de IA em crédito. Mercado pequeno em número de pessoas e grande em valor — exatamente o formato que protege carreira técnica sênior.</li>
+          <li>Diversificar renda de forma proporcional ao risco: consultoria pontual, conselho técnico, formação ou contrato internacional paralelo (capítulo 21).</li>
+          <li>Reavaliar a tese inteira. Se em 2029 a IA tiver absorvido a camada de desenho mais agressivamente que o previsto, o refúgio é o domínio regulado e a responsabilização — o que reforça, e não contradiz, a direção proposta.</li>
+        </ul>
+      </section>
+
+      <section class="chapter" id="cap-24">
+        <div class="chapter-head">
+          <span class="chapter-num">24</span>
+          <h2>Sinais de monitoramento</h2>
+        </div>
+        <p>Este plano assume um cenário. Cinco sinais indicariam que a tese precisa ser revista antes do prazo.</p>
+
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Sinal</th><th>O que fazer se ocorrer</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Anúncios sêniores passam a exigir avaliação e governança de IA como requisito eliminatório, não desejável.</td><td>Acelerar a Onda 2. É a confirmação de que a janela de vantagem está fechando.</td></tr>
+              <tr><td class="strong">Redução visível de headcount de arquitetura na sua instituição ou em pares do setor.</td><td>Antecipar a Onda 3. Testar mercado imediatamente, mesmo sem intenção de sair.</td></tr>
+              <tr><td class="strong">Aprovação do Marco Legal da IA com obrigações concretas para instituições financeiras.</td><td>Oportunidade: posicionar-se como quem já sabe traduzir norma em arquitetura. Vantagem de meses, não de anos.</td></tr>
+              <tr><td class="strong">Ferramentas de IA passam a produzir desenho arquitetural aceito sem revisão substantiva em contexto corporativo real.</td><td>Deslocar o peso da proposta de valor definitivamente para responsabilização, domínio regulado e decisão irreversível.</td></tr>
+              <tr><td class="strong">Estabilização ou queda do prêmio salarial de perfis de IA por aumento de oferta.</td><td>Reforçar a especialização de domínio, onde a escassez persiste, em vez de competir na camada genérica de IA.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="chapter" id="cap-25">
+        <div class="chapter-head">
+          <span class="chapter-num">25</span>
+          <h2>Painel de referência rápida</h2>
+        </div>
+        <p>Uma página para consultar no dia a dia. O resto do documento é o detalhe.</p>
+
+        <div class="callout">
+          <span class="callout-label">As três frentes do momento</span>
+          <p><strong>Vida e saúde:</strong> instalar os dois inegociáveis — horário de desligar e movimento — e proteger o sono antes de acrescentar qualquer coisa das outras partes.</p>
+          <p><strong>Estudo:</strong> reduzir para uma pós principal, mover o bloco de construção para a manhã de sábado e iniciar o projeto-âncora de IA em crédito rural.</p>
+          <p><strong>Carreira:</strong> publicar o primeiro estudo de caso (Free Flow) e fazer o diagnóstico honesto de inglês falado.</p>
+          <p><strong>Direção:</strong> rodar o Exercício 1 e cruzá-lo com as sete rotas do capítulo 19.</p>
+        </div>
+
+        <div class="premise" style="margin-top:2rem;">
+          <span class="premise-label">Regra de ouro</span>
+          <p><strong>Se apertar, corte de baixo para cima na prioridade.</strong> Solta visibilidade, depois estudo, depois carreira. O equilíbrio é a última coisa a sair.</p>
+        </div>
+
+        <div class="callout callout--alert">
+          <span class="callout-label">Foco</span>
+          <p><strong>Duas a três frentes ativas por vez, nunca todas.</strong> É o que torna este documento sustentável e fiel à prioridade #1 — e é também a recomendação técnica central da leitura de mercado.</p>
+        </div>
+
+        <div class="callout">
+          <span class="callout-label">Revisão trimestral (≈1h)</span>
+          <p><strong>O que avançou?</strong> Registre vitórias concretas, mesmo pequenas.</p>
+          <p><strong>O que travou?</strong> Sem cobrança — é calibração.</p>
+          <p><strong>O que ajustar?</strong> Releia as cartas de propósito, confira os cinco sinais do capítulo 24 e leve adiante só o que faz sentido continuar.</p>
+        </div>
+      </section>
+
+      <hr class="rule">
+
+      <section class="chapter" id="apendice">
+        <div class="chapter-head">
+          <h2>Apêndice — origem e referências</h2>
+        </div>
+
+        <h3>Documentos consolidados neste guia</h3>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Documento de origem</th><th>O que foi aproveitado</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Plano de Evolução Pessoal e Profissional — ciclo de 1 ano</td><td>Estrutura de prioridades, regra de ouro, ritual de revisão trimestral. A cadência Q1–Q4 e a trilha de exploração foram substituídas.</td></tr>
+              <tr><td class="strong">Guia Integrado — Vida, Carreira e Propósito (1ª edição)</td><td>Base pessoal integral: caminho espiritual detalhado, nutrição, análise de agenda e semana ideal, banco de temas de conteúdo, exercícios de propósito, ideias de renda complementar.</td></tr>
+              <tr><td class="strong">Guia Integrado — v2 (edição revisada)</td><td>Leitura de mercado, diagnóstico do cargo, sete lacunas, matriz de competências, nicho explícito, projeto-âncora, rotas de derivação, caminho internacional, plano em ondas e sinais de monitoramento. É a fonte prevalecente em caso de conflito.</td></tr>
+              <tr><td class="strong">Relatório de Consultoria de Carreira 2026–2031</td><td>Veredito executivo, ativos defensáveis e pontos cegos, resumo em cinco frases, referências de mercado.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Referências de mercado</h3>
+        <p style="font-style:italic;color:var(--ink-soft);">Levantamento realizado em julho de 2026. As fontes abaixo embasam os dados citados na Parte C; as interpretações, recomendações e o diagnóstico de perfil são deste documento.</p>
+        <ul>
+          <li>ABES/IDC — crescimento do mercado brasileiro de TI em 2025.</li>
+          <li>Brasscom — déficit de formação de profissionais de TI e composição de vínculos (CLT versus MEI/PJ) entre 2023 e 2025.</li>
+          <li>CompTIA / Glocomms — crescimento de vagas relacionadas a IA entre 2024 e 2025.</li>
+          <li>Levantamentos de mercado sobre exposição de funções à automação e sobre a evolução do escopo do arquiteto de IA.</li>
+          <li>State of Platform Engineering Report (Vol. 4) — especializações e convergência entre plataforma, dados e IA.</li>
+          <li>FICO / Corinium — State of Responsible AI in Financial Services: maturidade declarada de estratégia de IA em instituições financeiras.</li>
+          <li>Senado Federal e Câmara dos Deputados — tramitação do PL 2338/2023 (Marco Legal da IA) e proposta do Sistema Nacional de Governança de IA (SIA).</li>
+          <li>Levantamentos sobre contratação de brasileiros por empresas estrangeiras, posição do Brasil no ranking global e formatos de contratação.</li>
+          <li>Relatório LinkedIn "Empregos em Alta 2026" e levantamentos de faixas salariais técnicas no Brasil para 2026.</li>
+        </ul>
+
+        <div class="appendix-foot">
+          <p><em>Observação metodológica:</em> dados de remuneração e volume de vagas em mercados de IA apresentam alta variância entre fontes, porque os títulos ainda não estabilizaram e parte dos números reflete escassez temporária de oferta. Foram usados aqui como indicação de direção, não como projeção.</p>
+          <p><em>Os conteúdos de nutrição e saúde deste documento são material de apoio para planejamento pessoal e devem ser validados com os profissionais que acompanham você antes de virar rotina fixa.</em></p>
+        </div>
+      </section>
+
+
+    </article>
+  </main>
+</div>
+
+<button id="top-btn" aria-label="Voltar ao topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script>
+(function(){
+  // ---- Mobile menu ----
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  function openMenu(){ sidebar.classList.add('open'); backdrop.classList.add('open'); }
+  function closeMenu(){ sidebar.classList.remove('open'); backdrop.classList.remove('open'); }
+  document.getElementById('menu-open').addEventListener('click', openMenu);
+  backdrop.addEventListener('click', closeMenu);
+  document.querySelectorAll('.toc a').forEach(function(a){
+    a.addEventListener('click', closeMenu);
+  });
+
+  // ---- Theme toggle (in-memory only; cycles system -> light -> dark) ----
+  var root = document.documentElement;
+  var order = ['system','light','dark'];
+  var current = 'system';
+  function applyTheme(){
+    if(current === 'system'){ root.removeAttribute('data-theme'); }
+    else { root.setAttribute('data-theme', current); }
+    var label = current === 'system' ? 'tema: auto' : (current === 'light' ? 'tema: claro' : 'tema: escuro');
+    document.getElementById('theme-label').textContent = label;
+  }
+  function cycleTheme(){
+    current = order[(order.indexOf(current)+1) % order.length];
+    applyTheme();
+  }
+  document.getElementById('theme-toggle').addEventListener('click', cycleTheme);
+  document.getElementById('theme-toggle-mobile').addEventListener('click', cycleTheme);
+  applyTheme();
+
+  // ---- Search filter ----
+  var search = document.getElementById('search');
+  function normalize(s){
+    return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  }
+  search.addEventListener('input', function(){
+    var q = normalize(search.value.trim());
+    document.querySelectorAll('.toc-group').forEach(function(group){
+      var labelEl = group.querySelector('.toc-group-label');
+      var labelMatch = q === '' || (labelEl && normalize(labelEl.textContent).indexOf(q) !== -1);
+      var anyVisible = false;
+      group.querySelectorAll('li').forEach(function(li){
+        var text = normalize(li.textContent);
+        var match = labelMatch || text.indexOf(q) !== -1;
+        li.classList.toggle('hidden', !match);
+        if(match) anyVisible = true;
+      });
+      group.classList.toggle('all-hidden', !anyVisible);
+    });
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === '/' && document.activeElement !== search){
+      e.preventDefault();
+      search.focus();
+    }
+    if(e.key === 'Escape' && document.activeElement === search){
+      search.value=''; search.dispatchEvent(new Event('input')); search.blur();
+    }
+  });
+
+  // ---- Scrollspy ----
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var sections = links.map(function(a){ return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var linkById = {};
+  links.forEach(function(a){ linkById[a.getAttribute('href').slice(1)] = a; });
+
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      var link = linkById[entry.target.id];
+      if(!link) return;
+      if(entry.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        link.classList.add('active');
+        var tocEl = document.getElementById('toc');
+        var top = link.offsetTop - tocEl.clientHeight/2;
+        tocEl.scrollTo({top: top, behavior:'smooth'});
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function(s){ observer.observe(s); });
+
+  // ---- Back to top ----
+  var topBtn = document.getElementById('top-btn');
+  window.addEventListener('scroll', function(){
+    topBtn.classList.toggle('visible', window.scrollY > 600);
+  });
+  topBtn.addEventListener('click', function(){
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+})();
+</script>
+<a href="../../index.html" class="hub-back" aria-label="Voltar ao índice do hub">◂ HUB</a>
+<style>.hub-back{position:fixed;left:16px;bottom:16px;z-index:9999;font:600 12px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;color:#35E0FF!important;background:rgba(6,10,18,.88)!important;border:1px solid rgba(53,224,255,.45);padding:9px 13px;border-radius:999px;text-decoration:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 0 18px rgba(53,224,255,.25)}.hub-back:hover{background:#35E0FF!important;color:#060A12!important}.hub-back{left:auto;right:5rem;bottom:1.75rem}@media print{.hub-back{display:none}}</style>
+</body>
+</html>

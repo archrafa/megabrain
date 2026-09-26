@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A matemática por trás dos LLMs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --panel:#E8E5DE;
+  --panel-2:#DCD8CF;
+  --panel-3:#CFCAC0;
+  --ink:#1F1D1A;
+  --ink-soft:#5B5751;
+  --rule:#C2BDB3;
+  --lcd:#14201C;
+  --lcd-2:#1C2C26;
+  --grid:#283D35;
+  --curve:#8FD6A5;
+  --signal:#E2571E;
+  --cool:#6FB3C0;
+  --warnbg:#F2E3D6;
+  --r:3px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;background:var(--panel);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,sans-serif;
+  font-size:16.5px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.disp{font-family:"Space Grotesk","IBM Plex Sans",sans-serif;letter-spacing:-0.018em}
+p{max-width:64ch}
+a{color:var(--ink)}
+code,.num{font-family:"IBM Plex Mono",monospace}
+
+/* ---------- hero ---------- */
+.hero{
+  border-bottom:1px solid var(--rule);
+  padding:clamp(28px,5vw,56px) clamp(20px,5vw,64px) clamp(24px,4vw,44px);
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
+  gap:clamp(20px,4vw,52px);align-items:center;
+}
+.hero h1{
+  font-size:clamp(2.1rem,5.4vw,3.6rem);line-height:1.02;font-weight:700;margin:0 0 .6em;
+}
+.hero p{font-size:1.02rem;color:var(--ink-soft);margin:0 0 1.4em;max-width:46ch}
+.kicker{
+  font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--ink-soft);
+  margin:0 0 1.6em;letter-spacing:.02em;
+}
+.hero-fig{position:relative}
+.hero-cap{
+  font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--ink-soft);
+  margin-top:.7em;line-height:1.5;
+}
+@media(max-width:860px){.hero{grid-template-columns:1fr;padding-top:24px}}
+
+/* ---------- layout ---------- */
+.wrap{display:grid;grid-template-columns:210px minmax(0,1fr);gap:clamp(20px,4vw,56px);
+  padding:0 clamp(20px,5vw,64px) 80px;max-width:1240px;margin:0 auto}
+nav{position:sticky;top:0;align-self:start;padding:38px 0;font-size:.9rem}
+nav ol{list-style:none;margin:0;padding:0;counter-reset:m}
+nav li{counter-increment:m;margin:0 0 2px}
+nav a{
+  display:block;padding:6px 10px 6px 0;text-decoration:none;color:var(--ink-soft);
+  border-left:2px solid transparent;padding-left:12px;
+}
+nav a::before{content:counter(m) ".";font-family:"IBM Plex Mono",monospace;font-size:.78rem;margin-right:7px;opacity:.65}
+nav a:hover,nav a:focus-visible{color:var(--ink);border-left-color:var(--panel-3)}
+nav a[aria-current="true"]{color:var(--ink);font-weight:600;border-left-color:var(--signal)}
+@media(max-width:860px){
+  .wrap{grid-template-columns:1fr}
+  nav{position:static;padding:18px 0 0;border-bottom:1px solid var(--rule)}
+  nav ol{display:flex;gap:4px;overflow-x:auto;padding-bottom:10px}
+  nav a{white-space:nowrap;border-left:none;border-bottom:2px solid transparent;padding:4px 4px 6px}
+  nav a[aria-current="true"]{border-left:none;border-bottom-color:var(--signal)}
+}
+
+main{padding-top:38px;min-width:0}
+section{padding:30px 0 46px;border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:none}
+section h2{font-size:clamp(1.5rem,3.3vw,2rem);margin:0 0 .1em;font-weight:700}
+.sub{color:var(--ink-soft);margin:0 0 1.9em;font-size:.98rem}
+h3{font-size:1.06rem;margin:2.4em 0 .5em;font-weight:600}
+h3:first-of-type{margin-top:1.6em}
+
+/* ---------- instrument ---------- */
+.inst{
+  background:var(--panel-2);border:1px solid var(--rule);border-radius:var(--r);
+  margin:1.5em 0;overflow:hidden;
+}
+.inst-head{
+  display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  padding:9px 14px;border-bottom:1px solid var(--rule);background:var(--panel-3);
+  font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink-soft);
+}
+.inst-body{padding:14px}
+.screen{background:var(--lcd);border-radius:2px;display:block;width:100%;touch-action:none}
+.readout{
+  display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:12px;
+  font-family:"IBM Plex Mono",monospace;font-size:.82rem;
+}
+.readout div{color:var(--ink-soft)}
+.readout b{color:var(--ink);font-weight:500}
+.readout .hot{color:var(--signal)}
+
+.ctrl{display:flex;align-items:center;gap:12px;margin-top:13px;flex-wrap:wrap}
+.ctrl label{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--ink-soft);min-width:118px}
+input[type=range]{
+  flex:1;min-width:150px;accent-color:var(--signal);height:22px;
+}
+button{
+  font-family:"IBM Plex Sans",sans-serif;font-size:.86rem;font-weight:500;
+  background:var(--panel);color:var(--ink);border:1px solid var(--ink-soft);
+  border-radius:2px;padding:6px 14px;cursor:pointer;
+}
+button:hover{background:var(--panel-3)}
+button.go{background:var(--signal);border-color:var(--signal);color:#fff}
+button.go:hover{background:#c74a17}
+:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+
+/* ---------- matrix ---------- */
+.mm{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:"IBM Plex Mono",monospace}
+.mgrid{display:grid;gap:3px}
+.cell{
+  width:42px;height:34px;display:grid;place-items:center;background:var(--panel);
+  border:1px solid var(--rule);font-size:.83rem;border-radius:2px;
+}
+.cell.out{background:var(--lcd);color:var(--curve);border-color:var(--grid);cursor:pointer}
+.cell.out:hover,.cell.out.on{background:var(--signal);color:#fff;border-color:var(--signal)}
+.cell.lit{background:#F3D9C9;border-color:var(--signal)}
+.mm .op{font-size:1.2rem;color:var(--ink-soft)}
+.mmwork{
+  margin-top:12px;font-family:"IBM Plex Mono",monospace;font-size:.8rem;
+  color:var(--ink-soft);min-height:2.6em;line-height:1.5;
+}
+.mmwork b{color:var(--signal);font-weight:500}
+
+/* ---------- softmax bars ---------- */
+.bars{display:grid;gap:7px;margin-top:4px}
+.bar{display:grid;grid-template-columns:78px 1fr 58px;align-items:center;gap:9px;
+  font-family:"IBM Plex Mono",monospace;font-size:.79rem}
+.track{background:var(--lcd-2);height:19px;border-radius:2px;overflow:hidden}
+.fill{background:var(--curve);height:100%;width:0;transition:width .12s linear}
+@media (prefers-reduced-motion:reduce){.fill{transition:none}}
+.bar.top .fill{background:var(--signal)}
+.bar .pct{text-align:right;color:var(--ink-soft)}
+.bar .tk{color:var(--ink)}
+.bar.cut .fill{background:var(--panel-3);opacity:.55}
+.bar.cut .tk,.bar.cut .pct{opacity:.45}
+
+/* ---------- notes ---------- */
+.note{
+  border-left:2px solid var(--signal);padding:2px 0 2px 15px;margin:1.6em 0;
+  color:var(--ink-soft);font-size:.94rem;max-width:62ch;
+}
+.note b{color:var(--ink);font-weight:600}
+.eq{
+  font-family:"IBM Plex Mono",monospace;background:var(--panel-2);
+  border:1px solid var(--rule);border-radius:2px;padding:11px 14px;margin:1.2em 0;
+  font-size:.87rem;overflow-x:auto;max-width:62ch;
+}
+ul{max-width:62ch}
+li{margin:.35em 0}
+
+/* ---------- quiz ---------- */
+.q{border-top:1px solid var(--rule);padding:20px 0}
+.q:first-child{border-top:none}
+.q p.stem{font-weight:600;margin:0 0 .8em;max-width:60ch}
+.opts{display:grid;gap:6px;max-width:60ch}
+.opt{
+  text-align:left;padding:9px 13px;background:var(--panel-2);border:1px solid var(--rule);
+  font-size:.93rem;line-height:1.45;
+}
+.opt:hover{background:var(--panel-3)}
+.opt.right{background:#DCEBDD;border-color:#5B9268;color:#20321F}
+.opt.wrong{background:var(--warnbg);border-color:var(--signal)}
+.exp{margin:.8em 0 0;font-size:.9rem;color:var(--ink-soft);max-width:60ch;display:none}
+.exp.show{display:block}
+footer{
+  border-top:1px solid var(--rule);padding:26px clamp(20px,5vw,64px);
+  font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--ink-soft);
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div>
+    <p class="kicker">Fundamentos matemáticos de modelos de linguagem</p>
+    <h1>Um trilhão de<br>parâmetros, três<br>ideias.</h1>
+    <p>Álgebra linear move os números. Cálculo corrige os números. Probabilidade transforma os números em uma palavra. Todo o resto é engenharia em cima disso.</p>
+    <p style="font-size:.92rem">Cada conceito abaixo vem com um instrumento para mexer. Arraste, deslize, quebre.</p>
+  </div>
+  <figure class="hero-fig" style="margin:0">
+    <canvas class="screen" id="heroCv" height="300"></canvas>
+    <figcaption class="hero-cap">Treinar é isto: uma bolinha descendo uma superfície de erro. A inclinação vem do cálculo, o passo vem da otimização, a superfície vem dos dados.</figcaption>
+  </figure>
+</header>
+
+<div class="wrap">
+<nav aria-label="Módulos">
+  <ol>
+    <li><a href="#m1">Álgebra linear</a></li>
+    <li><a href="#m2">Cálculo</a></li>
+    <li><a href="#m3">Probabilidade</a></li>
+    <li><a href="#m4">A volta completa</a></li>
+    <li><a href="#m5">Teste rápido</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- ============ MÓDULO 1 ============ -->
+<section id="m1">
+  <h2>Álgebra linear</h2>
+  <p class="sub">O idioma nativo. Significado vira geometria, e geometria vira multiplicação de matriz.</p>
+
+  <h3>Produto escalar: a operação que mede parecença</h3>
+  <p>Um embedding é um vetor. A pergunta “estas duas coisas têm a ver uma com a outra?” vira “estes dois vetores apontam para o mesmo lado?”. O produto escalar responde: soma dos produtos componente a componente. Positivo alto = mesma direção. Zero = perpendicular, sem relação. Negativo = direções opostas.</p>
+
+  <div class="inst">
+    <div class="inst-head"><span>Produto escalar e similaridade de cosseno</span><span>arraste as pontas</span></div>
+    <div class="inst-body">
+      <canvas class="screen" id="dotCv" height="260"></canvas>
+      <div class="readout">
+        <div>a = <b class="num" id="dA">—</b></div>
+        <div>b = <b class="num" id="dB">—</b></div>
+        <div>a · b = <b class="num hot" id="dDot">—</b></div>
+        <div>cos θ = <b class="num" id="dCos">—</b></div>
+        <div>θ = <b class="num" id="dAng">—</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">O produto escalar é sensível ao tamanho do vetor; o cosseno normaliza isso e olha só a direção. Por isso busca vetorial em RAG usa cosseno: você quer “fala do mesmo assunto”, não “é um texto comprido”.</div>
+
+  <h3>Multiplicação de matriz: milhares de produtos escalares de uma vez</h3>
+  <p>Uma matriz é uma pilha de vetores. Multiplicar duas matrizes é fazer o produto escalar de cada linha da primeira com cada coluna da segunda. É isso, literalmente, e é 90% do custo computacional de um LLM.</p>
+
+  <div class="inst">
+    <div class="inst-head"><span>A (2×3) · B (3×2) = C (2×2)</span><span>clique numa célula do resultado</span></div>
+    <div class="inst-body">
+      <div class="mm">
+        <div class="mgrid" id="matA" style="grid-template-columns:repeat(3,auto)"></div>
+        <span class="op">×</span>
+        <div class="mgrid" id="matB" style="grid-template-columns:repeat(2,auto)"></div>
+        <span class="op">=</span>
+        <div class="mgrid" id="matC" style="grid-template-columns:repeat(2,auto)"></div>
+      </div>
+      <div class="mmwork" id="mmWork">Cada célula do resultado é o produto escalar de uma linha por uma coluna.</div>
+      <div class="ctrl"><button id="mmRand">Sortear outros números</button></div>
+    </div>
+  </div>
+
+  <div class="note">Na atenção isso aparece como <b>Q · Kᵀ</b>: a matriz de perguntas vezes a matriz de chaves transposta. O resultado é uma grade onde a célula (i, j) diz o quanto o token <i>i</i> se interessa pelo token <i>j</i>. Toda a “compreensão de contexto” começa como um produto escalar.</div>
+
+  <h3>O que mais aparece daqui</h3>
+  <ul>
+    <li><b>Normas</b> (‖v‖) — tamanho do vetor. Base de LayerNorm/RMSNorm e do clipping de gradiente.</li>
+    <li><b>Transposição</b> — reorganizar para alinhar dimensões. Onipresente e chata.</li>
+    <li><b>Decomposição de posto baixo (SVD)</b> — a ideia de que uma matriz grande pode ser aproximada por duas magrinhas. É exatamente o truque do LoRA: em vez de treinar uma matriz d×d, treina duas d×r com r pequeno.</li>
+    <li><b>Alta dimensionalidade</b> — em 8.192 dimensões cabem muitos conceitos quase perpendiculares entre si. É por isso que um vetor consegue carregar significado sem colidir com todo o resto.</li>
+  </ul>
+</section>
+
+<!-- ============ MÓDULO 2 ============ -->
+<section id="m2">
+  <h2>Cálculo</h2>
+  <p class="sub">A álgebra linear faz a conta. O cálculo diz em que direção mexer os pesos para a conta ficar menos errada.</p>
+
+  <h3>Derivada é inclinação</h3>
+  <p>A derivada de uma função em um ponto é a inclinação da reta tangente ali. Se é positiva, subir x aumenta f. Se é negativa, subir x diminui f. Se é zero, você está num ponto plano — topo, fundo ou sela.</p>
+
+  <div class="inst">
+    <div class="inst-head"><span>f(x) = x³/3 − x &nbsp;·&nbsp; f′(x) = x² − 1</span><span>deslize o ponto</span></div>
+    <div class="inst-body">
+      <canvas class="screen" id="derCv" height="250"></canvas>
+      <div class="ctrl">
+        <label for="derX">posição x</label>
+        <input type="range" id="derX" min="-200" max="200" value="-150">
+      </div>
+      <div class="readout">
+        <div>x = <b class="num" id="derXv">—</b></div>
+        <div>f(x) = <b class="num" id="derFv">—</b></div>
+        <div>f′(x) = <b class="num hot" id="derDv">—</b></div>
+        <div id="derMsg" style="color:var(--ink)"></div>
+      </div>
+    </div>
+  </div>
+
+  <p>Num modelo, a função não tem uma variável e sim um trilhão delas. A derivada parcial em relação a cada peso, empilhada num vetor, é o <b>gradiente</b>. Ele aponta a direção de subida mais íngreme da perda — então o treino anda no sentido contrário.</p>
+
+  <h3>Descida do gradiente, com a taxa de aprendizado na sua mão</h3>
+  <p>O algoritmo inteiro é uma linha: <code>peso ← peso − η · gradiente</code>. O η (learning rate) é o tamanho do passo. Pequeno demais, você não sai do lugar. Grande demais, você salta por cima do mínimo e diverge. Teste os dois extremos abaixo.</p>
+
+  <div class="inst">
+    <div class="inst-head"><span>Descida do gradiente em L(x) = 0,5x² + 0,3·sen(3x)</span><span>clique no gráfico para reposicionar</span></div>
+    <div class="inst-body">
+      <canvas class="screen" id="gdCv" height="270"></canvas>
+      <div class="ctrl">
+        <label for="gdLr">η (learning rate)</label>
+        <input type="range" id="gdLr" min="1" max="220" value="25">
+        <span class="num" id="gdLrv" style="font-size:.82rem">0,25</span>
+      </div>
+      <div class="ctrl">
+        <button class="go" id="gdRun">Rodar 60 passos</button>
+        <button id="gdStep">Um passo</button>
+        <button id="gdReset">Reiniciar</button>
+      </div>
+      <div class="readout">
+        <div>passo <b class="num" id="gdN">0</b></div>
+        <div>x = <b class="num" id="gdX">—</b></div>
+        <div>perda = <b class="num hot" id="gdL">—</b></div>
+        <div>gradiente = <b class="num" id="gdG">—</b></div>
+        <div id="gdMsg"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">Repare nos dois mínimos locais. Com η baixo, a bolinha fica presa no buraco mais perto de onde começou — em modelos reais, com bilhões de dimensões, mínimos locais ruins são muito mais raros do que a intuição 2D sugere, e o problema prático vira outro: <b>estabilidade</b>. Por isso existem warmup, schedules e otimizadores adaptativos como o AdamW.</div>
+
+  <h3>Regra da cadeia: por que “backpropagation” não é mágica</h3>
+  <p>Uma rede é uma função composta: camada sobre camada sobre camada. A regra da cadeia diz que a derivada de uma composição é o produto das derivadas de cada etapa. Backpropagation é só aplicar isso da saída para a entrada, reaproveitando os resultados intermediários em vez de recalcular tudo.</p>
+  <div class="eq">L = f₃(f₂(f₁(x)))<br>∂L/∂w₁ = (∂L/∂f₃) · (∂f₃/∂f₂) · (∂f₂/∂f₁) · (∂f₁/∂w₁)</div>
+  <p>Multiplicar centenas desses fatores tem uma consequência direta: se forem quase todos menores que 1, o produto tende a zero e o gradiente <i>some</i> antes de chegar nas primeiras camadas. Se forem maiores que 1, ele explode. Conexões residuais e normalização existem principalmente para manter esse produto bem-comportado.</p>
+</section>
+
+<!-- ============ MÓDULO 3 ============ -->
+<section id="m3">
+  <h2>Probabilidade</h2>
+  <p class="sub">O modelo não escolhe uma palavra. Ele devolve uma distribuição sobre todas elas, e alguém amostra.</p>
+
+  <h3>Softmax e temperatura</h3>
+  <p>A última camada cospe um score bruto (logit) para cada token do vocabulário. Softmax exponencia e normaliza, virando probabilidades que somam 1. A temperatura divide os logits antes disso: baixa realça as diferenças, alta as achata.</p>
+
+  <div class="inst">
+    <div class="inst-head"><span>Prompt: “O céu está …”</span><span>probabilidade do próximo token</span></div>
+    <div class="inst-body">
+      <div class="bars" id="smBars"></div>
+      <div class="ctrl">
+        <label for="smT">temperature</label>
+        <input type="range" id="smT" min="5" max="200" value="100">
+        <span class="num" id="smTv" style="font-size:.82rem">1,00</span>
+      </div>
+      <div class="ctrl">
+        <label for="smP">top_p</label>
+        <input type="range" id="smP" min="10" max="100" value="100">
+        <span class="num" id="smPv" style="font-size:.82rem">1,00</span>
+      </div>
+      <div class="readout">
+        <div>entropia = <b class="num" id="smH">—</b> bits</div>
+        <div>tokens no núcleo = <b class="num hot" id="smK">—</b></div>
+        <div id="smMsg" style="color:var(--ink-soft)"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">Temperatura 0,05 deixa o modelo praticamente determinístico — sempre o token de maior logit. Temperatura 2,0 dá chance real a candidatos improváveis. <b>top_p</b> corta a cauda: mantém só os tokens mais prováveis até acumular p, e redistribui o resto. As barras apagadas foram eliminadas antes da amostragem.</div>
+
+  <h3>Cross-entropy: a perda que o treino minimiza</h3>
+  <p>Durante o treino existe uma resposta certa: o token que realmente vinha a seguir no texto. A perda é <code>−log(p)</code>, a probabilidade que o modelo deu para o token correto. Se deu 0,9, a perda é 0,105. Se deu 0,01, a perda é 4,6. O logaritmo pune confiança errada de forma brutal — e essa punição é exatamente o sinal que se propaga de volta pela rede.</p>
+
+  <div class="inst">
+    <div class="inst-head"><span>Perda para o token correto</span><span>−log(p)</span></div>
+    <div class="inst-body">
+      <canvas class="screen" id="ceCv" height="210"></canvas>
+      <div class="ctrl">
+        <label for="ceP">p do token certo</label>
+        <input type="range" id="ceP" min="1" max="99" value="35">
+      </div>
+      <div class="readout">
+        <div>p = <b class="num" id="cePv">—</b></div>
+        <div>perda = <b class="num hot" id="ceLv">—</b></div>
+        <div>perplexidade = <b class="num" id="ceXv">—</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">Perplexidade é a perda exponenciada, e tem uma leitura intuitiva: “entre quantas opções equiprováveis o modelo está efetivamente hesitando”. Perplexidade 1 = certeza absoluta. Perplexidade 50.000 = chute uniforme no vocabulário inteiro.</div>
+
+  <h3>O resto do kit</h3>
+  <ul>
+    <li><b>Máxima verossimilhança</b> — o objetivo formal do pré-treino: ajustar os pesos para maximizar a probabilidade dos textos observados.</li>
+    <li><b>Divergência KL</b> — distância entre duas distribuições. Aparece na perda, e explicitamente no RLHF para impedir que o modelo ajustado se afaste demais do original.</li>
+    <li><b>Entropia</b> — incerteza média de uma distribuição, em bits. É o instrumento no painel acima.</li>
+    <li><b>Amostragem</b> — greedy, top-k, top-p, beam search. Todos operam sobre a mesma distribuição, só diferem em como sorteiam.</li>
+  </ul>
+</section>
+
+<!-- ============ MÓDULO 4 ============ -->
+<section id="m4">
+  <h2>A volta completa</h2>
+  <p class="sub">Um token entrando e a matemática toda em sequência.</p>
+  <div class="eq">1. token → id → linha da matriz de embedding &nbsp;<span style="color:var(--ink-soft)">// álgebra linear</span>
+2. Q·Kᵀ → softmax → ·V, repetido por camada &nbsp;<span style="color:var(--ink-soft)">// álgebra linear + probabilidade</span>
+3. MLP: expande, não-linearidade, contrai &nbsp;<span style="color:var(--ink-soft)">// álgebra linear</span>
+4. projeção final → logits sobre o vocabulário &nbsp;<span style="color:var(--ink-soft)">// álgebra linear</span>
+5. softmax(logits / T) → amostragem &nbsp;<span style="color:var(--ink-soft)">// probabilidade</span>
+── só no treino ──
+6. perda = −log(p do token correto) &nbsp;<span style="color:var(--ink-soft)">// teoria da informação</span>
+7. gradiente por regra da cadeia, saída → entrada &nbsp;<span style="color:var(--ink-soft)">// cálculo</span>
+8. peso ← peso − η · gradiente &nbsp;<span style="color:var(--ink-soft)">// otimização</span></div>
+
+  <p>Na inferência só rodam os passos 1 a 5. Os passos 6 a 8 rodaram milhões de vezes, meses atrás, num cluster, e o resultado congelado é o arquivo de pesos que você carrega.</p>
+
+  <h3>Ordem sugerida de estudo</h3>
+  <ul>
+    <li><b>Álgebra linear primeiro.</b> Sem ela, nada mais faz sentido. Foque em produto escalar, multiplicação de matriz e o que significa uma transformação linear. O <i>Essence of Linear Algebra</i> do 3Blue1Brown resolve a intuição em poucas horas.</li>
+    <li><b>Cálculo em seguida</b>, e só a parte que interessa: derivadas parciais, gradiente e regra da cadeia. Integrais quase não aparecem em LLM.</li>
+    <li><b>Probabilidade em paralelo</b> com o cálculo — softmax, verossimilhança, entropia. É a ponte entre a matemática e o comportamento que você observa em produção.</li>
+    <li><b>Otimização por último</b>, e tranquilamente como caixa-preta. Saber que AdamW usa momento e taxas adaptativas por parâmetro já cobre a conversa por um bom tempo.</li>
+  </ul>
+  <p>Para quem vem de arquitetura, o atalho mais rentável é o <i>Let's build GPT</i> do Karpathy: um transformer inteiro em ~300 linhas, onde cada conceito acima aparece como uma linha de código com nome e sobrenome.</p>
+</section>
+
+<!-- ============ MÓDULO 5 ============ -->
+<section id="m5">
+  <h2>Teste rápido</h2>
+  <p class="sub">Cinco perguntas. Escolha e a explicação aparece.</p>
+  <div id="quiz"></div>
+</section>
+
+</main>
+</div>
+
+<footer>Material de estudo interativo · abra o código-fonte da página para ver as fórmulas implementadas</footer>
+
+<script>
+(function(){
+"use strict";
+var RM = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var C = {curve:"#8FD6A5",sig:"#E2571E",cool:"#6FB3C0",grid:"#283D35",dim:"#4A6159",lcd:"#14201C"};
+
+function fit(cv){
+  var d = window.devicePixelRatio||1, w = cv.clientWidth||600, h = parseInt(cv.getAttribute("height"),10);
+  cv.width = w*d; cv.height = h*d; cv.style.height = h+"px";
+  var x = cv.getContext("2d"); x.setTransform(d,0,0,d,0,0);
+  return {ctx:x,w:w,h:h};
+}
+function grid(ctx,w,h,step){
+  ctx.strokeStyle=C.grid; ctx.lineWidth=1;
+  for(var i=step;i<w;i+=step){ctx.beginPath();ctx.moveTo(i+.5,0);ctx.lineTo(i+.5,h);ctx.stroke();}
+  for(var j=step;j<h;j+=step){ctx.beginPath();ctx.moveTo(0,j+.5);ctx.lineTo(w,j+.5);ctx.stroke();}
+}
+function fmt(n,d){ return n.toFixed(d===undefined?2:d).replace(".",","); }
+
+/* ---------------- HERO ---------------- */
+(function(){
+  var cv=document.getElementById("heroCv"); if(!cv) return;
+  var t=0, raf=null, S=null;
+  function L(x){ return 0.055*x*x + 1.4*Math.sin(x*0.9) + 6; }
+  function dL(x){ return 0.11*x + 1.26*Math.cos(x*0.9); }
+  var px=-7.2, path=[], done=false;
+  function draw(){
+    S=fit(cv); var ctx=S.ctx,w=S.w,h=S.h;
+    ctx.fillStyle=C.lcd; ctx.fillRect(0,0,w,h); grid(ctx,w,h,26);
+    var X=function(x){return (x+9)/18*w;}, Y=function(y){return h-12-(y/16)*(h-30);};
+    ctx.strokeStyle=C.curve; ctx.lineWidth=2; ctx.beginPath();
+    for(var i=0;i<=260;i++){ var x=-9+18*i/260, yy=Y(L(x)); if(i===0)ctx.moveTo(X(x),yy); else ctx.lineTo(X(x),yy); }
+    ctx.stroke();
+    ctx.strokeStyle="rgba(226,87,30,.5)"; ctx.lineWidth=1.5; ctx.beginPath();
+    for(var k=0;k<path.length;k++){ var p=path[k]; if(k===0)ctx.moveTo(X(p),Y(L(p))); else ctx.lineTo(X(p),Y(L(p))); }
+    ctx.stroke();
+    ctx.fillStyle=C.sig; ctx.beginPath(); ctx.arc(X(px),Y(L(px)),6,0,7); ctx.fill();
+    ctx.fillStyle="#5D7A6E"; ctx.font='11px "IBM Plex Mono",monospace';
+    ctx.fillText("perda",8,16); ctx.fillText("peso",w-38,h-6);
+  }
+  function step(){
+    t++;
+    if(t%2===0 && !done){ path.push(px); px = px - 0.42*dL(px); if(path.length>90) done=true; }
+    draw();
+    if(!done) raf=requestAnimationFrame(step); else { raf=null; }
+  }
+  function start(){ path=[]; px=-7.2; done=false; t=0; if(RM){ for(var i=0;i<90;i++){path.push(px);px=px-0.42*dL(px);} done=true; draw(); } else { if(raf)cancelAnimationFrame(raf); raf=requestAnimationFrame(step); } }
+  start();
+  window.addEventListener("resize",function(){ if(done)draw(); });
+})();
+
+/* ---------------- DOT PRODUCT ---------------- */
+(function(){
+  var cv=document.getElementById("dotCv"); if(!cv) return;
+  var a={x:3,y:2}, b={x:-1,y:3}, drag=null, S=null, sc=34;
+  function px(v,w,h){ return {x:w/2+v.x*sc, y:h/2-v.y*sc}; }
+  function arrow(ctx,o,p,col,lab){
+    ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=2.4;
+    ctx.beginPath(); ctx.moveTo(o.x,o.y); ctx.lineTo(p.x,p.y); ctx.stroke();
+    var ang=Math.atan2(p.y-o.y,p.x-o.x);
+    ctx.beginPath(); ctx.moveTo(p.x,p.y);
+    ctx.lineTo(p.x-11*Math.cos(ang-.36),p.y-11*Math.sin(ang-.36));
+    ctx.lineTo(p.x-11*Math.cos(ang+.36),p.y-11*Math.sin(ang+.36));
+    ctx.closePath(); ctx.fill();
+    ctx.font='600 13px "IBM Plex Mono",monospace';
+    ctx.fillText(lab,p.x+9,p.y-7);
+    ctx.beginPath(); ctx.arc(p.x,p.y,9,0,7); ctx.globalAlpha=.18; ctx.fill(); ctx.globalAlpha=1;
+  }
+  function draw(){
+    S=fit(cv); var ctx=S.ctx,w=S.w,h=S.h;
+    ctx.fillStyle=C.lcd; ctx.fillRect(0,0,w,h); grid(ctx,w,h,sc);
+    ctx.strokeStyle=C.dim; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2); ctx.moveTo(w/2,0); ctx.lineTo(w/2,h); ctx.stroke();
+    var o={x:w/2,y:h/2};
+    var dot=a.x*b.x+a.y*b.y;
+    var na=Math.hypot(a.x,a.y), nb=Math.hypot(b.x,b.y);
+    var cos = (na*nb)>0 ? dot/(na*nb) : 0;
+    /* arco do ângulo */
+    var aa=Math.atan2(-a.y,a.x), ab=Math.atan2(-b.y,b.x);
+    ctx.strokeStyle = cos>=0 ? "rgba(143,214,165,.75)":"rgba(226,87,30,.75)";
+    ctx.lineWidth=2; ctx.beginPath(); ctx.arc(o.x,o.y,30,aa,ab,((ab-aa+Math.PI*2)%(Math.PI*2))>Math.PI); ctx.stroke();
+    arrow(ctx,o,px(a,w,h),C.curve,"a");
+    arrow(ctx,o,px(b,w,h),C.cool,"b");
+    document.getElementById("dA").textContent="("+fmt(a.x,1)+"; "+fmt(a.y,1)+")";
+    document.getElementById("dB").textContent="("+fmt(b.x,1)+"; "+fmt(b.y,1)+")";
+    document.getElementById("dDot").textContent=fmt(dot);
+    document.getElementById("dCos").textContent=fmt(cos);
+    document.getElementById("dAng").textContent=fmt(Math.acos(Math.max(-1,Math.min(1,cos)))*180/Math.PI,0)+"°";
+  }
+  function loc(e){
+    var r=cv.getBoundingClientRect();
+    var cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    var cy=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+    return {x:(cx-r.width/2)/sc, y:(r.height/2-cy)/sc};
+  }
+  function near(v,p){ return Math.hypot(v.x-p.x,v.y-p.y)<0.9; }
+  cv.addEventListener("pointerdown",function(e){
+    var p=loc(e); drag = near(a,p)?"a":(near(b,p)?"b":(Math.hypot(p.x,p.y)>0.6?"b":null));
+    if(drag){ cv.setPointerCapture(e.pointerId); var t=drag==="a"?a:b; t.x=Math.round(p.x*2)/2; t.y=Math.round(p.y*2)/2; draw(); }
+  });
+  cv.addEventListener("pointermove",function(e){
+    if(!drag) return; e.preventDefault();
+    var p=loc(e), t=drag==="a"?a:b;
+    t.x=Math.max(-6,Math.min(6,Math.round(p.x*2)/2));
+    t.y=Math.max(-3,Math.min(3,Math.round(p.y*2)/2));
+    draw();
+  });
+  ["pointerup","pointercancel","pointerleave"].forEach(function(ev){cv.addEventListener(ev,function(){drag=null;});});
+  draw(); window.addEventListener("resize",draw);
+})();
+
+/* ---------------- MATRIX MULT ---------------- */
+(function(){
+  var eA=document.getElementById("matA"),eB=document.getElementById("matB"),eC=document.getElementById("matC"),
+      work=document.getElementById("mmWork"); if(!eA) return;
+  var A,B,sel=null;
+  function rnd(){ return Math.floor(Math.random()*9)-3; }
+  function gen(){ A=[[rnd(),rnd(),rnd()],[rnd(),rnd(),rnd()]]; B=[[rnd(),rnd()],[rnd(),rnd()],[rnd(),rnd()]]; sel=null; render(); }
+  function mul(i,j){ var s=0; for(var k=0;k<3;k++) s+=A[i][k]*B[k][j]; return s; }
+  function render(){
+    eA.innerHTML=""; eB.innerHTML=""; eC.innerHTML="";
+    for(var i=0;i<2;i++) for(var k=0;k<3;k++){
+      var d=document.createElement("div"); d.className="cell"; d.textContent=A[i][k];
+      d.dataset.r=i; d.dataset.c=k; eA.appendChild(d);
+    }
+    for(var k2=0;k2<3;k2++) for(var j=0;j<2;j++){
+      var e=document.createElement("div"); e.className="cell"; e.textContent=B[k2][j];
+      e.dataset.r=k2; e.dataset.c=j; eB.appendChild(e);
+    }
+    for(var i2=0;i2<2;i2++) for(var j2=0;j2<2;j2++){
+      var c=document.createElement("button"); c.className="cell out"; c.textContent=mul(i2,j2);
+      c.dataset.i=i2; c.dataset.j=j2; c.setAttribute("aria-label","resultado linha "+(i2+1)+" coluna "+(j2+1));
+      c.addEventListener("click",function(){ show(+this.dataset.i,+this.dataset.j); });
+      eC.appendChild(c);
+    }
+    if(sel) show(sel[0],sel[1]);
+  }
+  function show(i,j){
+    sel=[i,j];
+    Array.prototype.forEach.call(eA.children,function(d){ d.classList.toggle("lit", +d.dataset.r===i); });
+    Array.prototype.forEach.call(eB.children,function(d){ d.classList.toggle("lit", +d.dataset.c===j); });
+    Array.prototype.forEach.call(eC.children,function(d){ d.classList.toggle("on", +d.dataset.i===i && +d.dataset.j===j); });
+    var parts=[],s=0;
+    for(var k=0;k<3;k++){ parts.push("("+A[i][k]+"×"+B[k][j]+")"); s+=A[i][k]*B[k][j]; }
+    work.innerHTML="C["+(i+1)+","+(j+1)+"] = linha "+(i+1)+" de A · coluna "+(j+1)+" de B<br>= "+parts.join(" + ")+" = <b>"+s+"</b>";
+  }
+  document.getElementById("mmRand").addEventListener("click",gen);
+  gen();
+})();
+
+/* ---------------- DERIVATIVE ---------------- */
+(function(){
+  var cv=document.getElementById("derCv"), sl=document.getElementById("derX"); if(!cv) return;
+  function f(x){ return x*x*x/3 - x; }
+  function d(x){ return x*x - 1; }
+  function draw(){
+    var S=fit(cv), ctx=S.ctx, w=S.w, h=S.h;
+    var x0=+sl.value/100;
+    ctx.fillStyle=C.lcd; ctx.fillRect(0,0,w,h); grid(ctx,w,h,28);
+    var X=function(x){return (x+2.4)/4.8*w;}, Y=function(y){return h/2 - y*(h/5.2);};
+    ctx.strokeStyle=C.dim; ctx.lineWidth=1; ctx.beginPath();
+    ctx.moveTo(0,Y(0)); ctx.lineTo(w,Y(0)); ctx.moveTo(X(0),0); ctx.lineTo(X(0),h); ctx.stroke();
+    ctx.strokeStyle=C.curve; ctx.lineWidth=2.2; ctx.beginPath();
+    for(var i=0;i<=300;i++){ var x=-2.4+4.8*i/300; if(i===0)ctx.moveTo(X(x),Y(f(x))); else ctx.lineTo(X(x),Y(f(x))); }
+    ctx.stroke();
+    var m=d(x0), y0=f(x0);
+    ctx.strokeStyle=C.sig; ctx.lineWidth=1.8; ctx.beginPath();
+    ctx.moveTo(X(x0-1.3),Y(y0+m*(-1.3))); ctx.lineTo(X(x0+1.3),Y(y0+m*(1.3))); ctx.stroke();
+    ctx.fillStyle=C.sig; ctx.beginPath(); ctx.arc(X(x0),Y(y0),5.5,0,7); ctx.fill();
+    document.getElementById("derXv").textContent=fmt(x0);
+    document.getElementById("derFv").textContent=fmt(y0);
+    document.getElementById("derDv").textContent=fmt(m);
+    var msg = Math.abs(m)<0.06 ? "inclinação zero — ponto plano" : (m>0 ? "subindo: reduzir x diminui f" : "descendo: aumentar x diminui f");
+    document.getElementById("derMsg").textContent=msg;
+  }
+  sl.addEventListener("input",draw); draw(); window.addEventListener("resize",draw);
+})();
+
+/* ---------------- GRADIENT DESCENT ---------------- */
+(function(){
+  var cv=document.getElementById("gdCv"); if(!cv) return;
+  var lr=document.getElementById("gdLr"), lrv=document.getElementById("gdLrv");
+  function L(x){ return 0.5*x*x + 0.3*Math.sin(3*x); }
+  function dL(x){ return x + 0.9*Math.cos(3*x); }
+  var x0=-2.6, x=x0, n=0, path=[x0], timer=null;
+  function eta(){ return +lr.value/100; }
+  function draw(){
+    var S=fit(cv), ctx=S.ctx, w=S.w, h=S.h;
+    ctx.fillStyle=C.lcd; ctx.fillRect(0,0,w,h); grid(ctx,w,h,28);
+    var X=function(v){return (v+3.2)/6.4*w;}, Y=function(v){return h-16-(v/6)*(h-34);};
+    ctx.strokeStyle=C.curve; ctx.lineWidth=2.2; ctx.beginPath();
+    for(var i=0;i<=320;i++){ var v=-3.2+6.4*i/320; if(i===0)ctx.moveTo(X(v),Y(L(v))); else ctx.lineTo(X(v),Y(L(v))); }
+    ctx.stroke();
+    ctx.strokeStyle="rgba(226,87,30,.45)"; ctx.lineWidth=1.3; ctx.beginPath();
+    for(var k=0;k<path.length;k++){ var p=path[k]; if(!isFinite(p))break; if(k===0)ctx.moveTo(X(p),Y(L(p))); else ctx.lineTo(X(p),Y(L(p))); }
+    ctx.stroke();
+    ctx.fillStyle="rgba(226,87,30,.5)";
+    for(var k2=0;k2<path.length;k2++){ if(isFinite(path[k2])) { ctx.beginPath(); ctx.arc(X(path[k2]),Y(L(path[k2])),2.4,0,7); ctx.fill(); } }
+    if(isFinite(x) && Math.abs(x)<20){ ctx.fillStyle=C.sig; ctx.beginPath(); ctx.arc(X(x),Y(L(x)),6.5,0,7); ctx.fill(); }
+    document.getElementById("gdN").textContent=n;
+    document.getElementById("gdX").textContent=isFinite(x)?fmt(x,3):"∞";
+    document.getElementById("gdL").textContent=isFinite(L(x))&&Math.abs(L(x))<1e6?fmt(L(x),3):"divergiu";
+    document.getElementById("gdG").textContent=isFinite(dL(x))&&Math.abs(dL(x))<1e6?fmt(dL(x),3):"∞";
+    var m="";
+    if(!isFinite(x)||Math.abs(x)>8) m="η grande demais: saltou fora e divergiu";
+    else if(eta()<0.06 && n>10) m="η pequeno: convergência lenta";
+    else if(n>0 && Math.abs(dL(x))<0.02) m="chegou num mínimo";
+    document.getElementById("gdMsg").textContent=m;
+  }
+  function step(){ if(!isFinite(x)||Math.abs(x)>1e4) return; x = x - eta()*dL(x); n++; path.push(x); draw(); }
+  function reset(){ if(timer){clearInterval(timer);timer=null;} x=x0; n=0; path=[x0]; draw(); }
+  document.getElementById("gdStep").addEventListener("click",step);
+  document.getElementById("gdReset").addEventListener("click",reset);
+  document.getElementById("gdRun").addEventListener("click",function(){
+    if(timer){clearInterval(timer);timer=null;return;}
+    x=x0;n=0;path=[x0];
+    if(RM){ for(var i=0;i<60;i++) step(); return; }
+    var c=0; timer=setInterval(function(){ step(); if(++c>=60){clearInterval(timer);timer=null;} },34);
+  });
+  lr.addEventListener("input",function(){ lrv.textContent=fmt(eta()); reset(); });
+  cv.addEventListener("click",function(e){
+    var r=cv.getBoundingClientRect();
+    x0 = ((e.clientX-r.left)/r.width)*6.4-3.2; reset();
+  });
+  lrv.textContent=fmt(eta()); draw(); window.addEventListener("resize",draw);
+})();
+
+/* ---------------- SOFTMAX ---------------- */
+(function(){
+  var host=document.getElementById("smBars"); if(!host) return;
+  var toks=["azul","limpo","nublado","escuro","caindo"], logits=[4.1,3.2,2.4,1.1,-0.6], rows=[];
+  toks.forEach(function(t,i){
+    var r=document.createElement("div"); r.className="bar";
+    r.innerHTML='<span class="tk">'+t+'</span><span class="track"><span class="fill"></span></span><span class="pct"></span>';
+    host.appendChild(r); rows.push(r);
+  });
+  var T=document.getElementById("smT"), Tv=document.getElementById("smTv"),
+      P=document.getElementById("smP"), Pv=document.getElementById("smPv");
+  function upd(){
+    var t=+T.value/100, p=+P.value/100;
+    Tv.textContent=fmt(t); Pv.textContent=fmt(p);
+    var mx=Math.max.apply(null,logits.map(function(l){return l/t;}));
+    var ex=logits.map(function(l){ return Math.exp(l/t-mx); });
+    var s=ex.reduce(function(a,b){return a+b;},0);
+    var pr=ex.map(function(e){return e/s;});
+    var idx=pr.map(function(v,i){return i;}).sort(function(a,b){return pr[b]-pr[a];});
+    var acc=0, keep={}, k=0;
+    for(var i=0;i<idx.length;i++){ keep[idx[i]]=true; k++; acc+=pr[idx[i]]; if(acc>=p) break; }
+    var H=0; pr.forEach(function(v){ if(v>1e-12) H -= v*Math.log2(v); });
+    var top=idx[0];
+    rows.forEach(function(r,i){
+      r.querySelector(".fill").style.width=(pr[i]*100).toFixed(1)+"%";
+      r.querySelector(".pct").textContent=(pr[i]*100).toFixed(1).replace(".",",")+"%";
+      r.classList.toggle("top", i===top);
+      r.classList.toggle("cut", !keep[i]);
+    });
+    document.getElementById("smH").textContent=fmt(H);
+    document.getElementById("smK").textContent=k+" de 5";
+    document.getElementById("smMsg").textContent = t<0.35 ? "quase determinístico" : (t>1.5 ? "criativo e instável" : "");
+  }
+  T.addEventListener("input",upd); P.addEventListener("input",upd); upd();
+})();
+
+/* ---------------- CROSS ENTROPY ---------------- */
+(function(){
+  var cv=document.getElementById("ceCv"), sl=document.getElementById("ceP"); if(!cv) return;
+  function draw(){
+    var S=fit(cv), ctx=S.ctx, w=S.w, h=S.h, p=+sl.value/100;
+    ctx.fillStyle=C.lcd; ctx.fillRect(0,0,w,h); grid(ctx,w,h,26);
+    var X=function(v){return 34+v*(w-46);}, Y=function(v){return h-22-(v/5)*(h-40);};
+    ctx.strokeStyle=C.dim; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(34,0); ctx.lineTo(34,h-22); ctx.lineTo(w,h-22); ctx.stroke();
+    ctx.strokeStyle=C.curve; ctx.lineWidth=2.2; ctx.beginPath();
+    for(var i=1;i<=240;i++){ var v=i/240, y=Math.min(5,-Math.log(v)); if(i===1)ctx.moveTo(X(v),Y(y)); else ctx.lineTo(X(v),Y(y)); }
+    ctx.stroke();
+    var L=-Math.log(p);
+    ctx.strokeStyle="rgba(226,87,30,.45)"; ctx.setLineDash([4,4]); ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(X(p),h-22); ctx.lineTo(X(p),Y(Math.min(5,L))); ctx.lineTo(34,Y(Math.min(5,L))); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=C.sig; ctx.beginPath(); ctx.arc(X(p),Y(Math.min(5,L)),5.5,0,7); ctx.fill();
+    ctx.fillStyle="#5D7A6E"; ctx.font='11px "IBM Plex Mono",monospace';
+    ctx.fillText("perda",4,14); ctx.fillText("p",w-12,h-6); ctx.fillText("0",26,h-8); ctx.fillText("1",w-14,h-8);
+    document.getElementById("cePv").textContent=fmt(p);
+    document.getElementById("ceLv").textContent=fmt(L,3);
+    document.getElementById("ceXv").textContent=fmt(Math.exp(L),1);
+  }
+  sl.addEventListener("input",draw); draw(); window.addEventListener("resize",draw);
+})();
+
+/* ---------------- QUIZ ---------------- */
+(function(){
+  var host=document.getElementById("quiz"); if(!host) return;
+  var qs=[
+    {q:"Na atenção, o que a operação Q · Kᵀ está calculando?",
+     o:["A probabilidade do próximo token","O produto escalar entre cada par de tokens, medindo relevância mútua","O gradiente da perda em relação aos pesos","O tamanho do vocabulário"],
+     a:1, e:"Cada célula do resultado é o produto escalar entre a pergunta de um token e a chave de outro. Depois disso vem o softmax, que transforma esses scores em pesos de atenção."},
+    {q:"O gradiente aponta para onde?",
+     o:["Para o mínimo da função","Para a direção de subida mais íngreme","Para o valor correto do peso","Para a saída da rede"],
+     a:1, e:"O gradiente aponta para a subida mais íngreme — por isso o treino usa o sinal negativo: peso ← peso − η·gradiente."},
+    {q:"Baixar a temperature de 1,0 para 0,1 faz o quê com a distribuição?",
+     o:["Achata, aumentando a chance de tokens improváveis","Concentra quase toda a massa no token de maior logit","Não muda nada, só afeta a velocidade","Remove tokens do vocabulário"],
+     a:1, e:"Dividir os logits por um número pequeno amplifica as diferenças entre eles. No limite, vira greedy decoding — sempre o mais provável."},
+    {q:"Um modelo dá 2% de probabilidade ao token correto. A perda é aproximadamente:",
+     o:["0,02","0,98","3,9","50"],
+     a:2, e:"−log(0,02) ≈ 3,9. O logaritmo pune duramente a confiança errada, e é esse número grande que gera um gradiente forte."},
+    {q:"Por que conexões residuais ajudam redes profundas a treinar?",
+     o:["Reduzem o número de parâmetros","Aceleram a multiplicação de matriz","Mantêm o produto de derivadas da regra da cadeia bem-comportado","Aumentam a temperatura efetiva"],
+     a:2, e:"Sem elas, multiplicar centenas de derivadas pequenas faz o gradiente sumir antes de chegar às primeiras camadas. O atalho residual dá ao gradiente um caminho quase direto até lá."}
+  ];
+  qs.forEach(function(item,qi){
+    var d=document.createElement("div"); d.className="q";
+    var st=document.createElement("p"); st.className="stem"; st.textContent=(qi+1)+". "+item.q; d.appendChild(st);
+    var ow=document.createElement("div"); ow.className="opts";
+    var exp=document.createElement("p"); exp.className="exp"; exp.textContent=item.e;
+    item.o.forEach(function(txt,oi){
+      var b=document.createElement("button"); b.className="opt"; b.type="button"; b.textContent=txt;
+      b.addEventListener("click",function(){
+        Array.prototype.forEach.call(ow.children,function(c,ci){
+          c.classList.remove("right","wrong");
+          if(ci===item.a) c.classList.add("right");
+        });
+        if(oi!==item.a) b.classList.add("wrong");
+        exp.classList.add("show");
+      });
+      ow.appendChild(b);
+    });
+    d.appendChild(ow); d.appendChild(exp); host.appendChild(d);
+  });
+})();
+
+/* ---------------- NAV ---------------- */
+(function(){
+  var links=[].slice.call(document.querySelectorAll("nav a"));
+  var secs=links.map(function(a){ return document.querySelector(a.getAttribute("href")); });
+  if(!("IntersectionObserver" in window)) return;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(en){
+      if(en.isIntersecting){
+        var i=secs.indexOf(en.target);
+        links.forEach(function(l,j){ l.setAttribute("aria-current", j===i ? "true":"false"); });
+      }
+    });
+  },{rootMargin:"-25% 0px -65% 0px"});
+  secs.forEach(function(s){ if(s) io.observe(s); });
+})();
+
+})();
+</script>
+<a href="../../index.html" class="hub-back" aria-label="Voltar ao índice do hub">◂ HUB</a>
+<style>.hub-back{position:fixed;left:16px;bottom:16px;z-index:9999;font:600 12px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;color:#35E0FF!important;background:rgba(6,10,18,.88)!important;border:1px solid rgba(53,224,255,.45);padding:9px 13px;border-radius:999px;text-decoration:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 0 18px rgba(53,224,255,.25)}.hub-back:hover{background:#35E0FF!important;color:#060A12!important}@media print{.hub-back{display:none}}</style>
+</body>
+</html>

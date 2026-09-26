@@ -1,0 +1,852 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Matriz de Persistência</title><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --surface-2:#F5F7FB; --ink:#141C2B; --ink-2:#465267; --ink-3:#5A667B;
+  --line:#D3DBE7; --line-2:#E6EBF3; --accent:#1B2A4E; --on-accent:#FFFFFF; --accent-tint:#E3E9F7;
+  --bad:#B42318; --bad-tint:#FDECEA; --ok:#1B7F4B;
+  --c-rds:#2F6FD0; --c-aur:#0B8A7E; --c-nsql:#7A4FC4; --c-kv:#C4600F; --c-doc:#B93A76;
+  --shadow:0 1px 2px rgba(20,28,43,.06),0 10px 28px rgba(20,28,43,.07);
+  --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --f-body:'IBM Plex Sans','Segoe UI',system-ui,-apple-system,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D131F; --surface:#151D2D; --surface-2:#1A2436; --ink:#E8EDF6; --ink-2:#B2BDD0; --ink-3:#8E9AB0;
+    --line:#2A3549; --line-2:#212B3E; --accent:#A9BCFF; --on-accent:#0D131F; --accent-tint:#222E4E;
+    --bad:#FF8F80; --bad-tint:#3A1D1F; --ok:#5FD096;
+    --c-rds:#6FA1F2; --c-aur:#3FC7B6; --c-nsql:#AB8CEE; --c-kv:#F09A50; --c-doc:#E77FAF;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D131F; --surface:#151D2D; --surface-2:#1A2436; --ink:#E8EDF6; --ink-2:#B2BDD0; --ink-3:#8E9AB0;
+  --line:#2A3549; --line-2:#212B3E; --accent:#A9BCFF; --on-accent:#0D131F; --accent-tint:#222E4E;
+  --bad:#FF8F80; --bad-tint:#3A1D1F; --ok:#5FD096;
+  --c-rds:#6FA1F2; --c-aur:#3FC7B6; --c-nsql:#AB8CEE; --c-kv:#F09A50; --c-doc:#E77FAF;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.55;padding-inline:16px;padding-block:24px 96px}
+.app{max-width:1240px;margin-inline:auto}
+h1,h2,h3,h4{margin:0;text-wrap:balance}
+p{margin:0}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.eyebrow{font:500 11.5px/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+
+/* header */
+.top{display:grid;gap:10px}
+h1{font:700 clamp(30px,5vw,44px)/1.05 var(--f-display);letter-spacing:-.025em}
+.lede{max-width:70ch;color:var(--ink-2);font-size:15px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:6px}
+.lg{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2)}
+.lg::before{content:"";width:10px;height:10px;border-radius:2px;background:var(--c)}
+
+/* tabs */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto;margin-block:22px 24px}
+.tab{appearance:none;background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;padding:10px 14px;font:500 14px var(--f-body);color:var(--ink-2);cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+
+/* decide layout */
+.decide{display:grid;grid-template-columns:minmax(0,1fr);gap:28px}
+@media (min-width:1024px){
+  .decide{grid-template-columns:minmax(0,1fr) 420px;align-items:start}
+  .results{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto}
+  .dock{display:none!important}
+}
+.tools{display:grid;gap:14px;margin-bottom:8px}
+.presets{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.presets .lab{font-size:12.5px;color:var(--ink-3);margin-right:2px}
+.chip{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:999px;padding:5px 12px;font:500 12.5px var(--f-body);cursor:pointer}
+.chip:hover{border-color:var(--ink-3);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.example{font-size:12.5px;color:var(--ink-3)}
+.prog{display:flex;align-items:center;gap:12px;font:500 12.5px var(--f-mono);color:var(--ink-2)}
+.prog .track{flex:1;height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+.prog .track i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s ease}
+
+.grp{margin-top:30px}
+.grp-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.grp-h h2{font:700 21px/1.2 var(--f-display);letter-spacing:-.01em}
+.tag{font:500 11px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);border:1px solid var(--line);border-radius:4px;padding:3px 6px;white-space:nowrap}
+.q{padding-block:18px;border-bottom:1px solid var(--line-2);display:grid;gap:10px}
+.q:last-child{border-bottom:0}
+.q-h{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:flex-start;justify-content:space-between}
+.q-h h3{font:600 16px/1.35 var(--f-body);max-width:62ch}
+.q-hint{font-size:13px;color:var(--ink-3);max-width:66ch;margin-top:-4px}
+.opts{display:grid;gap:6px}
+.opt{position:relative;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--ink-3)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.opt-t{flex:1;font-size:14px}
+.opt.sel{border-color:var(--accent);background:var(--accent-tint);box-shadow:inset 0 0 0 1px var(--accent)}
+.opt.sel .opt-t{font-weight:500}
+.fit{display:flex;align-items:flex-end;gap:2px;height:22px;padding-bottom:1px;border-bottom:1px solid var(--line);flex:none}
+.fit i{display:block;width:6px;height:var(--h);background:var(--c);border-radius:1px 1px 0 0;opacity:.9}
+.qf{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;font-size:12.5px;color:var(--ink-3)}
+.qf label{display:flex;align-items:center;gap:6px}
+.qf select{font:500 12.5px var(--f-body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:4px 6px}
+.qf .imp-3{border-color:var(--bad);color:var(--bad)}
+.link{appearance:none;background:none;border:0;padding:0;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px;font:inherit;font-size:12.5px;cursor:pointer}
+.link:hover{color:var(--ink)}
+
+/* results */
+.results{background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:20px;display:grid;gap:20px}
+.res-head{display:grid;gap:6px}
+.lead{font:700 26px/1.1 var(--f-display);letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+.lead::before{content:"";flex:none;width:14px;height:14px;border-radius:3px;background:var(--c,var(--line))}
+.lead-sub{color:var(--ink-2);font-size:13.5px}
+.rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
+.rk{display:grid;gap:5px}
+.rk-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.rk-name{display:flex;align-items:center;gap:8px;font-weight:600}
+.rk-name::before{content:"";width:10px;height:10px;border-radius:2px;background:var(--c)}
+.rk-pct{font:500 15px var(--f-mono);font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--line-2);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--c);border-radius:4px;transition:width .45s ease}
+.rk.blocked .bar i{background:repeating-linear-gradient(135deg,var(--c) 0 4px,transparent 4px 8px)}
+.rk.blocked .rk-pct{color:var(--bad)}
+.rk-ex{font-size:12px;color:var(--ink-3)}
+.rk-bad{font-size:12.5px;color:var(--bad);background:var(--bad-tint);border-radius:6px;padding:5px 8px}
+.profile{display:flex;gap:14px;align-items:center;padding:12px 14px;background:var(--surface-2);border:1px solid var(--line-2);border-radius:8px}
+.profile b{font:600 20px var(--f-mono);letter-spacing:.02em;white-space:nowrap}
+.profile p{font-size:13px;color:var(--ink-2)}
+.block{display:grid;gap:8px}
+.block h3{font:500 11.5px/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.block ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.block li{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px;color:var(--ink-2)}
+.block li .dot{width:8px;height:8px;border-radius:2px;background:var(--c);margin-top:6px}
+.block li .tg{font:500 11px/1.4 var(--f-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--ink);grid-column:2}
+.block li .tx{grid-column:2}
+.empty{color:var(--ink-3);font-size:13px}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:9px 14px;font:500 13.5px var(--f-body);cursor:pointer}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+
+/* dock (mobile) */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.08);cursor:pointer;border-inline:0;border-bottom:0;width:100%;text-align:left;color:var(--ink);font:inherit}
+.dock .dn{flex:1;font-weight:600;display:flex;align-items:center;gap:8px;min-width:0}
+.dock .dn::before{content:"";flex:none;width:10px;height:10px;border-radius:2px;background:var(--c,var(--line))}
+.dock .dp{font:500 15px var(--f-mono)}
+.dock .dl{font-size:12.5px;color:var(--ink-3)}
+
+/* panels */
+.panel{display:grid;gap:34px}
+.sec{display:grid;gap:14px}
+.sec>h2{font:700 24px/1.15 var(--f-display);letter-spacing:-.015em}
+.sec>p.intro{max-width:72ch;color:var(--ink-2);font-size:15px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.note{padding:14px 16px;border:1px solid var(--line);background:var(--surface);border-radius:10px;display:grid;gap:6px}
+.note h3{font:600 15px var(--f-body)}
+.note p,.note li{color:var(--ink-2);font-size:13.5px}
+.note ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.note .k{font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:9px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line-2)}
+thead th{position:sticky;top:0;background:var(--surface-2);font-weight:600;font-size:12.5px;border-bottom:1px solid var(--line);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+td.row-h,th.row-h{font-weight:600;color:var(--ink);background:var(--surface-2);min-width:130px}
+.cmp{min-width:980px}
+.cmp td{min-width:170px;color:var(--ink-2)}
+.cmp .cc{--c:var(--line)}
+.cmp th.lead-col,.cmp td.lead-col{background:color-mix(in srgb,var(--c) 10%,var(--surface))}
+.cmp thead th{border-top:3px solid var(--c)}
+.pace{min-width:720px}
+.pace td:first-child{font-weight:600;color:var(--ink)}
+.mono{font-family:var(--f-mono);font-weight:500;color:var(--ink)}
+.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:22px;counter-reset:s}
+.fn{position:relative;padding:12px 12px;border:1px solid var(--line);background:var(--surface);border-radius:8px;display:grid;gap:4px;align-content:start}
+.fn b{font-size:13.5px}
+.fn span{font-size:12.5px;color:var(--ink-2)}
+.fn.hi{border-color:var(--accent);background:var(--accent-tint)}
+.fn:not(:last-child)::after{content:"→";position:absolute;right:-19px;top:50%;transform:translateY(-50%);color:var(--ink-3);font:500 16px var(--f-mono)}
+@media (max-width:820px){
+  .flow{grid-template-columns:1fr;gap:20px}
+  .fn:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-19px;transform:translateX(-50%)}
+}
+.heat{min-width:760px}
+.heat th.cn{text-align:center;border-top:3px solid var(--c);width:92px}
+.heat .qrow td{background:var(--surface-2);font-weight:600;padding-block:10px}
+.heat .qrow .tag{margin-left:8px;vertical-align:1px}
+.heat td.cell{position:relative;text-align:center;font:500 12.5px var(--f-mono);padding:0;height:34px}
+.heat td.cell::before{content:"";position:absolute;left:4px;top:5px;bottom:5px;width:calc((100% - 8px)*var(--v));background:color-mix(in srgb,var(--c) 34%,transparent);border-radius:3px}
+.heat td.cell span{position:relative}
+.heat tr.sel td{background:var(--accent-tint)}
+.heat tr.sel td:first-child{font-weight:600;box-shadow:inset 3px 0 0 var(--accent)}
+.src{display:grid;gap:4px;font-size:13px}
+.src a{color:var(--ink-2)}
+dialog{border:1px solid var(--line);border-radius:12px;padding:20px;width:min(760px,calc(100vw - 32px));background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+dialog::backdrop{background:rgba(8,12,20,.55)}
+dialog h2{font:700 20px var(--f-display);margin-bottom:4px}
+dialog p{color:var(--ink-2);font-size:13px;margin-bottom:12px}
+dialog textarea{width:100%;height:min(52vh,420px);font:12.5px/1.6 var(--f-mono);background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:12px;resize:vertical}
+dialog .actions{margin-top:12px;justify-content:flex-end}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <p class="eyebrow">Arquitetura · Persistência de dados</p>
+    <h1>Matriz de Persistência</h1>
+    <p class="lede">Responda às perguntas de cada eixo — consistência (CAP e PACELC), transações, escala, eventos (Transactional Outbox), operação — e veja como cada família de banco se posiciona. Perguntas em branco não pontuam; marque como <em>Crítica</em> o que for inegociável.</p>
+    <div class="legend" id="legend" aria-label="Famílias comparadas"></div>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Seções">
+    <button class="tab" role="tab" id="t-decide" aria-controls="p-decide" aria-selected="true">Decidir</button>
+    <button class="tab" role="tab" id="t-patterns" aria-controls="p-patterns" aria-selected="false">Padrões</button>
+    <button class="tab" role="tab" id="t-compare" aria-controls="p-compare" aria-selected="false">Comparativo</button>
+    <button class="tab" role="tab" id="t-matrix" aria-controls="p-matrix" aria-selected="false">Matriz completa</button>
+  </div>
+
+  <!-- DECIDIR -->
+  <section id="p-decide" role="tabpanel" aria-labelledby="t-decide">
+    <div class="decide">
+      <div>
+        <div class="tools">
+          <div class="presets" id="presets"><span class="lab">Cenário de partida</span></div>
+          <p class="example" id="example"></p>
+          <div class="prog"><span id="progTxt"></span><span class="track"><i id="progBar"></i></span></div>
+        </div>
+        <div id="questions"></div>
+      </div>
+
+      <aside class="results" id="results" aria-label="Resultado">
+        <div class="res-head">
+          <p class="eyebrow">Recomendação provisória</p>
+          <h2 class="lead" id="lead"></h2>
+          <p class="lead-sub" id="leadSub" aria-live="polite"></p>
+        </div>
+        <ol class="rank" id="rank"></ol>
+        <div class="profile" id="profile"></div>
+        <div class="block"><h3>Pontos de atenção</h3><ul id="notes"></ul></div>
+        <div class="block"><h3>Padrões e complementos</h3><ul id="pats"></ul></div>
+        <div class="actions">
+          <button class="btn primary" id="adrBtn" type="button">Gerar resumo para ADR</button>
+          <button class="btn" id="resetBtn" type="button">Limpar respostas</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- PADRÕES -->
+  <section id="p-patterns" role="tabpanel" aria-labelledby="t-patterns" hidden>
+    <div class="panel">
+      <div class="sec">
+        <h2>Teorema CAP</h2>
+        <p class="intro">Numa partição de rede, um sistema distribuído não entrega consistência linearizável e disponibilidade ao mesmo tempo. Partição não é opcional: a decisão real é o que sacrificar quando ela acontece. O CAP não diz nada sobre latência nem sobre o dia a dia sem falhas, por isso o PACELC.</p>
+        <div class="cols">
+          <div class="note"><span class="k">CP · consistência primeiro</span><h3>Recusa a operação para não divergir</h3>
+            <ul><li>Bom para saldo, estoque, ledger, limites de crédito.</li><li>Típico: RDS/Aurora (um writer), Spanner, CockroachDB, Aurora DSQL, MongoDB com majority.</li><li>Custo: indisponibilidade parcial durante failover ou perda de quórum.</li></ul></div>
+          <div class="note"><span class="k">AP · disponibilidade primeiro</span><h3>Continua servindo e reconcilia depois</h3>
+            <ul><li>Bom para carrinho, sessão, feed, telemetria, preferências.</li><li>Típico: DynamoDB (leitura eventual, Global Tables com last-writer-wins), Cassandra.</li><li>Custo: leituras defasadas e conflitos que a aplicação precisa tolerar.</li></ul></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h2>PACELC</h2>
+        <p class="intro">Se há <b>P</b>artição, escolha entre <b>A</b>vailability e <b>C</b>onsistency; senão (<b>E</b>lse), escolha entre <b>L</b>atency e <b>C</b>onsistency. É a pergunta que mais separa SQL de NoSQL no uso normal, sem falhas.</p>
+        <div class="scroll"><table class="pace">
+          <thead><tr><th>Sistema (configuração típica)</th><th>Perfil</th><th>Em partição (P)</th><th>Sem falha (E)</th></tr></thead>
+          <tbody>
+            <tr><td>RDS / Aurora, um writer</td><td class="mono">PC/EC</td><td>Failover interrompe escrita até promover outra instância</td><td>Leitura no writer é forte; réplicas têm lag e leem defasado</td></tr>
+            <tr><td>Aurora Global Database</td><td class="mono">PC/EC no writer</td><td>Região primária é a autoridade; secundária lê defasado</td><td>Replicação assíncrona entre regiões: RPO em segundos, não zero</td></tr>
+            <tr><td>Aurora DSQL · Spanner · CockroachDB</td><td class="mono">PC/EC</td><td>Sem quórum, não confirma escrita</td><td>Paga latência de consenso (entre zonas ou regiões) em cada commit</td></tr>
+            <tr><td>DynamoDB (padrão) e Global Tables</td><td class="mono">PA/EL</td><td>Continua disponível; Global Tables padrão resolvem conflito por last-writer-wins</td><td>Leitura eventual por padrão; leitura forte é opt-in por requisição (só tabela base, mesma região)</td></tr>
+            <tr><td>DynamoDB Global Tables, modo consistência forte multi-região</td><td class="mono">PC/EC</td><td>Prioriza consistência entre regiões</td><td>Latência maior nas escritas entre regiões; confirme disponibilidade e limites na documentação</td></tr>
+            <tr><td>Cassandra (consistência ajustável)</td><td class="mono">PA/EL</td><td>Disponível com hinted handoff e reparo</td><td>Você escolhe o nível (ONE, QUORUM, ALL) por operação</td></tr>
+            <tr><td>MongoDB / DocumentDB</td><td class="mono">PA/EC ou PC/EC</td><td>Depende de write e read concern (majority tende a PC)</td><td>Leitura no primário é consistente; em secundários, defasada</td></tr>
+          </tbody>
+        </table></div>
+        <p class="intro" style="font-size:13px;color:var(--ink-3)">Classificação típica; muda com a configuração e a versão. Use como ponto de partida para as perguntas de CAP e PACELC na aba Decidir.</p>
+      </div>
+
+      <div class="sec">
+        <h2>Transactional Outbox</h2>
+        <p class="intro">Gravar no banco e publicar no broker são duas escritas em dois sistemas (o problema do <i>dual write</i>). Se o processo cair entre elas, o evento se perde ou um evento fantasma é publicado. O outbox grava o evento na mesma transação da mudança de estado e deixa um relay publicar depois.</p>
+        <div class="flow">
+          <div class="fn"><b>Serviço</b><span>Recebe o comando e valida a regra de negócio.</span></div>
+          <div class="fn hi"><b>Uma transação</b><span>Grava a entidade e o evento na tabela (ou item) outbox. Commit atômico.</span></div>
+          <div class="fn"><b>Relay</b><span>CDC lendo o log do banco, ou polling da outbox.</span></div>
+          <div class="fn"><b>Broker</b><span>SNS/SQS, EventBridge, Kafka/MSK, Kinesis.</span></div>
+          <div class="fn"><b>Consumidor idempotente</b><span>Inbox ou chave de deduplicação: a entrega é at-least-once.</span></div>
+        </div>
+        <div class="cols">
+          <div class="note"><span class="k">SQL · RDS, Aurora, NewSQL</span><h3>O caminho natural</h3>
+            <ul><li>Tabela outbox na mesma transação ACID da mudança.</li><li>CDC (Debezium, AWS DMS) lendo o WAL via logical replication, ou polling com <span class="mono">FOR UPDATE SKIP LOCKED</span>.</li><li>Ordem de commit preservada no log; limpe ou particione a outbox.</li></ul></div>
+          <div class="note"><span class="k">DynamoDB</span><h3>Transação + Streams</h3>
+            <ul><li><span class="mono">TransactWriteItems</span> grava a entidade e um item de outbox (limite de itens por transação e custo de capacidade dobrado).</li><li>DynamoDB Streams → Lambda ou EventBridge Pipes publica no broker.</li><li>Alternativa: o próprio Stream é o log de eventos; a ordem é por item, não global.</li></ul></div>
+          <div class="note"><span class="k">Documento</span><h3>Transação multi-documento</h3>
+            <ul><li>Entidade + outbox na mesma transação (exige replica set).</li><li>Change Streams publicam os eventos.</li><li>Se o agregado for um único documento, o evento pode ir embutido nele.</li></ul></div>
+        </div>
+        <div class="cols">
+          <div class="note"><span class="k">Armadilhas</span><h3>O que costuma dar errado</h3>
+            <ul><li>Relay vira gargalo ou ponto único: particione por agregado.</li><li>Consumidor não idempotente: duplicatas viram efeito colateral.</li><li>Outbox que cresce sem limpeza degrada o banco.</li><li>Evento com payload grande ou schema sem versão.</li></ul></div>
+          <div class="note"><span class="k">Quando não usar</span><h3>Alternativas</h3>
+            <ul><li>Event sourcing: o log de eventos já é a fonte de verdade.</li><li>Uso do Stream/CDC do banco como fonte de eventos, se aceitar acoplar ao modelo de dados.</li><li>Integração puramente síncrona, sem broker.</li></ul></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h2>Padrões relacionados</h2>
+        <div class="cols">
+          <div class="note"><h3>Inbox / consumidor idempotente</h3><p>Grava o ID do evento processado numa tabela e ignora repetidos. Par natural do outbox.</p></div>
+          <div class="note"><h3>Saga</h3><p>Transação distribuída como sequência de passos com compensação. Guarda estado por saga: cabe bem em DynamoDB ou numa tabela SQL.</p></div>
+          <div class="note"><h3>CQRS</h3><p>Escrita normalizada e modelos de leitura projetados. Libera o NoSQL para leitura mesmo com o núcleo em SQL.</p></div>
+          <div class="note"><h3>Event sourcing</h3><p>O log de eventos é a verdade. Exige append-only com concorrência otimista (chave = agregado + versão) e snapshots.</p></div>
+          <div class="note"><h3>Database per service</h3><p>Cada serviço escolhe o seu banco. É o que torna a persistência poliglota viável sem acoplar times.</p></div>
+          <div class="note"><h3>Single-table design</h3><p>No DynamoDB, várias entidades numa tabela com PK/SK e GSIs desenhados a partir das consultas. Poderoso e rígido: consultas novas custam remodelagem.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARATIVO -->
+  <section id="p-compare" role="tabpanel" aria-labelledby="t-compare" hidden>
+    <div class="panel">
+      <div class="sec">
+        <h2>Comparativo por dimensão</h2>
+        <p class="intro">A coluna da família líder na aba Decidir fica destacada. Valores são ordens de grandeza para orientar a conversa, não garantias de serviço.</p>
+        <div class="scroll"><table class="cmp" id="cmp"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MATRIZ -->
+  <section id="p-matrix" role="tabpanel" aria-labelledby="t-matrix" hidden>
+    <div class="panel">
+      <div class="sec">
+        <h2>Matriz completa</h2>
+        <p class="intro">Cada resposta atribui uma afinidade de 0 a 5 a cada família. O ranking é a soma ponderada pela importância (Baixa 0,5 · Normal 1 · Alta 2 · Crítica 3) sobre o máximo possível, considerando só as perguntas respondidas. Em requisito Crítico, afinidade 0 ou 1 marca a família como conflitante e a joga para o fim da lista. As linhas marcadas são as suas respostas atuais.</p>
+        <div class="scroll"><table class="heat" id="heat"></table></div>
+      </div>
+      <div class="sec">
+        <h2>Limites do método</h2>
+        <div class="cols">
+          <div class="note"><h3>É um guia de conversa, não um veredito</h3><p>As afinidades são julgamento de arquitetura, não benchmark. Ajuste os números no código se o seu contexto pesar diferente e valide o vencedor com uma prova de conceito sobre os seus padrões de acesso reais.</p></div>
+          <div class="note"><h3>Limites de serviço mudam</h3><p>Tetos de armazenamento, itens por transação, disponibilidade de recursos por região e preços evoluem. Confirme na documentação vigente antes de decidir.</p></div>
+        </div>
+        <div class="src">
+          <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Constraints.html" target="_blank" rel="noopener">DynamoDB: constraints e limites</a>
+          <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/transaction-apis.html" target="_blank" rel="noopener">DynamoDB: transações</a>
+          <a href="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_Limits.html" target="_blank" rel="noopener">Aurora: quotas e limites</a>
+          <a href="https://aws.amazon.com/about-aws/whats-new/2025/07/amazon-aurora-postgresql-database-clusters-256-tib-storage-volume/" target="_blank" rel="noopener">Aurora PostgreSQL: volumes de até 256 TiB</a>
+          <a href="https://aws.amazon.com/about-aws/whats-new/2025/05/amazon-aurora-dsql-generally-available" target="_blank" rel="noopener">Aurora DSQL: disponibilidade geral</a>
+          <a href="https://aws.amazon.com/blogs/database/is-amazon-rds-for-postgresql-or-amazon-aurora-postgresql-a-better-choice-for-me/" target="_blank" rel="noopener">RDS para PostgreSQL ou Aurora PostgreSQL</a>
+          <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Storage.html" target="_blank" rel="noopener">RDS: armazenamento de instância</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<button class="dock" id="dock" type="button" aria-label="Ver análise completa">
+  <span class="dn" id="dockName">—</span>
+  <span class="dp" id="dockPct"></span>
+  <span class="dl">Ver análise ↓</span>
+</button>
+
+<dialog id="adr">
+  <h2>Resumo para ADR</h2>
+  <p>Markdown pronto para colar no registro de decisão de arquitetura. Edite antes de publicar.</p>
+  <textarea id="adrText" spellcheck="false" aria-label="Texto do ADR"></textarea>
+  <div class="actions">
+    <button class="btn" id="adrClose" type="button">Fechar</button>
+    <button class="btn primary" id="adrCopy" type="button">Copiar</button>
+  </div>
+</dialog>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- Dados ---------- */
+const C=[
+ {id:'rds', v:'--c-rds', s:'RDS', n:'RDS · SQL gerenciado', ex:'RDS PostgreSQL, MySQL, SQL Server, MariaDB', fam:'sql'},
+ {id:'aur', v:'--c-aur', s:'Aurora', n:'Amazon Aurora', ex:'Aurora PostgreSQL e MySQL (Serverless v2, Global, Limitless)', fam:'sql'},
+ {id:'nsql',v:'--c-nsql',s:'NewSQL', n:'SQL distribuído (NewSQL)', ex:'Aurora DSQL, Cloud Spanner, CockroachDB', fam:'sql'},
+ {id:'kv',  v:'--c-kv',  s:'Chave-valor', n:'Chave-valor / wide-column', ex:'DynamoDB, Cassandra, Keyspaces', fam:'nosql'},
+ {id:'doc', v:'--c-doc', s:'Documento', n:'Documento', ex:'MongoDB, DocumentDB', fam:'nosql'}
+];
+const CI=Object.fromEntries(C.map((c,i)=>[c.id,i]));
+
+const G=[
+ {id:'dados', t:`Dados e padrões de acesso`, tag:`Modelagem`},
+ {id:'cons',  t:`Consistência e transações`, tag:`CAP · PACELC · ACID`},
+ {id:'escala',t:`Escala e desempenho`, tag:`Capacidade`},
+ {id:'ha',    t:`Disponibilidade e multi-região`, tag:`RTO · RPO`},
+ {id:'ev',    t:`Eventos e integração`, tag:`Transactional Outbox`},
+ {id:'ops',   t:`Time, operação e custo`, tag:`Realidade`}
+];
+
+/* o = [rótulo, [rds, aur, nsql, kv, doc], notas opcionais por família] ; d = importância padrão (0 Baixa, 1 Normal, 2 Alta, 3 Crítica) */
+const Q=[
+{id:'acc',g:'dados',d:2,short:`Padrões de acesso`,p:`Modelagem`,
+ q:`Os padrões de acesso (as consultas que a aplicação fará) são conhecidos e estáveis?`,
+ h:`Bancos chave-valor pedem que o modelo nasça das consultas. SQL deixa você perguntar depois.`,
+ o:[
+  [`Sim — sei as consultas principais e elas mudam pouco`,[3,3,3,5,4]],
+  [`Em parte — o núcleo é claro, mas surgirão consultas novas`,[5,5,4,3,4]],
+  [`Não — uso exploratório, relatórios ad hoc, muitas combinações`,[5,5,4,1,2],{kv:`Consulta nova costuma exigir novo GSI, remodelagem ou export para Athena/OpenSearch.`,doc:`Consulta flexível por documento funciona, mas cruzar coleções é limitado e caro.`}]
+ ]},
+{id:'join',g:'dados',d:2,short:`Joins e integridade`,p:`Modelagem`,
+ q:`Quanto o negócio depende de joins, agregações e integridade referencial entre entidades?`,
+ h:`Quanto mais relações entre entidades, mais caro fica desnormalizar e manter tudo consistente na aplicação.`,
+ o:[
+  [`Pouco — busca por chave, um agregado por requisição`,[3,3,3,5,4]],
+  [`Moderado — alguns relacionamentos e agregações`,[5,5,4,2,3]],
+  [`Muito — várias entidades relacionadas, chaves estrangeiras e relatórios cruzados`,[5,5,4,1,2],{kv:`Sem joins nativos: desnormalização, single-table design e integridade referencial na aplicação.`,doc:`$lookup existe, mas não substitui um modelo relacional com chaves estrangeiras.`}]
+ ]},
+{id:'shape',g:'dados',d:1,short:`Forma dos dados`,p:`Modelagem`,
+ q:`Qual é a forma dominante dos dados?`,
+ h:``,
+ o:[
+  [`Tabular e normalizada (linhas, colunas, chaves estrangeiras)`,[5,5,4,1,2]],
+  [`Agregados ou documentos JSON lidos e gravados inteiros`,[4,4,3,4,5]],
+  [`Itens simples acessados por chave (perfil, sessão, carrinho)`,[3,3,3,5,3]],
+  [`Núcleo relacional com partes flexíveis em JSON`,[5,5,3,2,3],{rds:`JSONB no PostgreSQL costuma resolver o híbrido sem trocar de motor.`,aur:`JSONB no PostgreSQL costuma resolver o híbrido sem trocar de motor.`}],
+  [`Relacionamentos profundos (travessia de grafo em vários saltos)`,[3,3,2,1,2]]
+ ]},
+{id:'schema',g:'dados',d:1,short:`Evolução de schema`,p:`Modelagem`,
+ q:`Com que frequência o schema muda?`,
+ h:``,
+ o:[
+  [`Quase nunca, com governança rígida (contratos, auditoria)`,[5,5,5,2,2]],
+  [`De vez em quando, com migrations controladas`,[4,4,4,4,4]],
+  [`Com frequência, ou varia por tenant e tipo de item`,[2,2,2,4,5]]
+ ]},
+
+{id:'tx',g:'cons',d:2,short:`Transações multi-entidade`,p:`ACID`,
+ q:`Há invariantes que atravessam várias entidades e precisam ser atômicas?`,
+ h:`Exemplos: debitar saldo e gravar lançamento; reservar estoque e criar pedido.`,
+ o:[
+  [`Sim — transações ACID multi-entidade são essenciais`,[5,5,5,2,3],{kv:`TransactWriteItems tem teto de itens por transação e consome o dobro de capacidade; o modelo empurra para transações curtas.`,doc:`Transações multi-documento existem, mas o modelo de documentos incentiva evitá-las.`}],
+  [`Só dentro de um agregado ou item (atomicidade por chave)`,[4,4,4,5,5]],
+  [`Não preciso de transações`,[3,3,3,5,4]]
+ ]},
+{id:'cons',g:'cons',d:2,short:`Consistência de leitura`,p:`CAP`,
+ q:`Que consistência de leitura o negócio exige?`,
+ h:``,
+ o:[
+  [`Forte em todas as leituras críticas (ler o que acabou de gravar, em qualquer nó)`,[5,5,5,3,3],{kv:`Leitura fortemente consistente só na tabela base e na mesma região; GSIs são eventualmente consistentes.`}],
+  [`Forte nas operações críticas; eventual tolerável no resto (réplicas, índices, projeções)`,[5,5,5,5,4]],
+  [`Eventual é aceitável — dados podem ficar segundos defasados`,[3,4,3,5,4]]
+ ]},
+{id:'cap',g:'cons',d:2,short:`CAP em partição`,p:`CAP`,
+ q:`Numa partição de rede ou falha de região, qual falha é pior?`,
+ h:`Teorema CAP: na partição você escolhe entre consistência e disponibilidade.`,
+ o:[
+  [`Servir dados defasados ou divergentes — prefiro continuar disponível (AP)`,[2,2,2,5,4],{rds:`Um writer único: em falha, o failover interrompe escritas por segundos a minutos. Não é AP.`,aur:`Um writer único: em falha, o failover interrompe escritas por segundos a minutos. Não é AP.`}],
+  [`Recusar a operação — prefiro consistência a divergir (CP)`,[5,5,5,3,4],{kv:`Global Tables padrão são multi-ativas com last-writer-wins. Para CP entre regiões, avalie o modo de consistência forte multi-região.`}],
+  [`Depende da operação`,[4,4,4,4,4]]
+ ]},
+{id:'el',g:'cons',d:1,short:`PACELC (latência × consistência)`,p:`PACELC`,
+ q:`Sem falhas, você troca consistência por latência? (o "ELC" do PACELC)`,
+ h:`PACELC: se não há partição (Else), escolha entre Latência e Consistência.`,
+ o:[
+  [`Sim — latência e throughput valem mais que leituras sempre frescas (EL)`,[3,4,2,5,4],{nsql:`Cada commit distribuído paga a ida e volta do consenso entre zonas ou regiões.`}],
+  [`Não — leitura correta vale alguns ms extras (EC)`,[5,5,5,3,3]],
+  [`Depende — quero escolher por operação (consistência ajustável)`,[4,4,4,5,5]]
+ ]},
+
+{id:'vol',g:'escala',d:2,short:`Volume de dados`,p:`Capacidade`,
+ q:`Qual o volume de dados esperado em cerca de 3 anos?`,
+ h:``,
+ o:[
+  [`Até ~500 GB`,[5,5,4,4,4]],
+  [`500 GB a ~10 TB`,[4,5,5,5,5]],
+  [`10 a ~100 TB`,[2,4,5,5,4],{rds:`RDS tem teto por instância (na casa de dezenas de TiB); acima disso é sharding manual.`}],
+  [`Acima de 100 TB, ou sem teto claro`,[1,2,5,5,4],{aur:`Aurora chega a centenas de TiB por cluster, mas ainda com um único writer.`}]
+ ]},
+{id:'wr',g:'escala',d:2,short:`Throughput de escrita`,p:`Capacidade`,
+ q:`Qual o pico de escritas sustentadas por segundo?`,
+ h:``,
+ o:[
+  [`Até ~1 mil`,[5,5,4,4,4]],
+  [`1 mil a ~10 mil`,[4,5,5,5,5]],
+  [`10 mil a ~100 mil`,[2,3,5,5,4],{aur:`Writer único escala na vertical. Avalie Aurora Limitless (sharding gerenciado) antes de particionar na aplicação.`,rds:`Writer único escala na vertical; depois disso, sharding na aplicação.`}],
+  [`Acima de 100 mil, ou picos muito acima da média`,[1,2,4,5,4],{aur:`Acima do teto de um writer, só com sharding (Limitless ou na aplicação).`,rds:`Acima do teto de um writer, só com sharding na aplicação.`}]
+ ]},
+{id:'lat',g:'escala',d:1,short:`Latência p99`,p:`Capacidade`,
+ q:`Qual latência p99 por operação o negócio exige?`,
+ h:``,
+ o:[
+  [`Dezenas de ms são aceitáveis`,[5,5,4,5,5]],
+  [`Um dígito de ms, de forma previsível em qualquer escala`,[3,4,3,5,4]],
+  [`Sub-milissegundo`,[1,1,1,3,1]]
+ ]},
+{id:'load',g:'escala',d:1,short:`Perfil de carga`,p:`Capacidade`,
+ q:`Como é o perfil de carga?`,
+ h:``,
+ o:[
+  [`Previsível e estável`,[5,5,4,4,4]],
+  [`Picos sazonais conhecidos (Black Friday, fechamento mensal)`,[3,5,4,5,4]],
+  [`Explosivo, imprevisível ou muitas vezes ocioso`,[2,4,4,5,3],{rds:`RDS não escala a zero e o scaling vertical pede janela. Considere Aurora Serverless v2 ou DynamoDB on-demand.`}]
+ ]},
+{id:'rd',g:'escala',d:1,short:`Escala de leitura`,p:`Capacidade`,
+ q:`Como se distribuem as leituras?`,
+ h:``,
+ o:[
+  [`Leitura e escrita em níveis parecidos`,[5,5,4,4,4]],
+  [`Leitura muito maior que escrita (10:1 ou mais); réplicas resolvem`,[4,5,4,5,5]],
+  [`Leitura massiva e global, com baixa latência em cada região`,[2,4,5,5,4]]
+ ]},
+
+{id:'avail',g:'ha',d:2,short:`Disponibilidade e RPO`,p:`RTO · RPO`,
+ q:`Qual a meta de disponibilidade e de recuperação?`,
+ h:``,
+ o:[
+  [`99,9–99,95%; failover em minutos é aceitável (Multi-AZ)`,[5,5,4,5,5]],
+  [`99,99%; RTO abaixo de 1 minuto e RPO próximo de zero na região`,[3,5,5,5,4]],
+  [`99,999%, ou RPO = 0 mesmo entre regiões`,[1,2,5,4,3],{aur:`Aurora Global Database replica de forma assíncrona: RPO tipicamente em segundos, não zero.`,rds:`Réplicas entre regiões são assíncronas: RPO maior que zero.`}]
+ ]},
+{id:'mr',g:'ha',d:2,short:`Topologia multi-região`,p:`RTO · RPO`,
+ q:`Qual a topologia multi-região?`,
+ h:``,
+ o:[
+  [`Uma região, com Multi-AZ`,[5,5,4,5,5]],
+  [`Segunda região apenas para DR (passivo)`,[4,5,4,5,4]],
+  [`Leitura global; escrita em uma região`,[3,5,4,5,4]],
+  [`Escrita ativa em várias regiões (ativo-ativo)`,[1,2,5,5,3],{aur:`Global Database tem um writer primário; escrita na secundária é encaminhada à primária (write forwarding). Não é ativo-ativo de verdade.`,rds:`Sem escrita ativa em várias regiões: só réplicas assíncronas.`}]
+ ]},
+{id:'lww',g:'ha',d:2,short:`Conflitos multi-região`,p:`CAP`,show:{q:'mr',in:[3]},
+ q:`Escrevendo em várias regiões, resolver conflito por "last writer wins" é aceitável?`,
+ h:`Aparece porque você marcou escrita ativa em várias regiões.`,
+ o:[
+  [`Sim — perfis, preferências, dados idempotentes`,[3,3,4,5,4]],
+  [`Não — preciso de consistência forte entre regiões`,[1,1,5,3,2],{kv:`Global Tables padrão usam last-writer-wins. Consistência forte multi-região é um modo à parte, com mais latência.`}]
+ ]},
+
+{id:'outbox',g:'ev',d:2,short:`Publicação atômica de eventos`,p:`Outbox`,
+ q:`Toda mudança de estado precisa publicar um evento sem risco de dual write?`,
+ h:`Gravar no banco e publicar no broker são dois sistemas: sem outbox ou CDC, uma falha entre eles perde o evento ou publica um evento fantasma.`,
+ o:[
+  [`Sim — nada de evento perdido nem evento fantasma (outbox ou CDC obrigatório)`,[5,5,5,4,4]],
+  [`Desejável — at-least-once com reprocessamento é tolerável`,[5,5,4,5,5]],
+  [`Não — integração síncrona ou sem eventos`,[4,4,4,4,4]]
+ ]},
+{id:'order',g:'ev',d:1,short:`Ordem dos eventos`,p:`Outbox`,show:{q:'outbox',in:[0,1]},
+ q:`Que garantias de ordem e volume os consumidores exigem?`,
+ h:`Aparece porque você precisa publicar eventos.`,
+ o:[
+  [`Ordem por agregado; volume moderado`,[5,5,4,4,4]],
+  [`Ordem por agregado; volume muito alto (dezenas de milhares de eventos por segundo)`,[3,4,4,5,4],{rds:`O relay (Debezium ou polling) vira gargalo de ordenação; particione por agregado.`,aur:`O relay (Debezium ou polling) pode virar gargalo; particione por agregado.`}],
+  [`Ordem global estrita entre agregados`,[5,5,4,1,3],{kv:`DynamoDB Streams garante ordem por item, não ordem global entre itens.`}],
+  [`Ordem não importa — consumidores idempotentes bastam`,[4,4,4,5,5]]
+ ]},
+{id:'style',g:'ev',d:1,short:`CRUD · CQRS · Event Sourcing`,p:`CQRS`,
+ q:`Qual estilo de persistência a solução adota?`,
+ h:``,
+ o:[
+  [`CRUD — armazenar o estado atual`,[5,5,4,4,4]],
+  [`CQRS — escrita normalizada e modelos de leitura projetados`,[5,5,4,5,5]],
+  [`Event sourcing — log de eventos como fonte de verdade`,[4,4,4,5,4]]
+ ]},
+
+{id:'team',g:'ops',d:1,short:`Skill do time`,p:`Realidade`,
+ q:`Onde o time tem mais experiência?`,
+ h:``,
+ o:[
+  [`SQL, ORMs e ferramentas de BI`,[5,5,4,2,3]],
+  [`Modelagem NoSQL por acesso e arquiteturas serverless`,[3,3,3,5,4]],
+  [`Misto — a curva de aprendizado é aceitável`,[4,4,4,4,4]]
+ ]},
+{id:'ops',g:'ops',d:1,short:`Controle × zero-ops`,p:`Realidade`,
+ q:`Quanto controle sobre o motor você quer?`,
+ h:``,
+ o:[
+  [`Máximo — extensões, parâmetros, tuning fino`,[5,4,3,1,3],{kv:`Sem parâmetros de motor: o controle está no modelo de dados e na capacidade.`}],
+  [`Equilibrado — gerenciado, com alguns ajustes`,[4,5,4,4,4]],
+  [`Mínimo — serverless, sem patching nem capacity planning`,[2,4,5,5,3]]
+ ]},
+{id:'ext',g:'ops',d:2,short:`Extensões e ecossistema`,p:`Realidade`,
+ q:`Você precisa de extensões e recursos do ecossistema SQL/Postgres?`,
+ h:`Exemplos: PostGIS, pgvector, full-text, triggers, stored procedures.`,
+ o:[
+  [`Sim, são essenciais`,[5,4,1,0,2],{nsql:`Compatibilidade parcial com PostgreSQL: valide extensões e recursos usados.`}],
+  [`Alguns — dá para delegar a serviços dedicados (OpenSearch e afins)`,[4,4,3,3,4]],
+  [`Não`,[4,4,4,4,4]]
+ ]},
+{id:'cost',g:'ops',d:1,short:`Modelo de custo`,p:`Realidade`,
+ q:`Que modelo de custo combina mais?`,
+ h:``,
+ o:[
+  [`Previsível e reservado (instâncias, savings plans)`,[5,4,3,3,4]],
+  [`Pago por uso, acompanhando a demanda`,[2,4,4,5,3]],
+  [`Custo por operação em altíssima escala é a maior preocupação`,[3,3,2,4,4]]
+ ]},
+{id:'lock',g:'ops',d:1,short:`Portabilidade`,p:`Realidade`,
+ q:`Quão crítico é evitar lock-in de fornecedor?`,
+ h:``,
+ o:[
+  [`Crítico — preciso poder migrar de cloud ou para on-prem`,[5,3,3,1,4],{kv:`A API do DynamoDB é proprietária. Cassandra e ScyllaDB são as alternativas portáveis.`,aur:`Compatível com PostgreSQL/MySQL no protocolo, mas storage e recursos como Global e Limitless são específicos da AWS.`}],
+  [`Moderado — aceito API proprietária se compensar`,[4,4,4,4,4]],
+  [`Baixo — all-in na plataforma`,[5,5,5,5,5]]
+ ]},
+{id:'legacy',g:'ops',d:1,short:`Legado × greenfield`,p:`Realidade`,
+ q:`Qual é o ponto de partida?`,
+ h:``,
+ o:[
+  [`Legado relacional, ORM existente ou BI lendo direto do banco`,[5,5,4,1,2],{kv:`Sair de relacional para DynamoDB é reescrita de modelo e de acesso, não só migração de dados.`}],
+  [`Greenfield, com liberdade de modelagem`,[4,4,4,5,5]]
+ ]}
+];
+const QI=Object.fromEntries(Q.map(q=>[q.id,q]));
+
+const PRESETS=[
+ {n:`Core financeiro`, d:`contratos, parcelas e saldo`, a:{acc:1,join:2,shape:0,schema:0,tx:0,cons:0,cap:1,el:1,vol:1,wr:1,lat:0,load:0,rd:1,avail:1,mr:1,outbox:0,order:0,style:1,team:0,ops:1,ext:1,cost:0,lock:1,legacy:0}, i:{tx:3,cap:2}},
+ {n:`Carrinho e sessões`, d:`e-commerce em pico`, a:{acc:0,join:0,shape:2,schema:1,tx:1,cons:1,cap:0,el:0,vol:1,wr:3,lat:1,load:2,rd:2,avail:1,mr:2,outbox:1,order:3,style:0,team:1,ops:2,ext:2,cost:1,lock:2,legacy:1}, i:{}},
+ {n:`Catálogo e conteúdo`, d:`documentos com schema variável`, a:{acc:1,join:0,shape:1,schema:2,tx:1,cons:2,cap:0,el:0,vol:1,wr:1,lat:0,load:1,rd:1,avail:0,mr:0,outbox:2,style:1,team:2,ops:1,ext:1,cost:0,lock:1,legacy:1}, i:{}},
+ {n:`Pedidos com sagas`, d:`eventos, outbox e event sourcing`, a:{acc:1,join:1,shape:3,schema:1,tx:1,cons:1,cap:2,el:2,vol:1,wr:1,lat:0,load:1,rd:0,avail:1,mr:1,outbox:0,order:0,style:2,team:2,ops:1,ext:2,cost:1,lock:1,legacy:1}, i:{}},
+ {n:`Ledger multi-região`, d:`ativo-ativo com consistência forte`, a:{acc:1,join:1,shape:0,schema:0,tx:0,cons:0,cap:1,el:1,vol:2,wr:2,lat:0,load:1,rd:2,avail:2,mr:3,lww:1,outbox:0,order:2,style:2,team:2,ops:2,ext:2,cost:1,lock:2,legacy:1}, i:{tx:3,lww:3}}
+];
+
+const CMP=[
+ [`Modelo`,`Relacional; um writer e réplicas de leitura`,`Relacional; storage distribuído compartilhado, um writer e até 15 réplicas`,`Relacional distribuído; vários writers`,`Chave-valor e wide-column; itens por chave de partição e ordenação`,`Documentos JSON hierárquicos`],
+ [`Consistência padrão`,`Forte no writer; réplicas assíncronas`,`Forte no writer; réplicas com lag de milissegundos`,`Forte (serializável ou externa)`,`Eventual; forte por leitura, só na tabela base e na região`,`Ajustável por read e write concern`],
+ [`Transações`,`ACID completas`,`ACID completas`,`ACID distribuídas; conflitos exigem retry (OCC no DSQL)`,`Até dezenas de itens por transação (limite documentado), custo de capacidade dobrado`,`Multi-documento, com custo`],
+ [`Consultas`,`SQL completo, joins, CTEs, extensões`,`SQL completo, com paralelismo de consulta`,`SQL, com compatibilidade parcial com PostgreSQL ou MySQL`,`Por chave e índices (GSI/LSI); sem joins`,`Consulta rica por documento e agregação; $lookup limitado`],
+ [`Escala de escrita`,`Vertical; sharding manual`,`Vertical; Limitless para sharding gerenciado`,`Horizontal`,`Horizontal, praticamente sem teto`,`Horizontal via sharding (a shard key decide tudo)`],
+ [`Escala de dados`,`Dezenas de TiB por instância`,`Centenas de TiB por cluster`,`Petabytes (Spanner, CockroachDB)`,`Sem teto prático`,`Dezenas a centenas de TB com sharding`],
+ [`Latência típica`,`ms a dezenas de ms`,`ms a dezenas de ms`,`Dezenas de ms (commit distribuído)`,`ms de um dígito, estável; microssegundos com DAX`,`ms`],
+ [`Multi-região`,`Réplica entre regiões, assíncrona`,`Global Database: RPO em segundos; escrita via forwarding`,`Ativo-ativo nativo (varia por produto)`,`Global Tables multi-ativas; modo de consistência forte disponível`,`Clusters globais (Atlas) ou Global Cluster de um writer (DocumentDB)`],
+ [`Operação`,`Mais responsabilidade: tuning, vacuum, upgrades`,`Menos operação que RDS; ainda dimensiona (ou Serverless v2)`,`Serverless (DSQL) ou operado por você (CockroachDB)`,`Zero-ops; capacidade on-demand ou provisionada`,`Atlas gerenciado ou DocumentDB`],
+ [`Custo`,`Previsível: instâncias e reservas`,`Instância ou ACU, mais I/O`,`Por uso ou capacidade; tende a premium`,`Por requisição ou capacidade; ótimo por chave, caro em scans`,`Por instância ou cluster`],
+ [`Lock-in`,`Baixo`,`Médio`,`Médio a alto (CockroachDB é portável; Spanner não)`,`Alto no DynamoDB; Cassandra é portável`,`Baixo a médio`],
+ [`Outbox`,`Tabela na mesma transação + CDC ou polling`,`Idem, com logical replication ou DMS`,`Idem, com change streams ou changefeeds (confirmar por produto)`,`TransactWriteItems + Streams (ou o Stream como log)`,`Transação multi-documento + Change Streams`],
+ [`PACELC típico`,`PC/EC`,`PC/EC no writer`,`PC/EC`,`PA/EL; forte por operação`,`PA/EC ou PC/EC, conforme concern`]
+];
+
+const OUTBOX={
+ rds:`RDS: grave a linha de negócio e a linha da outbox na mesma transação e publique via CDC (Debezium ou AWS DMS lendo o WAL por logical replication) ou por polling com FOR UPDATE SKIP LOCKED.`,
+ aur:`Aurora: mesma receita — outbox na mesma transação e CDC (Debezium ou DMS via logical replication) ou polling com SKIP LOCKED. Monitore o lag da replicação lógica.`,
+ nsql:`SQL distribuído: outbox na mesma transação e change streams ou changefeeds nativos (Spanner, CockroachDB). Confirme o suporte a CDC no produto escolhido, inclusive no Aurora DSQL.`,
+ kv:`DynamoDB: TransactWriteItems gravando a entidade e um item de outbox; DynamoDB Streams alimenta Lambda ou EventBridge Pipes, que publica no broker. Use TTL para limpar os itens.`,
+ doc:`Documento: transação multi-documento (replica set) gravando entidade e outbox, com Change Streams publicando os eventos. Se o agregado é um único documento, o evento pode ir embutido nele.`
+};
+
+/* ---------- Estado ---------- */
+let ans={}, imp={}, cur=0, custom=false;
+const KEY='matriz-persistencia-v1';
+const MULT=[.5,1,2,3], LVL=[`Baixa`,`Normal`,`Alta`,`Crítica · eliminatória`];
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const lv=q=>(imp[q.id]!=null?imp[q.id]:q.d);
+function vis(q){ if(!q.show) return true; const a=ans[q.show.q]; return a!=null && q.show.in.indexOf(a)>=0 && vis(QI[q.show.q]); }
+const A=id=>{const q=QI[id]; return (vis(q)&&ans[id]!=null)?ans[id]:null;};
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify({ans:ans,imp:imp,cur:cur,custom:custom})); }catch(e){} }
+function load(){ try{ const r=JSON.parse(localStorage.getItem(KEY)||'null'); if(r&&r.ans&&Object.keys(r.ans).length){ ans=r.ans; imp=r.imp||{}; cur=r.cur||0; custom=!!r.custom; return true; } }catch(e){} return false; }
+function applyPreset(i){ cur=i; custom=false; ans=Object.assign({},PRESETS[i].a); imp=Object.assign({},PRESETS[i].i); syncInputs(); render(); }
+
+/* ---------- Construção ---------- */
+function buildLegend(){ $('#legend').innerHTML=C.map(c=>`<span class="lg" style="--c:var(${c.v})" title="${c.ex}">${c.n}</span>`).join(''); }
+function fitHTML(s){ return s.map((v,k)=>`<i style="--h:${Math.max(v/5*100,6)}%;--c:var(${C[k].v})"></i>`).join(''); }
+function buildQuestions(){
+ $('#questions').innerHTML=G.map(g=>{
+  const qs=Q.filter(q=>q.g===g.id);
+  return `<section class="grp"><div class="grp-h"><h2>${g.t}</h2><span class="tag">${g.tag}</span></div>`+qs.map(q=>`
+   <div class="q" id="q-${q.id}" data-q="${q.id}" role="radiogroup" aria-labelledby="ql-${q.id}">
+    <div class="q-h"><h3 id="ql-${q.id}">${q.q}</h3><span class="tag">${q.p}</span></div>
+    ${q.h?`<p class="q-hint">${q.h}</p>`:''}
+    <div class="opts">${q.o.map((o,i)=>`<label class="opt" data-i="${i}"><input type="radio" name="${q.id}" value="${i}"><span class="opt-t">${o[0]}</span><span class="fit" aria-hidden="true" title="Afinidade 0–5 por família, na ordem da legenda">${fitHTML(o[1])}</span></label>`).join('')}</div>
+    <div class="qf" hidden>
+      <label for="imp-${q.id}">Importância<select id="imp-${q.id}" data-imp="${q.id}">${LVL.map((l,i)=>`<option value="${i}">${l}</option>`).join('')}</select></label>
+      <button class="link" type="button" data-clear="${q.id}">Limpar resposta</button>
+    </div>
+   </div>`).join('')+`</section>`;
+ }).join('');
+}
+function buildPresets(){
+ const box=$('#presets');
+ PRESETS.forEach((p,i)=>{ const b=document.createElement('button'); b.type='button'; b.className='chip'; b.dataset.preset=i; b.textContent=p.n; b.setAttribute('aria-pressed','false'); box.appendChild(b); });
+}
+function buildRank(){
+ $('#rank').innerHTML=C.map((c,i)=>`<li class="rk" id="rk-${i}" style="--c:var(${c.v})"><div class="rk-top"><span class="rk-name">${c.n}</span><span class="rk-pct">0%</span></div><div class="bar"><i></i></div><div class="rk-ex">${c.ex}</div><div class="rk-bad" hidden></div></li>`).join('');
+}
+function buildTables(){
+ $('#cmp').innerHTML=`<thead><tr><th class="row-h">Dimensão</th>${C.map((c,i)=>`<th class="cc" data-col="${i}" style="--c:var(${c.v})">${c.n}</th>`).join('')}</tr></thead><tbody>`+CMP.map(r=>`<tr><td class="row-h">${r[0]}</td>${r.slice(1).map((t,i)=>`<td class="cc" data-col="${i}" style="--c:var(${C[i].v})">${t}</td>`).join('')}</tr>`).join('')+`</tbody>`;
+ $('#heat').innerHTML=`<thead><tr><th>Pergunta e resposta</th>${C.map(c=>`<th class="cn" style="--c:var(${c.v})">${c.s}</th>`).join('')}</tr></thead><tbody>`+Q.map(q=>`<tr class="qrow"><td colspan="6">${q.q}<span class="tag">${q.p}</span></td></tr>`+q.o.map((o,i)=>`<tr data-hq="${q.id}" data-hi="${i}"><td>${o[0]}</td>${o[1].map((v,k)=>`<td class="cell" style="--v:${v/5};--c:var(${C[k].v})"><span>${v}</span></td>`).join('')}</tr>`).join('')).join('')+`</tbody>`;
+}
+
+/* ---------- Cálculo ---------- */
+function compute(){
+ const num=C.map(()=>0), blk=C.map(()=>[]); let den=0, n=0;
+ Q.forEach(q=>{ if(!vis(q)) return; const a=ans[q.id]; if(a==null) return; n++; const l=lv(q), m=MULT[l]; den+=m*5;
+  q.o[a][1].forEach((v,k)=>{ num[k]+=m*v; if(l===3 && v<=1) blk[k].push(q.short); }); });
+ const fit=num.map(x=>den?Math.round(x/den*100):0);
+ const order=C.map((c,i)=>i).sort((a,b)=>((blk[a].length>0)-(blk[b].length>0))||(fit[b]-fit[a])||(a-b));
+ return {fit:fit,blk:blk,n:n,order:order,total:Q.filter(vis).length};
+}
+function profile(){
+ const cap=A('cap'), el=A('el');
+ if(cap==null && el==null) return {code:`—`,txt:`Responda CAP e PACELC para ver o seu perfil.`};
+ const P=cap==null?`P?`:(cap===0?`PA`:cap===1?`PC`:`PA/PC`), E=el==null?`E?`:(el===0?`EL`:el===1?`EC`:`EL/EC`);
+ const code=P+`/`+E; let t;
+ if(cap===1&&el===1) t=`Consistência acima de tudo, com ou sem falha: favorece SQL e NewSQL.`;
+ else if(cap===0&&el===0) t=`Disponibilidade e latência acima de consistência: favorece chave-valor e documento com leitura eventual.`;
+ else if(cap===1&&el===0) t=`Consistente na falha, rápido no normal. Combinação rara: decida por operação.`;
+ else if(cap===0&&el===1) t=`Disponível na falha, consistente no normal (como o MongoDB por padrão).`;
+ else t=`Perfil misto: defina por operação — leitura eventual onde tolera, forte onde há dinheiro ou estoque.`;
+ return {code:code,txt:t};
+}
+function patterns(rk,gap){
+ const out=[], lead=C[rk[0]].id, a=A;
+ if(a('outbox')===0||a('outbox')===1) out.push([`Transactional Outbox`, OUTBOX[lead]+` Consumidores idempotentes (inbox ou deduplicação) cobrem a entrega at-least-once.`]);
+ if(a('lat')===2) out.push([`Cache`,`Sub-milissegundo exige cache em memória à frente do banco: ElastiCache, MemoryDB ou DAX (DynamoDB). O banco continua como fonte de verdade.`]);
+ if(a('shape')===4) out.push([`Grafo`,`Travessias profundas justificam um banco de grafos (Neptune, Neo4j) alimentado por CDC. O relacional ou NoSQL segue como sistema de registro.`]);
+ const top2=rk.slice(0,2).map(i=>C[i].fam);
+ if(top2.indexOf('nosql')>=0 && (a('acc')===2||a('join')===2)) out.push([`CQRS analítico`,`Para consultas ad hoc sobre NoSQL, exporte para S3 com Athena ou indexe no OpenSearch e mantenha o banco só para acesso por chave.`]);
+ if(a('mr')===3) out.push([`Multi-região`,`Defina uma região dona por agregado (home region) ou aceite a regra de conflito explicitamente; escritas precisam ser idempotentes.`]);
+ if(a('cons')===2||a('el')===0) out.push([`Leitura eventual`,`Garanta read-your-writes onde o usuário percebe (leia do primário logo após gravar) e torne as operações idempotentes.`]);
+ if(a('style')===2) out.push([`Event sourcing`,`Append-only com chave agregado + versão e concorrência otimista, mais snapshots. Cabe em SQL e em DynamoDB.`]);
+ if(a('style')===1) out.push([`CQRS`,`Leve o modelo de leitura para onde a consulta é barata (DynamoDB, OpenSearch) e mantenha o núcleo transacional onde as invariantes vivem.`]);
+ if(a('load')===2) out.push([`Serverless`,`Carga explosiva ou ociosa combina com Aurora Serverless v2, Aurora DSQL ou DynamoDB on-demand.`]);
+ if(C[rk[0]].fam!==C[rk[1]].fam && gap<10) out.push([`Persistência poliglota`,`Resultado dividido entre SQL e NoSQL: use SQL no núcleo transacional e NoSQL para sessão, catálogo ou log de eventos, com database per service.`]);
+ return out;
+}
+
+/* ---------- Render ---------- */
+let last=null;
+function render(){
+ const r=compute(); last=r;
+ const ord=r.order, lead=ord[0], sec=ord[1];
+ const unb=ord.filter(i=>r.blk[i].length===0);
+ const gap=unb.length>1?r.fit[unb[0]]-r.fit[unb[1]]:100;
+
+ // progresso
+ $('#progTxt').textContent=`${r.n} de ${r.total} respondidas`;
+ $('#progBar').style.width=(r.total?r.n/r.total*100:0)+'%';
+ // presets
+ $$('#presets .chip').forEach(b=>b.setAttribute('aria-pressed',String(!custom && +b.dataset.preset===cur)));
+ $('#example').textContent=custom?`Respostas personalizadas.`:`Exemplo carregado: ${PRESETS[cur].n} (${PRESETS[cur].d}). Troque as respostas para o seu caso.`;
+
+ // ranking
+ C.forEach((c,i)=>{
+  const li=$('#rk-'+i); li.style.order=ord.indexOf(i);
+  li.classList.toggle('blocked',r.blk[i].length>0);
+  li.querySelector('.rk-pct').textContent=r.n?r.fit[i]+'%':'—';
+  li.querySelector('.bar i').style.width=(r.n?r.fit[i]:0)+'%';
+  const b=li.querySelector('.rk-bad');
+  if(r.blk[i].length){ b.hidden=false; b.textContent=`Conflita com requisito crítico: `+r.blk[i].join(`; `); } else b.hidden=true;
+ });
+
+ // líder
+ const L=$('#lead'), S=$('#leadSub');
+ if(!r.n){ L.style.setProperty('--c','var(--line)'); L.textContent=`Sem respostas ainda`; S.textContent=`Responda ao menos uma pergunta ou escolha um cenário de partida.`; }
+ else if(!unb.length){ L.style.setProperty('--c','var(--bad)'); L.textContent=`Nenhuma família atende`; S.textContent=`Todas conflitam com algum requisito crítico. Reveja o que é realmente eliminatório ou aceite uma solução poliglota.`; }
+ else {
+  const li=unb[0], se=unb[1];
+  L.style.setProperty('--c',`var(${C[li].v})`); L.textContent=C[li].n;
+  let s;
+  if(r.n<6) s=`Resultado provisório: só ${r.n} respostas.`;
+  else if(unb.length===1) s=`É a única família sem conflito com os seus requisitos críticos.`;
+  else if(gap>=12) s=`Recomendação clara: ${C[li].s} lidera ${C[se].s} por ${gap} pontos.`;
+  else if(gap>=5) s=`Inclinação para ${C[li].s}; ${C[se].s} ainda é viável. Valide com uma prova de conceito nos pontos de atenção.`;
+  else s=`Empate técnico entre ${C[li].s} e ${C[se].s}. Aprofunde os requisitos críticos ou avalie persistência poliglota.`;
+  S.textContent=s;
+ }
+
+ // perfil
+ const p=profile(); $('#profile').innerHTML=`<b>${p.code}</b><p>${p.txt}</p>`;
+
+ // notas
+ const targets=r.n?(unb.length?unb.slice(0,2):ord.slice(0,1)):[];
+ const notes=[];
+ targets.forEach(ti=>{ Q.forEach(q=>{ if(!vis(q)||ans[q.id]==null) return; const nt=q.o[ans[q.id]][2]; if(nt&&nt[C[ti].id]) notes.push([ti,nt[C[ti].id]]); }); });
+ const seen={}, nl=[];
+ notes.forEach(n=>{ const k=n[0]+n[1]; if(!seen[k]){ seen[k]=1; nl.push(n); } });
+ $('#notes').innerHTML=nl.length?nl.slice(0,8).map(n=>`<li style="--c:var(${C[n[0]].v})"><span class="dot"></span><span class="tx"><b>${C[n[0]].s}:</b> ${n[1]}</span></li>`).join(''):`<li class="empty"><span></span><span class="tx">Nenhum ponto de atenção para as duas primeiras famílias com as respostas atuais.</span></li>`;
+
+ // padrões
+ const pt=r.n&&unb.length?patterns(unb.length>1?unb:[unb[0],ord.find(i=>i!==unb[0])],gap):[];
+ $('#pats').innerHTML=pt.length?pt.map(x=>`<li><span class="tg">${x[0]}</span><span class="tx">${x[1]}</span></li>`).join(''):`<li class="empty"><span></span><span class="tx">Os padrões recomendados aparecem conforme você responde.</span></li>`;
+
+ // dock
+ const dn=$('#dockName'), dp=$('#dockPct');
+ if(r.n&&unb.length){ dn.style.setProperty('--c',`var(${C[unb[0]].v})`); dn.textContent=C[unb[0]].n; dp.textContent=r.fit[unb[0]]+'%'; }
+ else { dn.style.setProperty('--c','var(--line)'); dn.textContent=r.n?`Sem família compatível`:`Sem respostas`; dp.textContent=''; }
+
+ // comparativo: destaque
+ $$('#cmp [data-col]').forEach(el=>el.classList.toggle('lead-col',r.n&&unb.length&&+el.dataset.col===unb[0]));
+
+ // perguntas: visibilidade, seleção, rodapé
+ Q.forEach(q=>{
+  const el=$('#q-'+q.id); el.hidden=!vis(q);
+  const a=ans[q.id];
+  el.querySelectorAll('.opt').forEach(o=>{ const on=(a!=null && +o.dataset.i===a); o.classList.toggle('sel',on); o.querySelector('input').checked=on; });
+  const qf=el.querySelector('.qf'); qf.hidden=(a==null);
+  const sel=qf.querySelector('select'); sel.value=String(lv(q)); sel.classList.toggle('imp-3',lv(q)===3);
+ });
+ $$('#heat tr[data-hq]').forEach(tr=>{ const q=QI[tr.dataset.hq]; tr.classList.toggle('sel',vis(q)&&ans[q.id]===+tr.dataset.hi); });
+ save();
+}
+function syncInputs(){ /* render() já sincroniza os controles */ }
+
+/* ---------- ADR ---------- */
+function adrText(){
+ const r=last||compute(); const ord=r.order; const unb=ord.filter(i=>r.blk[i].length===0);
+ const pick=unb.length?unb[0]:ord[0];
+ const d=new Date(); const ds=d.toLocaleDateString('pt-BR');
+ let t=`# ADR — Escolha da tecnologia de persistência\n\n`;
+ t+=`- Data: ${ds}\n- Status: proposta (gerada pela Matriz de Persistência)\n\n`;
+ t+=`## Decisão provisória\n\n${C[pick].n} (${C[pick].ex}) — aderência de ${r.fit[pick]}%.\n\n`;
+ t+=`## Alternativas consideradas\n\n`+ord.filter(i=>i!==pick).map(i=>`- ${C[i].n}: ${r.fit[i]}%`+(r.blk[i].length?` (conflita com requisito crítico: ${r.blk[i].join('; ')})`:'')).join('\n')+`\n\n`;
+ t+=`## Contexto e requisitos (respostas)\n\n`;
+ G.forEach(g=>{ const rows=Q.filter(q=>q.g===g.id&&vis(q)&&ans[q.id]!=null); if(!rows.length) return; t+=`**${g.t}**\n\n`; rows.forEach(q=>{ t+=`- ${q.short}: ${q.o[ans[q.id]][0]} _(importância: ${LVL[lv(q)].split(' ')[0]})_\n`; }); t+=`\n`; });
+ const p=profile(); t+=`## Perfil CAP/PACELC\n\n${p.code} — ${p.txt}\n\n`;
+ const nl=[]; Q.forEach(q=>{ if(!vis(q)||ans[q.id]==null) return; const nt=q.o[ans[q.id]][2]; if(nt&&nt[C[pick].id]) nl.push(nt[C[pick].id]); });
+ if(nl.length){ t+=`## Riscos e pontos de atenção\n\n`+nl.map(x=>`- ${x}`).join('\n')+`\n\n`; }
+ const gap=unb.length>1?r.fit[unb[0]]-r.fit[unb[1]]:100;
+ const pt=unb.length?patterns(unb.length>1?unb:[unb[0],ord.find(i=>i!==unb[0])],gap):[];
+ if(pt.length){ t+=`## Padrões associados\n\n`+pt.map(x=>`- **${x[0]}**: ${x[1]}`).join('\n')+`\n\n`; }
+ t+=`## Próximos passos\n\n- Validar a decisão com uma prova de conceito sobre os padrões de acesso reais.\n- Confirmar limites e recursos vigentes do serviço na documentação.\n`;
+ return t;
+}
+
+/* ---------- Eventos ---------- */
+document.addEventListener('change',e=>{
+ const t=e.target;
+ if(t.matches('.opt input')){ ans[t.name]=+t.value; custom=true; render(); }
+ else if(t.matches('select[data-imp]')){ imp[t.dataset.imp]=+t.value; custom=true; render(); }
+});
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button'); if(!b) return;
+ if(b.dataset.clear){ delete ans[b.dataset.clear]; delete imp[b.dataset.clear]; custom=true; render(); }
+ else if(b.dataset.preset!=null && b.classList.contains('chip')){ applyPreset(+b.dataset.preset); }
+ else if(b.id==='resetBtn'){ ans={}; imp={}; custom=true; render(); }
+ else if(b.id==='dock'){ $('#results').scrollIntoView({behavior:'smooth',block:'start'}); }
+ else if(b.id==='adrBtn'){ $('#adrText').value=adrText(); const d=$('#adr'); if(d.showModal) d.showModal(); else d.setAttribute('open',''); }
+ else if(b.id==='adrClose'){ $('#adr').close(); }
+ else if(b.id==='adrCopy'){
+  const ta=$('#adrText'); ta.select();
+  const done=()=>{ b.textContent='Copiado'; setTimeout(()=>{b.textContent='Copiar';},1600); };
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(ta.value).then(done,()=>{ try{document.execCommand('copy');done();}catch(_){} }); } else { document.execCommand('copy'); done(); } }catch(_){ try{document.execCommand('copy');done();}catch(__){} }
+ }
+ else if(b.classList.contains('tab')){
+  $$('.tab').forEach(x=>x.setAttribute('aria-selected',String(x===b)));
+  ['decide','patterns','compare','matrix'].forEach(n=>{ $('#p-'+n).hidden=('t-'+n!==b.id); });
+  $('#dock').style.display=(b.id==='t-decide')?'':'none';
+ }
+});
+
+/* ---------- Início ---------- */
+buildLegend(); buildQuestions(); buildPresets(); buildRank(); buildTables();
+if(load()) render(); else applyPreset(0);
+})();
+</script>
+
+<a href="../../index.html" class="hub-back" aria-label="Voltar ao índice">◂ HUB</a>
+<style>.hub-back{position:fixed;left:16px;bottom:16px;z-index:9999;font:600 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.12em;color:#35E0FF!important;background:rgba(6,10,18,.88)!important;border:1px solid rgba(53,224,255,.45);padding:9px 13px;border-radius:999px;text-decoration:none;backdrop-filter:blur(8px);box-shadow:0 0 18px rgba(53,224,255,.25)}.hub-back:hover{background:#35E0FF!important;color:#060A12!important}@media (max-width:1023px){.hub-back{bottom:84px}}@media print{.hub-back{display:none}}</style>
+</body></html>

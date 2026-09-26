@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta name="robots" content="noindex,nofollow">
+<script>
+/* GitHub Pages: substitui o window.storage do Claude por localStorage */
+if(!window.storage){window.storage={
+  get:async k=>{const v=localStorage.getItem(k);return v===null?null:{key:k,value:v};},
+  set:async (k,v)=>{localStorage.setItem(k,v);return {key:k,value:v};},
+  delete:async k=>{localStorage.removeItem(k);return {key:k,deleted:true};}
+};}
+</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lista de leitura — Plano de Evolução</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#EDEFEA;
+    --paper-2:#E3E7E0;
+    --ink:#16201C;
+    --ink-soft:#5A6660;
+    --line:#CBD2C9;
+    --p-pessoal:#2E7D6B;
+    --p-arq:#3B5BA5;
+    --p-ia:#8A5A00;
+    --p-seg:#A03A3A;
+    --p-eco:#4F7A28;
+    --p-gov:#5B4B8A;
+    --p-marca:#8C6A12;
+    --p-carreira:#1F5E7A;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+    font-size:15px; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:28px 18px 72px}
+
+  /* ---------- hero ---------- */
+  .hero h1{
+    font-family:"Newsreader",Georgia,serif; font-weight:600;
+    font-size:clamp(28px,7vw,40px); line-height:1.12; letter-spacing:-.01em;
+    margin:0 0 8px;
+  }
+  .hero p{margin:0 0 22px;color:var(--ink-soft);max-width:52ch}
+  .count{
+    font-family:"Newsreader",Georgia,serif;
+    font-size:clamp(40px,12vw,60px); line-height:1; font-weight:600;
+    display:flex; align-items:baseline; gap:10px; margin-bottom:14px;
+  }
+  .count small{font-family:"IBM Plex Sans",sans-serif;font-size:14px;font-weight:500;color:var(--ink-soft)}
+  .rows{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:26px}
+  .tick{
+    width:14px;height:26px;border-radius:2px;
+    background:var(--paper-2); border-bottom:2px solid var(--c,var(--line));
+    transition:background .18s ease;
+  }
+  .tick.on{background:var(--c)}
+
+  /* ---------- filtros ---------- */
+  .filters{display:flex;gap:8px;margin-bottom:30px;flex-wrap:wrap}
+  .filters button{
+    font:inherit;font-size:13px;font-weight:500;
+    padding:6px 13px;border-radius:999px;cursor:pointer;
+    background:transparent;border:1px solid var(--line);color:var(--ink-soft);
+  }
+  .filters button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+  .filters button:focus-visible,input:focus-visible,.reset:focus-visible{outline:2px solid var(--p-arq);outline-offset:2px}
+
+  /* ---------- seções ---------- */
+  section{margin:0 0 34px;padding-left:14px;border-left:3px solid var(--c)}
+  section h2{
+    font-family:"Newsreader",Georgia,serif;font-weight:600;
+    font-size:20px;margin:0 0 2px;color:var(--c)
+  }
+  section .why{margin:0 0 16px;font-size:13.5px;color:var(--ink-soft);max-width:58ch}
+
+  /* ---------- itens ---------- */
+  .item{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+  .item:first-of-type{border-top:none}
+  input[type=checkbox]{
+    appearance:none;-webkit-appearance:none;flex:0 0 auto;
+    width:19px;height:19px;margin:3px 0 0;border:1.5px solid var(--line);
+    border-radius:4px;background:#fff;cursor:pointer;position:relative;
+  }
+  input[type=checkbox]:checked{background:var(--c);border-color:var(--c)}
+  input[type=checkbox]:checked::after{
+    content:"";position:absolute;left:5.5px;top:2px;width:5px;height:10px;
+    border:solid #fff;border-width:0 2px 2px 0;transform:rotate(43deg);
+  }
+  .meta{flex:1;min-width:0}
+  .title{font-family:"Newsreader",Georgia,serif;font-size:17px;font-weight:600;line-height:1.25;cursor:pointer;display:block}
+  .by{font-size:12.5px;color:var(--ink-soft);margin-top:1px}
+  .note{font-size:13px;color:var(--ink-soft);margin-top:5px;max-width:60ch}
+  .wave{
+    display:inline-block;margin-top:6px;font-size:11px;font-weight:600;
+    padding:2px 7px;border-radius:3px;background:var(--paper-2);color:var(--ink-soft)
+  }
+  .done .title{text-decoration:line-through;text-decoration-thickness:1px;color:var(--ink-soft)}
+  .hide{display:none}
+
+  /* ---------- cronograma ---------- */
+  .crono{margin-top:46px;border-top:2px solid var(--ink);padding-top:22px}
+  .crono h2{font-family:"Newsreader",Georgia,serif;font-weight:600;font-size:clamp(22px,6vw,28px);margin:0 0 6px}
+  .crono .lead{color:var(--ink-soft);font-size:13.5px;max-width:58ch;margin:0 0 26px}
+  .q{display:grid;grid-template-columns:76px 1fr;gap:14px;padding:16px 0;border-top:1px solid var(--line)}
+  .q .when{font-family:"Newsreader",Georgia,serif;font-size:15px;font-weight:600;line-height:1.25;color:var(--c)}
+  .q .when span{display:block;font-family:"IBM Plex Sans",sans-serif;font-size:11.5px;font-weight:500;color:var(--ink-soft)}
+  .q h3{font-size:14.5px;font-weight:600;margin:0 0 4px}
+  .q .aim{font-size:13px;color:var(--ink-soft);margin:0 0 10px;max-width:56ch}
+  .q ol{margin:0;padding-left:18px;font-size:13.5px}
+  .q li{margin-bottom:3px}
+  .q li.read{text-decoration:line-through;text-decoration-thickness:1px;color:var(--ink-soft)}
+  .q .art{margin-top:10px;font-size:12.5px;color:var(--ink);background:var(--paper-2);padding:7px 10px;border-radius:5px;border-left:3px solid var(--c)}
+  .fila{margin-top:24px;font-size:13px;color:var(--ink-soft)}
+  .fila b{color:var(--ink);font-weight:600}
+  @media(max-width:520px){.q{grid-template-columns:1fr;gap:6px}.q .when span{display:inline;margin-left:6px}}
+
+  footer{margin-top:38px;border-top:1px solid var(--line);padding-top:16px;font-size:13px;color:var(--ink-soft)}
+  .reset{font:inherit;font-size:13px;background:none;border:1px solid var(--line);border-radius:6px;padding:5px 11px;cursor:pointer;color:var(--ink-soft);margin-top:10px}
+  #status{font-size:12.5px;color:var(--p-seg);min-height:17px;margin-top:8px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <div class="hero">
+    <h1>Leitura do plano de evolução</h1>
+    <p>Cada livro aqui está amarrado a uma frente do seu guia integrado: base pessoal primeiro, depois as sete lacunas técnicas, marca e trilha sênior. Marque o que já leu — fica salvo.</p>
+    <div class="count"><span id="n">0</span><small>de <span id="tot">0</span> livros lidos</small></div>
+    <div class="rows" id="rows" aria-hidden="true"></div>
+  </div>
+
+  <div class="filters">
+    <button data-f="all" aria-pressed="true">Todos</button>
+    <button data-f="todo" aria-pressed="false">Não lidos</button>
+    <button data-f="done" aria-pressed="false">Lidos</button>
+  </div>
+
+  <div id="list"></div>
+
+  <div class="crono">
+    <h2>Cronograma sugerido</h2>
+    <p class="lead">Três a quatro livros por trimestre, começando no trimestre corrente. Cada trimestre tem um eixo só e termina num artefato público — é o que fecha a lacuna 7 enquanto as outras seis avançam. O que já estiver marcado acima aparece riscado aqui.</p>
+    <div id="crono"></div>
+    <p class="fila" id="fila"></p>
+  </div>
+
+  <footer>
+    Regra de ouro do plano: se o período apertar, corta de baixo para cima. A base pessoal é a última coisa a sair — e é a primeira seção desta lista de propósito.
+    <div id="status" role="status"></div>
+    <button class="reset" id="reset">Desmarcar tudo</button>
+  </footer>
+</div>
+
+<script>
+const DATA = [
+  { id:"base", t:"Base pessoal — energia antes de conteúdo", c:"var(--p-pessoal)",
+    why:"Prioridade #1 do plano. O guia v2 ficou mais exigente que a v1, e a tensão com a Parte I só se resolve com energia e foco protegidos — não somando horas.",
+    books:[
+      ["base1","Why We Sleep","Matthew Walker · 2017","Sono como variável de julgamento arquitetural, não como luxo. Casa com o achado de que seu estudo estava na pior janela cognitiva do dia.","Onda 1"],
+      ["base2","Deep Work","Cal Newport · 2016","As lacunas 1 a 3 exigem construir, e construir exige bloco contínuo. Este é o manual de como blindar esse bloco.","Onda 1"],
+      ["base3","Slow Productivity","Cal Newport · 2024","Argumento direto para a recomendação central do guia: menos frentes com mais profundidade.","Onda 1"],
+      ["base4","Essencialismo","Greg McKeown · 2014","Ferramenta de corte. Útil na decisão de o que desinvestir entre as pós, o curso avulso e a certificação.","Onda 1"]
+    ]},
+
+  { id:"arq", t:"Fundamentos de arquitetura", c:"var(--p-arq)",
+    why:"O que sustenta a variante do cargo que sobrevive. Sem essa base, arquitetura de IA vira integração de API com nome bonito.",
+    books:[
+      ["arq1","Fundamentals of Software Architecture (2ª ed.)","Mark Richards & Neal Ford · 2025","A 2ª edição reescreveu trade-offs e características arquiteturais. Vale reler mesmo tendo lido a primeira.","Onda 1"],
+      ["arq2","Software Architecture: The Hard Parts","Ford, Richards, Sadalage & Dehghani · 2021","O livro que ensina a escrever o trade-off, que é exatamente o que sobra do arquiteto quando a IA gera o documento.","Onda 1"],
+      ["arq3","The Software Architect Elevator","Gregor Hohpe · 2020","Arquiteto que transita entre andar técnico e sala de decisão. Leitura direta para o problema de engajamento da comunidade de crédito rural.","Onda 1"],
+      ["arq4","Learning Domain-Driven Design","Vlad Khononov · 2021","DDD moderno e enxuto, complementar ao POSTECH. Bounded contexts aplicados a domínio regulado.","Onda 1"],
+      ["arq5","Domain-Driven Design (livro azul)","Eric Evans · 2003","Referência de consulta, não de leitura linear. Vá aos capítulos de linguagem ubíqua e destilação de domínio.","Onda 2"],
+      ["arq6","Designing Data-Intensive Applications","Martin Kleppmann · 2017","Base de dados e consistência que RAG em produção assume que você já sabe.","Onda 1"],
+      ["arq7","Team Topologies","Skelton & Pais · 2019","Arquitetura só é adotada se a topologia das equipes permitir. Material aplicável ao seu diagnóstico de adoção.","Onda 2"]
+    ]},
+
+  { id:"ia", t:"Lacunas 1 a 3 — avaliação, agentes e RAG em produção", c:"var(--p-ia)",
+    why:"As três lacunas de maior retorno do plano. Todas se fecham construindo: o projeto-âncora de IA aplicada a crédito rural é o destino natural desta seção.",
+    books:[
+      ["ia1","AI Engineering","Chip Huyen · 2025","Âncora da seção. Cobre avaliação de sistemas não determinísticos, RAG, arquitetura de agentes e custo em um volume só.","Onda 1"],
+      ["ia2","Designing Machine Learning Systems","Chip Huyen · 2022","O lado de sistemas que a era GenAI não revogou: dados, pipelines, deriva, monitoramento.","Onda 1"],
+      ["ia3","Building Applications with AI Agents","Michael Albada · 2025","Agentes de verdade em produção, com os casos de borda que os livros de framework evitam.","Onda 1"],
+      ["ia4","AI Agents in Action","Micheal Lanham · 2025","Prático e orientado a código. Bom par de mão na massa com o anterior.","Onda 2"],
+      ["ia5","LLM Engineer's Handbook","Paul Iusztin & Maxime Labonne · 2024","Pipeline de ponta a ponta e LLMOps — a parte que separa demo de sistema.","Onda 2"],
+      ["ia6","Build a Large Language Model (From Scratch)","Sebastian Raschka · 2024","Você não vai treinar modelo, mas precisa parar de tratá-lo como caixa-preta para arquitetar em cima.","Onda 2"],
+      ["ia7","Prompt Engineering for LLMs","John Berryman & Albert Ziegler · 2024","Engenharia de contexto tratada como disciplina de projeto, não como truque.","Onda 1"]
+    ]},
+
+  { id:"seg", t:"Lacuna 4 — segurança aplicada a IA", c:"var(--p-seg)",
+    why:"Em banco, é isso que decide se a arquitetura sai do papel. Também é o que mais rápido te diferencia num mercado cheio de implementador genérico.",
+    books:[
+      ["seg1","The Developer's Playbook for Large Language Model Security","Steve Wilson · 2024","Ancorado no OWASP Top 10 para LLM. É o vocabulário que o time de segurança do banco já usa.","Onda 1"],
+      ["seg2","Adversarial AI — Attacks, Mitigations and Defense Strategies","John Sotiropoulos · 2024","Aprofunda ataque e defesa além do checklist. Leia depois do anterior.","Onda 2"]
+    ]},
+
+  { id:"eco", t:"Lacuna 5 — economia da arquitetura de IA", c:"var(--p-eco)",
+    why:"Seu FinOps é ativo raro quando aplicado a inferência. Custo por token e por agente é decisão de arquitetura, não linha de fatura.",
+    books:[
+      ["eco1","Cloud FinOps (2ª ed.)","J.R. Storment & Mike Fuller · 2023","Reforça o que você já tem e dá o arcabouço para transpor para custo de inferência e contexto.","Onda 2"]
+    ]},
+
+  { id:"gov", t:"Lacuna 6 — governança e conformidade", c:"var(--p-gov)",
+    why:"O diferencial declarado no plano é IA aplicada a crédito rural sob regulação brasileira. A parte regulatória é metade da frase.",
+    books:[
+      ["gov1","Governança da Inteligência Artificial","Brasport · obra coletiva","Recorte brasileiro: LGPD, responsabilização e mecanismos de governança corporativa.","Onda 1"],
+      ["gov2","Trustworthy AI","Beena Ammanath · 2022","Base conceitual para traduzir requisito ético em requisito arquitetural auditável.","Onda 2"]
+    ]},
+
+  { id:"marca", t:"Lacuna 7 — prova pública, escrita e inglês", c:"var(--p-marca)",
+    why:"Portfólio virou estrutural no guia: no mercado internacional ele substitui a referência profissional. Escrever bem, inclusive em inglês, é o que torna o artefato legível.",
+    books:[
+      ["mar1","Show Your Work!","Austin Kleon · 2014","Como publicar processo sem virar produtor de conteúdo. Curto, e destrava a resistência a publicar.","Onda 1"],
+      ["mar2","On Writing Well","William Zinsser · 1976","Clareza em não ficção. Referência para o README em inglês e para os ADRs.","Onda 1"],
+      ["mar3","Writing for Busy Readers","Todd Rogers & Jessica Lasky-Fink · 2023","Escrita para quem decide em 30 segundos — comitê, diretoria, recrutador lá fora.","Onda 1"],
+      ["mar4","Docs for Developers","Bhatti, Corleissen e outros · 2021","Documentação técnica como produto. Aplicável direto ao catálogo de integrações.","Onda 2"]
+    ]},
+
+  { id:"car", t:"Trilha técnica sênior", c:"var(--p-carreira)",
+    why:"Você fechou a decisão: técnico, sem migração para gestão. Estes dois mapeiam como crescer em influência sem virar gestor.",
+    books:[
+      ["car1","Staff Engineer","Will Larson · 2021","Os arquétipos de senioridade técnica e como cada um gera valor. Ajuda a escolher entre as sete rotas de derivação.","Onda 1"],
+      ["car2","The Staff Engineer's Path","Tanya Reilly · 2022","A parte prática: influência sem autoridade, escolha de batalhas, trabalho de cola. Diretamente útil no engajamento da comunidade.","Onda 1"]
+    ]}
+];
+
+const CRONO = [
+  { when:"Q4", year:"out–dez 2026", c:"var(--p-pessoal)",
+    t:"Tirar frente do prato e ancorar a trilha de IA",
+    aim:"O trimestre mais importante não é o mais técnico. Antes de acelerar, decidir o que sai — e só então abrir o livro-âncora de IA.",
+    ids:["base3","base2","ia1","arq4"],
+    art:"Artefato: decisão escrita de quais frentes de estudo você encerra, mantém ou adia — e o escopo de uma página do projeto-âncora de crédito rural." },
+
+  { when:"Q1", year:"jan–mar 2027", c:"var(--p-ia)",
+    t:"Avaliação e contexto (lacunas 1 e 3)",
+    aim:"Avaliar sistema não determinístico é a lacuna de maior retorno do plano. Aqui ela vira código, não conceito.",
+    ids:["ia7","arq6","base1"],
+    art:"Artefato: harness de avaliação do projeto-âncora publicado no GitHub, com README em inglês." },
+
+  { when:"Q2", year:"abr–jun 2027", c:"var(--p-ia)",
+    t:"Arquitetura agêntica (lacuna 2)",
+    aim:"Agentes em cima de uma base de avaliação que já existe. Na ordem inversa, você não saberia dizer se o agente melhorou.",
+    ids:["ia3","arq1","mar1"],
+    art:"Artefato: primeiro post público em inglês descrevendo a arquitetura do agente e os trade-offs recusados." },
+
+  { when:"Q3", year:"jul–set 2027", c:"var(--p-seg)",
+    t:"Segurança e regulação (lacunas 4 e 6)",
+    aim:"A dupla que transforma um projeto interessante em algo defensável dentro de um banco — e é o seu diferencial declarado.",
+    ids:["seg1","gov1","mar2"],
+    art:"Artefato: ADR de segurança e modelo de ameaças do projeto, publicado junto ao repositório." },
+
+  { when:"Q4", year:"out–dez 2027", c:"var(--p-carreira)",
+    t:"Senioridade técnica e adoção",
+    aim:"Com um ano de prova pública acumulada, a pergunta deixa de ser o que estudar e passa a ser para qual rota derivar.",
+    ids:["car1","car2","arq3"],
+    art:"Artefato: escolha explícita de uma das sete rotas de derivação e um plano de adoção para a comunidade de crédito rural." }
+];
+
+const KEY = "plano-leitura:lidos";
+let read = new Set();
+let filter = "all";
+
+const listEl = document.getElementById("list");
+const rowsEl = document.getElementById("rows");
+const statusEl = document.getElementById("status");
+
+function render(){
+  listEl.innerHTML = "";
+  rowsEl.innerHTML = "";
+  let total = 0;
+
+  DATA.forEach(sec=>{
+    const s = document.createElement("section");
+    s.style.setProperty("--c", sec.c);
+    s.innerHTML = `<h2>${sec.t}</h2><p class="why">${sec.why}</p>`;
+
+    let visible = 0;
+    sec.books.forEach(([id,title,by,note,wave])=>{
+      total++;
+      const done = read.has(id);
+
+      const tick = document.createElement("div");
+      tick.className = "tick" + (done ? " on" : "");
+      tick.style.setProperty("--c", sec.c);
+      rowsEl.appendChild(tick);
+
+      if((filter==="todo" && done) || (filter==="done" && !done)) return;
+      visible++;
+
+      const row = document.createElement("div");
+      row.className = "item" + (done ? " done" : "");
+      row.innerHTML =
+        `<input type="checkbox" id="${id}" ${done?"checked":""}>` +
+        `<div class="meta">` +
+          `<label class="title" for="${id}">${title}</label>` +
+          `<div class="by">${by}</div>` +
+          `<div class="note">${note}</div>` +
+          `<span class="wave">${wave}</span>` +
+        `</div>`;
+      row.querySelector("input").addEventListener("change", e=>toggle(id, e.target.checked));
+      s.appendChild(row);
+    });
+
+    if(visible === 0) s.classList.add("hide");
+    listEl.appendChild(s);
+  });
+
+  document.getElementById("n").textContent = read.size;
+  document.getElementById("tot").textContent = total;
+  renderCrono();
+}
+
+function bookById(id){
+  for(const sec of DATA){
+    const b = sec.books.find(x=>x[0]===id);
+    if(b) return { title:b[1], by:b[2] };
+  }
+  return null;
+}
+
+function renderCrono(){
+  const el = document.getElementById("crono");
+  el.innerHTML = "";
+  const usados = new Set();
+
+  CRONO.forEach(q=>{
+    const d = document.createElement("div");
+    d.className = "q";
+    d.style.setProperty("--c", q.c);
+    const itens = q.ids.map(id=>{
+      usados.add(id);
+      const b = bookById(id);
+      return `<li class="${read.has(id)?"read":""}">${b.title} <span style="color:var(--ink-soft)">— ${b.by.split(" · ")[0]}</span></li>`;
+    }).join("");
+    d.innerHTML =
+      `<div class="when">${q.when}<span>${q.year}</span></div>` +
+      `<div><h3>${q.t}</h3><p class="aim">${q.aim}</p><ol>${itens}</ol>` +
+      `<div class="art">${q.art}</div></div>`;
+    el.appendChild(d);
+  });
+
+  const fila = [];
+  DATA.forEach(sec=>sec.books.forEach(b=>{ if(!usados.has(b[0])) fila.push(b[1]); }));
+  document.getElementById("fila").innerHTML =
+    `<b>Fila de espera (${fila.length} títulos):</b> ` + fila.join(" · ") +
+    `. Ficam para 2028 em diante ou entram antes, trocando um a um — nunca somando ao trimestre.`;
+}
+
+async function toggle(id, on){
+  on ? read.add(id) : read.delete(id);
+  render();
+  await save();
+}
+
+async function save(){
+  statusEl.textContent = "";
+  try{
+    if(!window.storage) throw new Error("sem storage");
+    await window.storage.set(KEY, JSON.stringify([...read]));
+  }catch(e){
+    statusEl.textContent = "As marcações valem só nesta sessão — o armazenamento não respondeu.";
+  }
+}
+
+async function boot(){
+  try{
+    if(window.storage){
+      const r = await window.storage.get(KEY);
+      if(r && r.value) read = new Set(JSON.parse(r.value));
+    }
+  }catch(e){ /* primeira abertura: nada salvo ainda */ }
+  render();
+}
+
+document.querySelectorAll(".filters button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    filter = b.dataset.f;
+    document.querySelectorAll(".filters button").forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
+    render();
+  });
+});
+
+document.getElementById("reset").addEventListener("click", async ()=>{
+  read.clear(); render(); await save();
+});
+
+boot();
+</script>
+
+<a href="../../index.html" class="hub-back" aria-label="Voltar ao índice do hub">◂ HUB</a>
+<style>.hub-back{position:fixed;left:16px;bottom:16px;z-index:9999;font:600 12px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;color:#35E0FF!important;background:rgba(6,10,18,.88)!important;border:1px solid rgba(53,224,255,.45);padding:9px 13px;border-radius:999px;text-decoration:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 0 18px rgba(53,224,255,.25)}.hub-back:hover{background:#35E0FF!important;color:#060A12!important}@media print{.hub-back{display:none}}</style>
+</body>
+</html>
