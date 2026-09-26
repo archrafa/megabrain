@@ -25,7 +25,10 @@ Hub pessoal com as páginas HTML geradas com o Claude: arquitetura, autoavaliaç
     ├── engenharia/
     │   ├── treinamento-git-github-actions.html    # Git, Git Flow, GitHub e Actions (TorqueOS)
     │   ├── prancha-python.html                    # trilha Python com olhar de arquiteto
-    │   └── guia-devin.html                        # Devin (Cognition) para arquitetos        (de .docx)
+    │   ├── guia-devin.html                        # Devin (Cognition) para arquitetos        (de .docx)
+    │   └── treinamento-markdown/                  # curso de Markdown (GFM) em 10 módulos
+    │       ├── index.html
+    │       └── content/                           # fontes .md de cada módulo
     ├── ia/
     │   ├── matematica-por-tras-dos-llms.html      # álgebra linear, cálculo e probabilidade interativos
     │   ├── arquitetura-ia-do-zero.html            # curso de arquitetura de IA               (de .docx)
@@ -60,7 +63,7 @@ Hub pessoal com as páginas HTML geradas com o Claude: arquitetura, autoavaliaç
 ```
 
 3. Categorias (`cat`): `arq`, `auto`, `eng`, `ia`, `agro`, `car`. Para criar outra, adicione em `CATS`.
-4. Ícones: `check`, `db`, `gauge`, `cloud`, `shield`, `grid`, `target`, `branch`, `code`, `terminal`, `sigma`, `layers`, `cpu`, `wand`, `map`, `leaf`, `compass`, `book`, `route`. `date` é opcional.
+4. Ícones: `markdown`, `check`, `db`, `gauge`, `cloud`, `shield`, `grid`, `target`, `branch`, `code`, `terminal`, `sigma`, `layers`, `cpu`, `wand`, `map`, `leaf`, `compass`, `book`, `route`. `date` é opcional.
 5. Para o botão "◂ HUB", copie o bloco `<a class="hub-back">` + `<style>` do fim de qualquer página.
 
 ## Páginas convertidas
@@ -70,4 +73,5 @@ As páginas marcadas "(de .docx)" e "(de .pdf)" foram convertidas para um layout
 ## Observações
 
 - **Privacidade:** o GitHub Pages é público mesmo com repositório privado (exceto no plano Enterprise). O *Guia Mestre* traz nome completo, rotina, saúde, nutrição, crenças e reflexões de carreira; a *Lista de Leitura* cita o engajamento da comunidade em que você atua. As duas têm `noindex`, que evita buscadores mas não impede o acesso de quem tiver o link. Na conversão do *Guia do Agronegócio* e de *As Vísceras da IA*, as linhas de capa com nome e empregador ("Elaborado para…", "Preparado para…") ficaram de fora.
-- Memento, Matriz, Prancha Python, Lista de Leitura e os guias de autoavaliação guardam o progresso no navegador. Nada sai do seu browser.
+- Memento, Matriz, Prancha Python, Treinamento de Markdown, Lista de Leitura e os guias de autoavaliação guardam o progresso no navegador. Nada sai do seu browser.
+- O *Treinamento de Markdown* traz o conteúdo embutido no `index.html` (funciona offline). Os arquivos em `content/` são as fontes de cada módulo: se editar um `.md`, atualize também o texto correspondente no array `MODULES` do HTML.
