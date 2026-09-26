@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Padrões Arquiteturais Modernos</title>
+
+<meta name="description" content="A evolução do Gang of Four para sistemas distribuídos, cloud-native e microsserviços">
+<script>try{var m=localStorage.getItem('hub-theme');if(m&&m!=='auto')document.documentElement.setAttribute('data-theme',m)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F4F6FA; --surface:#FFFFFF; --sunk:#EBEFF5; --ink:#141B2B; --ink-2:#44506A; --ink-3:#6B7790;
+  --line:#D8DFEA; --line-2:#C5CEDD; --accent:#0A7EA4; --accent-soft:color-mix(in srgb,var(--accent) 12%,var(--surface));
+  --warn:#B4531A; --warn-soft:#FCEEE3; --tip:#1E7C4B; --tip-soft:#E4F4EA;
+  --code-bg:#0E1628; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(20,27,43,.05),0 10px 30px -18px rgba(20,27,43,.25);
+  --f-disp:"Chakra Petch","Space Grotesk",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --side:300px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#070B14; --surface:#0E1628; --sunk:#0A1120; --ink:#E6EEFB; --ink-2:#A9B7D0; --ink-3:#7485A3;
+  --line:#1D2A42; --line-2:#2A3A58; --accent:#35E0FF; --accent-soft:color-mix(in srgb,var(--accent) 14%,var(--surface));
+  --warn:#FFB547; --warn-soft:#2A1F10; --tip:#7EE2A8; --tip-soft:#10261B; --code-bg:#050910; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 36px -20px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#070B14; --surface:#0E1628; --sunk:#0A1120; --ink:#E6EEFB; --ink-2:#A9B7D0; --ink-3:#7485A3;
+  --line:#1D2A42; --line-2:#2A3A58; --accent:#35E0FF; --accent-soft:color-mix(in srgb,var(--accent) 14%,var(--surface));
+  --warn:#FFB547; --warn-soft:#2A1F10; --tip:#7EE2A8; --tip-soft:#10261B; --code-bg:#050910; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 36px -20px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+::selection{background:var(--accent);color:var(--bg)}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;box-shadow:0 0 12px var(--accent)}
+
+.shell{display:grid;grid-template-columns:var(--side) minmax(0,1fr);min-height:100vh}
+aside{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;border-right:1px solid var(--line);background:var(--surface)}
+.side-top{padding:18px 18px 12px;border-bottom:1px solid var(--line)}
+.hub{display:inline-flex;align-items:center;gap:8px;font:600 11.5px var(--f-mono);letter-spacing:.16em;color:var(--ink-2);text-decoration:none;margin-bottom:14px}
+.hub b{color:var(--accent)}
+.hub:hover{color:var(--accent)}
+.side-title{font:700 15px/1.25 var(--f-disp);letter-spacing:.01em;margin:0 0 12px;text-transform:uppercase}
+.filter{width:100%;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:500 13px var(--f-body);color:var(--ink)}
+.filter:focus{outline:none;border-color:var(--accent)}
+nav.toc{flex:1;overflow:auto;padding:10px 0 20px}
+nav.toc a{display:block;padding:5px 18px 5px 16px;border-left:2px solid transparent;color:var(--ink-2);text-decoration:none;font-size:13.5px;line-height:1.35}
+nav.toc a.l3{padding-left:30px;font-size:12.8px;color:var(--ink-3)}
+nav.toc a:hover{color:var(--ink);background:var(--sunk)}
+nav.toc a.on{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft);font-weight:600}
+nav.toc a[hidden]{display:none}
+.side-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 18px;border-top:1px solid var(--line);font:500 11px var(--f-mono);color:var(--ink-3)}
+.theme{background:none;border:1px solid var(--line);border-radius:6px;padding:5px 9px;font:500 11px var(--f-mono);color:var(--ink-2);cursor:pointer}
+.theme:hover{border-color:var(--accent);color:var(--accent)}
+
+main{min-width:0;padding:0 clamp(16px,5vw,64px) 120px;overflow-x:clip}
+.doc{max-width:900px;margin:0 auto}
+.hero{padding:56px 0 30px;border-bottom:1px solid var(--line);margin-bottom:12px;position:relative}
+.hero::before{content:"";position:absolute;inset:0 -40px auto;height:220px;background:radial-gradient(600px 200px at 10% 0%,var(--accent-soft),transparent 70%);z-index:-1}
+.kicker{font:600 11.5px var(--f-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px}
+.kicker::before{content:"";width:24px;height:1px;background:var(--accent)}
+.hero h1{font:700 clamp(32px,5.2vw,54px)/1.02 var(--f-disp);letter-spacing:-.005em;margin:14px 0 12px;text-transform:uppercase;text-wrap:balance}
+.hero .sub{font-size:18px;color:var(--ink-2);max-width:62ch;margin:0 0 16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+.chip{font:500 11.5px var(--f-mono);color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:4px 10px;background:var(--surface)}
+.hero-extra{margin-top:20px;color:var(--ink-2);font-size:15px}
+.hero-extra p{margin:0 0 8px;max-width:70ch}
+
+.doc h2{font:700 clamp(22px,2.6vw,28px)/1.15 var(--f-disp);margin:56px 0 14px;padding-top:14px;border-top:1px solid var(--line);letter-spacing:.005em;text-wrap:balance}
+.doc h3{font:600 19px/1.3 var(--f-disp);margin:34px 0 10px;color:var(--ink)}
+.doc h4{font:600 16px/1.35 var(--f-body);margin:26px 0 8px;color:var(--accent)}
+.doc h5{font:600 14px var(--f-mono);margin:20px 0 6px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.hero + h2,.hero + .assess-bar + h2{border-top:0;margin-top:30px;padding-top:0}
+.doc h2.banner{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.doc h2.banner .code{font:700 14px var(--f-mono);color:var(--bg);background:var(--accent);padding:4px 9px;border-radius:6px}
+.doc h2.banner .tag{font:600 11px var(--f-mono);letter-spacing:.1em;color:var(--warn);border:1px solid currentColor;border-radius:999px;padding:3px 10px}
+.doc p{margin:0 0 14px;max-width:74ch}
+.doc p.lead-in{font:600 14.5px var(--f-body);color:var(--ink);margin:20px 0 8px}
+.doc ul,.doc ol{margin:0 0 16px;padding-left:22px;max-width:74ch}
+.doc li{margin:4px 0}
+.doc li>ul,.doc li>ol{margin:4px 0}
+.doc li::marker{color:var(--accent)}
+.doc strong{font-weight:600;color:var(--ink)}
+.doc code{font:500 .86em var(--f-mono);background:var(--sunk);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.doc pre{background:var(--code-bg);color:var(--code-ink);border-radius:10px;padding:14px 16px;overflow:auto;font:13px/1.55 var(--f-mono);margin:0 0 18px;border:1px solid var(--line)}
+.doc pre code{background:none;border:0;padding:0;color:inherit;font-size:inherit}
+.doc blockquote{margin:0 0 16px;padding:10px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 8px 8px 0}
+.doc blockquote p{margin:0}
+.callout{border:1px solid var(--line);border-left:3px solid var(--accent);background:var(--surface);border-radius:10px;padding:14px 18px;margin:18px 0 20px;box-shadow:var(--shadow)}
+.callout>*:last-child{margin-bottom:0}
+.callout p{max-width:none}
+.callout.warn{border-left-color:var(--warn);background:var(--warn-soft)}
+.callout.tip{border-left-color:var(--tip);background:var(--tip-soft)}
+.tbl-wrap{overflow-x:auto;margin:0 0 20px;border:1px solid var(--line);border-radius:10px;background:var(--surface);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+thead th{position:sticky;top:0;background:var(--sunk);font:600 11.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);border-bottom:1px solid var(--line-2);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:color-mix(in srgb,var(--accent) 4%,transparent)}
+td p{margin:0 0 6px;max-width:none}
+td p:last-child{margin:0}
+td ul,td ol{margin:0;padding-left:18px}
+.tbl-wrap table.wide{min-width:760px}
+
+/* autoavaliação */
+.assess-bar{position:sticky;top:0;z-index:20;margin:18px 0 0;padding:10px 14px;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:10px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font:500 12.5px var(--f-mono);color:var(--ink-2)}
+.assess-bar .meter{flex:1 1 180px;height:8px;border-radius:4px;background:var(--sunk);overflow:hidden;display:flex}
+.assess-bar .meter i{display:block;height:100%}
+.k-d{--k:var(--tip)} .k-r{--k:var(--warn)} .k-e{--k:#E5484D}
+.assess-bar b{color:var(--k,var(--ink))}
+.assess-bar button{margin-left:auto}
+table.assess td:nth-child(1){font-weight:600;min-width:160px}
+table.assess td:nth-child(5){white-space:nowrap;font:500 12px var(--f-mono);color:var(--ink-3)}
+td.mark{white-space:nowrap}
+.mk{display:inline-flex;gap:4px}
+.mk button{border:1px solid var(--line-2);background:transparent;color:var(--ink-3);border-radius:6px;padding:3px 7px;font:600 11px var(--f-mono);cursor:pointer}
+.mk button:hover{border-color:var(--k);color:var(--k)}
+.mk button[aria-pressed="true"]{background:var(--k);border-color:var(--k);color:var(--bg)}
+.sec-count{font:500 12px var(--f-mono);color:var(--ink-3);margin:-6px 0 12px}
+
+
+/* componentes extras */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:18px 0 22px}
+.stats div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow)}
+.stats b{display:block;font:700 30px/1 var(--f-disp);color:var(--accent)}
+.stats span{font:500 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin:0 0 20px}
+.cols>div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.cols h5{margin:0 0 6px;color:var(--accent)}
+.cols ul{margin:0;padding-left:18px;font-size:14px}
+.res{list-style:none;padding:0!important;margin:0 0 20px;display:grid;gap:6px}
+.res li{display:flex;gap:10px;align-items:baseline;font-size:14px;margin:0}
+.res li::marker{content:none}
+.badge{flex:none;font:600 10px var(--f-mono);letter-spacing:.08em;padding:2px 7px;border-radius:5px;border:1px solid currentColor}
+.badge.free{color:var(--tip)} .badge.paid{color:var(--warn)}
+.phase{margin:64px 0 0;padding:22px 22px 6px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,var(--accent-soft),transparent 60%)}
+.phase .kicker{margin-bottom:4px}
+.doc .phase h2{border-top:0;margin-top:6px;padding-top:0}
+.mod-k{font:600 11px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:34px 0 0}
+.doc .mod-k + h3{margin-top:4px}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:0 0 18px}
+.split div{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.split b{font:700 24px var(--f-disp);color:var(--accent);display:block}
+
+.mobile-bar{display:none}
+.fab{position:fixed;left:16px;bottom:16px;z-index:50;font:600 12px/1 var(--f-mono);letter-spacing:.12em;color:#35E0FF!important;background:rgba(6,10,18,.9)!important;border:1px solid rgba(53,224,255,.45);padding:9px 13px;border-radius:999px;text-decoration:none;box-shadow:0 0 18px rgba(53,224,255,.25);display:none}
+.totop{position:fixed;right:18px;bottom:18px;z-index:50;width:40px;height:40px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:var(--shadow)}
+.totop.show{opacity:1;pointer-events:auto}
+@media (max-width:980px){
+  .shell{grid-template-columns:1fr}
+  aside{position:fixed;inset:0 auto 0 0;width:min(86vw,320px);z-index:70;transform:translateX(-102%);transition:transform .25s ease;box-shadow:var(--shadow)}
+  aside.open{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(5,8,15,.5);z-index:65;display:none}
+  .scrim.open{display:block}
+  .mobile-bar{display:flex;position:sticky;top:0;z-index:40;align-items:center;gap:10px;padding:10px 16px;margin:0 calc(-1 * clamp(16px,5vw,64px));background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .mobile-bar button{border:1px solid var(--line-2);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 10px;font:600 12px var(--f-mono);cursor:pointer}
+  .mobile-bar span{font:700 13px var(--f-disp);text-transform:uppercase;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .fab{display:inline-block}
+  .hero{padding-top:28px}
+  table.assess thead{display:none}
+  .tbl-wrap table.assess{min-width:0}
+  .assess-bar{top:54px}
+  .mobile-bar button{white-space:nowrap}
+  table.assess,table.assess tbody,table.assess tr,table.assess td{display:block;width:100%}
+  table.assess tr{border-bottom:1px solid var(--line);padding:10px 12px}
+  table.assess td{border:0;padding:3px 0}
+  table.assess td[data-l]::before{content:attr(data-l);display:block;font:600 10.5px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+  table.assess td:nth-child(1){font-size:16px}
+}
+@media print{
+  aside,.mobile-bar,.fab,.totop,#progress,.assess-bar button{display:none!important}
+  .shell{display:block} main{padding:0} body{background:#fff;color:#000}
+  .tbl-wrap,.callout{box-shadow:none}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body data-doc="arquitetura-padroes-arquiteturais-modernos">
+<div id="progress"></div>
+<div class="scrim"></div>
+<div class="shell">
+<aside aria-label="Sumário">
+  <div class="side-top">
+    <a class="hub" href="../../index.html">◂ RAFAEL<b>//</b>HUB</a>
+    <p class="side-title">Padrões Arquiteturais Modernos</p>
+    <input class="filter" id="filter" type="search" placeholder="Filtrar seções…  ( / )" aria-label="Filtrar seções">
+  </div>
+  <nav class="toc"><a href="#1-do-gof-ao-mundo-distribuído" class="l2">1. Do GoF ao Mundo Distribuído</a>
+<a href="#11-mapeamento-gof-padrões-modernos" class="l3">1.1 Mapeamento GoF → Padrões Modernos</a>
+<a href="#21-event-sourcing" class="l3">2.1 Event Sourcing</a>
+<a href="#22-cqrs-command-query-responsibility-segregation" class="l3">2.2 CQRS — Command Query Responsibility Segregation</a>
+<a href="#23-saga-pattern" class="l3">2.3 Saga Pattern</a>
+<a href="#24-transactional-outbox" class="l3">2.4 Transactional Outbox</a>
+<a href="#25-event-carried-state-transfer-ecst" class="l3">2.5 Event-Carried State Transfer (ECST)</a>
+<a href="#31-circuit-breaker" class="l3">3.1 Circuit Breaker</a>
+<a href="#32-retry-com-backoff-exponencial-e-jitter" class="l3">3.2 Retry com Backoff Exponencial e Jitter</a>
+<a href="#33-bulkhead" class="l3">3.3 Bulkhead</a>
+<a href="#34-rate-limiter-e-throttling" class="l3">3.4 Rate Limiter e Throttling</a>
+<a href="#41-strangler-fig" class="l3">4.1 Strangler Fig</a>
+<a href="#42-anti-corruption-layer-acl" class="l3">4.2 Anti-Corruption Layer (ACL)</a>
+<a href="#43-api-gateway" class="l3">4.3 API Gateway</a>
+<a href="#44-bff-backend-for-frontend" class="l3">4.4 BFF — Backend for Frontend</a>
+<a href="#51-database-per-service" class="l3">5.1 Database per Service</a>
+<a href="#52-materialized-view-pattern" class="l3">5.2 Materialized View Pattern</a>
+<a href="#53-change-data-capture-cdc" class="l3">5.3 Change Data Capture (CDC)</a>
+<a href="#61-sidecar" class="l3">6.1 Sidecar</a>
+<a href="#62-blue-green-deployment" class="l3">6.2 Blue-Green Deployment</a>
+<a href="#63-canary-release" class="l3">6.3 Canary Release</a>
+<a href="#64-health-check-e-readinessliveness-probes" class="l3">6.4 Health Check e Readiness/Liveness Probes</a>
+<a href="#71-tabela-de-referência-rápida" class="l3">7.1 Tabela de Referência Rápida</a>
+<a href="#72-anti-patterns-o-que-não-fazer" class="l3">7.2 Anti-Patterns — O que NÃO fazer</a>
+<a href="#73-guia-de-decisão-qual-padrão-usar" class="l3">7.3 Guia de Decisão — Qual Padrão Usar?</a></nav>
+  <div class="side-foot"><span>convertido de .docx</span><button class="theme" id="theme" type="button">tema: auto</button></div>
+</aside>
+<main>
+  <div class="mobile-bar"><button id="menu" type="button" aria-label="Abrir sumário">☰ Sumário</button><span>Padrões Arquiteturais Modernos</span></div>
+  <article class="doc">
+    <header class="hero">
+      <div class="kicker">SYS.ARCH · Padrões</div>
+      <h1>Padrões Arquiteturais Modernos</h1>
+      <p class="sub">A evolução do Gang of Four para sistemas distribuídos, cloud-native e microsserviços</p>
+      <div class="chips"><span class="chip">20 padrões</span><span class="chip">5 categorias</span><span class="chip">convertido de .docx</span></div>
+      <div class="hero-extra"><div class="callout note"><p><em>Documento Complementar ao Resumo GoF</em></p>
+<p><strong>5 Categorias  •  20 Padrões  •  Exemplos Corporativos e Financeiros</strong></p></div>
+<div class="tbl-wrap"><table><tbody><tr><td><p><strong>Event-Driven</strong></p>
+<p>Saga, CQRS<br>Event Sourcing<br>Outbox, ECS</p></td><td><p><strong>Resiliência</strong></p>
+<p>Circuit Breaker<br>Retry, Bulkhead<br>Timeout, Rate Limit</p></td><td><p><strong>Decomposição</strong></p>
+<p>Strangler Fig<br>API Gateway, BFF<br>Anti-Corr. Layer</p></td><td><p><strong>Dados</strong></p>
+<p>DB per Service<br>Materialized View<br>Two-Phase Commit</p></td><td><p><strong>Infra / Deploy</strong></p>
+<p>Sidecar, Ambassador<br>Service Mesh<br>Blue-Green, Canary</p></td></tr></tbody></table></div>
+<p><em>Referências: Chris Richardson (microservices.io)  •  Sam Newman (Building Microservices)  •  Azure Architecture Center  •  AWS Well-Architected Framework</em></p></div>
+    </header>
+<h2 id="1-do-gof-ao-mundo-distribuído">1. Do GoF ao Mundo Distribuído</h2>
+<p>Os 23 padrões do Gang of Four foram concebidos para sistemas orientados a objetos monolíticos. Com a ascensão de microsserviços, cloud-native, event-driven architectures e sistemas distribuídos de larga escala, uma nova geração de padrões emergiu — não como substitutos, mas como evoluções aplicadas a contextos de rede, latência, falhas parciais e consistência eventual.</p>
+<p>Enquanto o GoF resolve problemas dentro de um processo, os padrões modernos resolvem problemas entre processos, frequentemente separados por rede, data centers e até clouds distintas.</p>
+<div class="callout note"><p><strong>A continuidade intelectual</strong></p>
+<p><em>O Observer se tornou o Event Bus e o Pub/Sub. O Command se tornou o Event Sourcing. O Proxy se tornou o Sidecar e o Service Mesh. O Facade se tornou o API Gateway. A linguagem mudou; os princípios são os mesmos.</em></p></div>
+<h3 id="11-mapeamento-gof-padrões-modernos">1.1 Mapeamento GoF → Padrões Modernos</h3>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Padrão GoF</strong></th><th><strong>Padrão Moderno Derivado</strong></th><th><strong>Evolução / Contexto Distribuído</strong></th></tr></thead><tbody><tr><td><p><strong>Observer</strong></p></td><td><p>Event Sourcing, Pub/Sub, Kafka, SNS/SQS, EventBridge</p></td><td><p>Em sistemas distribuídos, o Observer vira mensageria assíncrona com garantias de entrega, replay e multiple consumers independentes.</p></td></tr><tr><td><p><strong>Command</strong></p></td><td><p>Event Sourcing, CQRS, Saga (Orquestração)</p></td><td><p>Comandos se tornam eventos imutáveis e persistidos. O histórico de comandos é o estado do sistema — auditabilidade total.</p></td></tr><tr><td><p><strong>Proxy</strong></p></td><td><p>Sidecar, Ambassador, Service Mesh (Istio/Envoy)</p></td><td><p>O proxy sai do processo e vira infraestrutura de rede: mTLS, load balancing, circuit breaking e observabilidade sem tocar no código.</p></td></tr><tr><td><p><strong>Facade</strong></p></td><td><p>API Gateway, BFF, GraphQL Federation</p></td><td><p>A fachada vira um serviço de borda que agrega, filtra e adapta múltiplos serviços para diferentes clientes.</p></td></tr><tr><td><p><strong>Chain of Responsibility</strong></p></td><td><p>Pipeline de Processamento, Event Processing Chains, Step Functions</p></td><td><p>A cadeia de handlers vira workflows orquestrados com estados persistidos, retry automático e compensação.</p></td></tr><tr><td><p><strong>Adapter</strong></p></td><td><p>Anti-Corruption Layer, Strangler Fig, Change Data Capture</p></td><td><p>O adapter vira uma camada de isolamento entre sistemas legados e modernos, permitindo coexistência e migração gradual.</p></td></tr><tr><td><p><strong>Strategy</strong></p></td><td><p>Feature Flags, A/B Testing, Canary Releases</p></td><td><p>Algoritmos trocáveis em runtime se tornam deploys trocáveis em produção: tráfego roteado por estratégia de lançamento.</p></td></tr><tr><td><p><strong>Singleton</strong></p></td><td><p>Shared Database (anti-pattern identificado), Service Registry</p></td><td><p>O estado compartilhado global se torna o principal problema em microsserviços — o Singleton vira anti-pattern distribuído.</p></td></tr></tbody></table></div>
+<div class="callout note"><p><strong>CATEGORIA 1: PADRÕES EVENT-DRIVEN</strong></p></div>
+<p>Padrões que tratam de comunicação assíncrona, consistência eventual e propagação de estado entre serviços através de eventos. São a espinha dorsal de arquiteturas desacopladas e resilientes.</p>
+<h3 id="21-event-sourcing">2.1 Event Sourcing</h3>
+<div class="callout note"><p><strong>Event Sourcing</strong></p>
+<p>Event-Driven  •  Dados   |   Origem GoF: Command + Observer</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Armazenar o estado de uma aplicação como uma sequência imutável de eventos, em vez de persistir apenas o estado atual.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Em sistemas tradicionais, quando um registro é atualizado, o histórico é perdido. É impossível saber 'como chegamos aqui', reconstruir estados passados ou auditar mudanças — crítico em sistemas bancários, compliance e jurídico.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>Cada mudança de estado é representada por um evento imutável (TransacaoRealizada, ContratoAssinado, LimiteAlterado) persistido em um Event Store. O estado atual é derivado (projetado) da sequência de eventos. É possível reconstruir o estado em qualquer ponto no tempo.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Complexidade de implementação elevada. Queries diretas são difíceis (geralmente combinado com CQRS). Evolução de schemas de eventos requer versionamento cuidadoso. Event Store pode crescer indefinidamente — snapshots periódicos mitigam isso.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Auditoria de operações financeiras no Bradesco: cada instrução sobre uma conta (abertura, crédito, débito, bloqueio, encerramento) é um evento imutável. O saldo atual é uma projeção. O compliance pode reconstruir exatamente o estado da conta em qualquer data — funcionalidade exigida por regulação BACEN e auditorias internas.</p></div>
+<h3 id="22-cqrs-command-query-responsibility-segregation">2.2 CQRS — Command Query Responsibility Segregation</h3>
+<div class="callout note"><p><strong>CQRS</strong></p>
+<p>Event-Driven  •  Dados   |   Origem GoF: Command + Strategy</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Separar o modelo de escrita (Commands) do modelo de leitura (Queries), permitindo que cada lado seja otimizado independentemente.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Um único modelo de dados não serve bem tanto para escritas transacionais quanto para leituras analíticas complexas. Em sistemas de alto volume, leituras e escritas têm padrões de acesso, escalabilidade e consistência completamente diferentes.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>O lado Command recebe mutações, valida regras de negócio e persiste no banco transacional (ou Event Store). O lado Query mantém Read Models desnormalizados, pré-calculados e otimizados para consultas — frequentemente em bancos diferentes (Redis, Elasticsearch, Cassandra). Os dois lados são sincronizados via eventos.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Consistência eventual entre os dois lados — leituras podem ser levemente defasadas. Maior complexidade operacional: dois modelos, duas camadas de persistência. Deve ser combinado com Event Sourcing para extrair todo o benefício. Não use CQRS para CRUDs simples.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Sistema de análise de riscos e limites operacionais: o Command side processa solicitações de crédito e ajustes de limite no core bancário transacional. O Query side mantém views materializadas com posição consolidada de exposição por cliente, produto e carteira — atualizadas em near-real-time via eventos — servindo dashboards de risco e compliance sem impactar a operação transacional.</p></div>
+<h3 id="23-saga-pattern">2.3 Saga Pattern</h3>
+<div class="callout note"><p><strong>Saga</strong></p>
+<p>Event-Driven  •  Orquestração   |   Origem GoF: Command + Mediator + Chain of Responsibility</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Gerenciar transações distribuídas que abrangem múltiplos serviços sem usar transações distribuídas (2PC), garantindo consistência através de transações compensatórias.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Em microsserviços, não existe transação ACID entre serviços. Uma operação de negócio que envolve múltiplos serviços (ex: contratação de crédito) pode falhar parcialmente — como desfazer o que já foi feito?</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>Duas variantes: (1) Choreography — cada serviço reage a eventos e publica seus próprios eventos, sem coordenação central; (2) Orchestration — um Saga Orchestrator (como AWS Step Functions) coordena a sequência e, em caso de falha, dispara transações compensatórias (ex: CancelarReservaCommand, EstornarDebitoCommand).</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Saga Choreography escala melhor mas é mais difícil de debugar — o fluxo de negócio está distribuído. Saga Orchestration é mais legível mas cria acoplamento no orquestrador. Transações compensatórias devem ser idempotentes. Requer cuidado com fluxos de rollback parcial e estados inconsistentes temporários.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Contratação de crédito consignado: o orquestrador (Step Functions / Camunda) coordena — (1) reservar margem no RH, (2) aprovar crédito, (3) registrar operação no Banco Central, (4) liberar crédito. Se a etapa 3 falha, o orquestrador executa as compensações: cancelar aprovação de crédito e liberar margem reservada — garantindo consistência sem travar recursos.</p></div>
+<h3 id="24-transactional-outbox">2.4 Transactional Outbox</h3>
+<div class="callout note"><p><strong>Transactional Outbox</strong></p>
+<p>Event-Driven  •  Confiabilidade   |   Origem GoF: Command + Proxy</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Garantir que uma operação de banco de dados e a publicação de um evento no message broker ocorram atomicamente, sem necessidade de transação distribuída.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>O dual-write problem: gravar no banco e publicar no Kafka são duas operações distintas. Se o serviço cair entre as duas, o banco é atualizado mas o evento nunca é publicado — ou vice-versa — gerando inconsistência silenciosa entre serviços.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>A mensagem a ser publicada é gravada em uma tabela Outbox dentro da mesma transação de banco de dados local. Um processo separado (Message Relay) lê a tabela Outbox e publica no broker — com retry. Após confirmação de publicação, o registro é marcado como processado. Change Data Capture (CDC) com Debezium é a implementação moderna mais comum.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Adiciona latência mínima na publicação (processamento assíncrono do relay). Requer limpeza periódica da tabela Outbox. Eventos podem ser publicados mais de uma vez — consumidores devem ser idempotentes. Aumenta a carga no banco de origem.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Transferências PIX em tempo real: ao aprovar uma transferência, o serviço grava o registro na conta corrente E um evento PIXTransferenciaAprovada na tabela Outbox em uma única transação. O Debezium captura o insert na Outbox via CDC e publica no Kafka. Se o servidor cair após o commit do banco, o Debezium garante que o evento será publicado assim que o sistema voltar — nunca havendo transferência sem evento de notificação.</p></div>
+<h3 id="25-event-carried-state-transfer-ecst">2.5 Event-Carried State Transfer (ECST)</h3>
+<div class="callout note"><p><strong>Event-Carried State Transfer</strong></p>
+<p>Event-Driven  •  Desacoplamento   |   Origem GoF: Observer + Prototype</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Incluir no evento todos os dados que os consumidores precisam, evitando que eles precisem fazer chamadas de volta ao serviço produtor para buscar detalhes.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Consumidores de eventos frequentemente precisam de dados adicionais do produtor para processar o evento — gerando chamadas síncronas de volta, aumentando acoplamento e latência, e criando dependência de disponibilidade.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>O evento carrega uma cópia (snapshot) do estado relevante no momento da ocorrência. O consumidor tem tudo que precisa no próprio evento. Cada serviço mantém uma cópia local dos dados que precisa de outros serviços, atualizada via eventos.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Dados replicados ficam eventualmente consistentes. Maior tamanho de payload nos eventos. Requer estratégia de versionamento de schema de eventos (Avro, Protobuf + Schema Registry). Dados sensíveis no payload podem criar problemas de segurança e LGPD.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Serviço de notificações em um banco digital: o evento ClienteAprovadoParaCredito carrega nome, contato, produto aprovado e valor — tudo que o serviço de notificações precisa para enviar SMS/e-mail/push sem chamar o serviço de cadastro. O serviço de analytics mantém sua própria projeção de clientes atualizada por eventos ECST, sem dependência do serviço de CRM.</p></div>
+<div class="callout note"><p><strong>CATEGORIA 2: PADRÕES DE RESILIÊNCIA</strong></p></div>
+<p>Padrões que tornam sistemas distribuídos tolerantes a falhas parciais. Em ambientes de microsserviços, falhas são inevitáveis — estes padrões determinam se uma falha é localizada ou se propaga em cascata por todo o sistema.</p>
+<h3 id="31-circuit-breaker">3.1 Circuit Breaker</h3>
+<div class="callout note"><p><strong>Circuit Breaker</strong></p>
+<p>Resiliência  •  Tolerância a Falhas   |   Origem GoF: Proxy + State</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Prevenir que uma falha em um serviço dependente cause falha em cascata no serviço chamador, interrompendo temporariamente as chamadas quando o serviço está degradado.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Em sistemas distribuídos, um serviço lento ou indisponível pode esgotar o pool de threads do chamador enquanto aguarda timeouts, causando degradação em cascata — o chamador falha, depois o chamador do chamador, até o sistema inteiro colapsar.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>O Circuit Breaker monitora as chamadas a um serviço. Se a taxa de falhas ultrapassar um threshold, o circuito 'abre' e chamadas subsequentes falham imediatamente (fail-fast) com fallback. Após um período de cooldown, o circuito entra em 'half-open' e testa se o serviço se recuperou. Possui três estados: Closed (normal), Open (failing fast) e Half-Open (testando).</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Requer calibração cuidadosa dos thresholds — muito sensível causa falsos abertos, pouco sensível não protege. Precisa de fallback bem definido. Resilience4j e Hystrix (deprecated) são as implementações mais comuns em JVM. Istio implementa circuit breaking na camada de rede.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Consulta a bureau de crédito na análise de proposta: o serviço de crédito usa um Circuit Breaker nas chamadas ao Serasa e SPC. Se a taxa de timeout superar 50% em 10 segundos, o circuito abre e análises são processadas com score interno como fallback, sem bloquear novas propostas. Após 30 segundos, o circuito testa a recuperação do bureau — garantindo que uma instabilidade do bureau não paralise a originação de crédito.</p></div>
+<h3 id="32-retry-com-backoff-exponencial-e-jitter">3.2 Retry com Backoff Exponencial e Jitter</h3>
+<div class="callout note"><p><strong>Retry com Backoff Exponencial</strong></p>
+<p>Resiliência  •  Tolerância a Falhas   |   Origem GoF: Proxy + Template Method</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Repetir automaticamente operações que falharam por erros transientes, com aumento progressivo do intervalo entre tentativas para evitar sobrecarga do serviço em recuperação.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Falhas transientes (timeouts de rede, picos de carga, GC pauses) são comuns em sistemas distribuídos. Retentativas imediatas sobrecarregam um serviço já estressado — o thundering herd problem, onde todos os clientes tentam simultaneamente ao mesmo tempo.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>Cada retry aguarda interval = base * 2^attempt + random_jitter. O jitter (aleatoriedade) é fundamental para dessincronizar as retentativas de múltiplos clientes. Define-se número máximo de tentativas e tempo máximo total. Erros não-transientes (400, 401, 403) não devem ser retentados.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Idempotência é obrigatória: a operação retentada não pode ter efeitos colaterais duplicados. Sem jitter, backoffs exponenciais sincronizados criam picos periódicos. Distinguir erros transientes de permanentes é crítico. Combine com Circuit Breaker para proteção completa.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Chamadas ao sistema de registro de gravames (DETRAN): ao tentar registrar um financiamento de veículo, falhas temporárias no serviço do DETRAN são retentadas com backoff: 1s, 2s, 4s, 8s (+jitter). Após 5 tentativas sem sucesso, a operação é colocada em fila Dead Letter para processamento manual — evitando tanto perda da operação quanto sobrecarga do sistema estadual.</p></div>
+<h3 id="33-bulkhead">3.3 Bulkhead</h3>
+<div class="callout note"><p><strong>Bulkhead</strong></p>
+<p>Resiliência  •  Isolamento   |   Origem GoF: Proxy + Strategy</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Isolar elementos de uma aplicação em pools separados para que a falha de um não esgote os recursos de outro, similar às anteparas estanques de um navio.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Um único pool de threads ou conexões compartilhado entre múltiplos serviços dependentes: se um serviço fica lento, esgota o pool inteiro, impedindo que outros serviços — saudáveis — sejam chamados.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>Cada dependência crítica recebe seu próprio pool de threads, conexões ou semáforos. Quando o pool de uma dependência é esgotado, apenas as operações dessa dependência são impactadas — o resto do sistema continua operando. Pode ser implementado por thread pool isolation ou semaphore isolation.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Aumenta o consumo de recursos (mais threads, mais conexões). Requer dimensionamento cuidadoso de cada pool. Resilience4j e Istio suportam bulkhead nativamente. Overhead de gestão de múltiplos pools em sistemas com muitas dependências.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Core bancário com múltiplos serviços de terceiros: o serviço de onboarding mantém pools separados — pool-receita (consulta CPF/CNPJ), pool-serasa (score), pool-detran (habilitação), pool-integracao-bacen. Uma instabilidade prolongada da Receita Federal esgota apenas o pool-receita; consultas de score e habilitação continuam funcionando normalmente, preservando os fluxos de aprovação que não dependem de consulta fiscal.</p></div>
+<h3 id="34-rate-limiter-e-throttling">3.4 Rate Limiter e Throttling</h3>
+<div class="callout note"><p><strong>Rate Limiter / Throttling</strong></p>
+<p>Resiliência  •  Proteção   |   Origem GoF: Proxy + Strategy</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Controlar a taxa de requisições aceitas por um serviço para protegê-lo de sobrecarga, garantindo qualidade de serviço para todos os clientes.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Sem controle de taxa, um único cliente mal-comportado (ou um spike de tráfego) pode consumir todos os recursos do serviço, degradando ou derrubando o sistema para todos os outros clientes.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>Algoritmos comuns: Token Bucket (permite bursts controlados), Leaky Bucket (suaviza o tráfego), Fixed/Sliding Window Counter. O Rate Limiter pode operar por cliente, por endpoint, por IP ou globalmente. Requisições que excedem o limite recebem HTTP 429 (Too Many Requests) com Retry-After header.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Estado distribuído necessário para rate limiting multi-instância (geralmente Redis). Calibração inadequada impacta clientes legítimos. Deve ser combinado com filas de prioridade para diferenciar clientes premium. Requer estratégia de resposta graceful (circuit no cliente).</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>API de Open Finance do Banco Bradesco: o API Gateway aplica rate limiting por client_id credenciado no Banco Central — máximo de 300 req/min por instituição participante, com burst de até 50 req/s. Instituições que excedem o limite recebem 429 com backoff sugerido. Clientes internos (mobile app, internet banking) têm limites mais altos por SLA diferenciado.</p></div>
+<div class="callout note"><p><strong>CATEGORIA 3: PADRÕES DE DECOMPOSIÇÃO E INTEGRAÇÃO</strong></p></div>
+<p>Padrões que guiam como sistemas monolíticos são decompostos em serviços, como serviços se expõem ao exterior e como sistemas legados coexistem com arquiteturas modernas durante processos de transformação.</p>
+<h3 id="41-strangler-fig">4.1 Strangler Fig</h3>
+<div class="callout note"><p><strong>Strangler Fig</strong></p>
+<p>Decomposição  •  Modernização   |   Origem GoF: Adapter + Proxy + Facade</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Migrar incrementalmente um sistema legado para uma nova arquitetura, substituindo funcionalidades gradualmente enquanto o sistema antigo continua operando — sem big bang.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Reescritas completas ('big bang') de sistemas críticos são de alto risco e frequentemente falham. Empresas precisam continuar operando enquanto modernizam — não é possível parar o banco para refatorar o core.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>Um Facade (proxy de roteamento) intercepta todas as chamadas ao sistema legado. Funcionalidades são extraídas incrementalmente para novos serviços. O proxy roteia as chamadas: novas funcionalidades vão para o novo serviço; o restante continua no legado. Com o tempo, o sistema legado 'murcha' até ser descomissionado.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>O proxy de roteamento se torna um ponto crítico de falha. Coexistência de dois sistemas aumenta a complexidade operacional. Sincronização de dados entre legado e novo sistema é o maior desafio. Requer disciplina para não criar dependências cruzadas. O processo pode durar anos em sistemas grandes.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Modernização de agência digital: um proxy (NGINX/API Gateway) redireciona o tráfego. A funcionalidade de consulta de extrato foi migrada para um microsserviço — o proxy já envia 100% das chamadas de extrato para o novo serviço. Abertura de conta está em migração — 30% do tráfego vai para o novo serviço (canary). O cadastro de clientes ainda está 100% no legado COBOL. O mainframe 'murcha' gradualmente ao longo de 3 anos.</p></div>
+<h3 id="42-anti-corruption-layer-acl">4.2 Anti-Corruption Layer (ACL)</h3>
+<div class="callout warn"><p><strong>Anti-Corruption Layer</strong></p>
+<p>Decomposição  •  DDD   |   Origem GoF: Adapter + Facade</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Criar uma camada de isolamento entre dois bounded contexts ou sistemas com modelos de domínio diferentes, protegendo o modelo moderno da 'corrupção' semântica do sistema legado.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Ao integrar com sistemas legados ou externos, seus modelos de dados e conceitos 'vazam' para o sistema moderno — corrompendo o modelo de domínio, criando dependências indesejadas e tornando o código mais difícil de manter.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>A ACL traduz entre os dois modelos: ela conhece o modelo do sistema externo e o modelo interno, fazendo a conversão em ambas as direções. O sistema interno nunca 'vê' o modelo externo diretamente. A ACL pode incluir validação, transformação de dados e mapeamento semântico.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>A ACL adiciona uma camada de indireção e código de tradução que precisa ser mantido. Mudanças no sistema externo requerem atualização da ACL. Em times grandes, a ACL pode se tornar um gargalo de conhecimento. Deve ser clara sobre a responsabilidade de cada tradutor.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Integração com sistema de cobrança legado COBOL: o microsserviço moderno de Recebíveis opera com o conceito de 'Instrução de Cobrança' no seu modelo de domínio DDD. A ACL traduz para o formato de 'BGNI' (Batch de Geração de Nota de Instrução) do sistema COBOL — incluindo conversão de tipos, preenchimento de campos obrigatórios com valores default e mapeamento de códigos de retorno COBOL para exceções de domínio Java.</p></div>
+<h3 id="43-api-gateway">4.3 API Gateway</h3>
+<div class="callout note"><p><strong>API Gateway</strong></p>
+<p>Decomposição  •  Integração   |   Origem GoF: Facade + Proxy + Decorator</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Fornecer um ponto de entrada único para clientes externos que precisam acessar múltiplos microsserviços, centralizando preocupações transversais.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Clientes precisariam conhecer e chamar diretamente dezenas de microsserviços internos. Preocupações como autenticação, SSL, rate limiting e logging precisariam ser implementadas em cada serviço.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>O API Gateway recebe todas as requisições externas e roteia para os serviços internos apropriados. Centraliza: autenticação/autorização, SSL termination, rate limiting, logging/tracing, transformação de payload, versionamento de API e composição de respostas (API composition).</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>O API Gateway pode se tornar um gargalo e ponto único de falha se não for projetado para alta disponibilidade. 'God Gateway' anti-pattern: colocar lógica de negócio no gateway. Em times grandes, o gateway pode ser um gargalo organizacional — considere API Gateway federado ou descentralizado.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>API Gateway do Open Finance Bradesco: Kong/AWS API Gateway autentica o token OAuth2 do parceiro, valida o certificado mTLS exigido pelo BACEN, aplica rate limiting por instituição parceira, faz logging de todas as chamadas para auditoria regulatória, e roteia para os microsserviços internos de Consentimento, Dados Cadastrais e Transações — sem que nenhum serviço interno precise conhecer o protocolo Open Finance.</p></div>
+<h3 id="44-bff-backend-for-frontend">4.4 BFF — Backend for Frontend</h3>
+<div class="callout note"><p><strong>Backend for Frontend</strong></p>
+<p>Decomposição  •  Integração   |   Origem GoF: Facade + Adapter</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Criar backends dedicados para cada tipo de cliente (mobile, web, parceiros), otimizados para as necessidades específicas de cada interface — em vez de um backend genérico que serve a todos.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Um único backend genérico precisa servir mobile (baixa largura de banda, bateria, tela pequena), web (rico em dados, interatividade) e APIs de parceiros (dados brutos, alta volume) — gerando payloads over-fetched para mobile e under-fetched para web.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>Cada tipo de cliente tem seu próprio BFF — uma fachada fina que agrega chamadas a múltiplos microsserviços e devolve exatamente o payload que aquele cliente precisa. O BFF é de propriedade do time de front-end, não do time de backend.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Proliferação de BFFs pode levar à duplicação de lógica entre eles. Requer disciplina para não colocar lógica de negócio no BFF. Times de front-end precisam de capacidade para desenvolver e operar o BFF. Governança de quais BFFs existem e suas responsabilidades.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>App móvel e Internet Banking do Bradesco: o BFF-Mobile agrega dados de saldo, últimas transações e alertas em um único endpoint otimizado para o app — payload mínimo, resposta em &lt;200ms. O BFF-Web retorna dados completos de extrato com gráficos e filtros. O BFF-Parceiros expõe dados em formato JSON:API para corretoras e fintechs. Cada BFF é deployado e escalado independentemente.</p></div>
+<div class="callout note"><p><strong>CATEGORIA 4: PADRÕES DE DADOS DISTRIBUÍDOS</strong></p></div>
+<p>Padrões que resolvem os desafios de gerenciamento de dados em arquiteturas de microsserviços, onde o princípio 'database per service' cria desafios de consistência, joins distribuídos e sincronização.</p>
+<h3 id="51-database-per-service">5.1 Database per Service</h3>
+<div class="callout note"><p><strong>Database per Service</strong></p>
+<p>Dados  •  Autonomia   |   Origem GoF: Abstract Factory + Singleton (inverso)</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Cada microsserviço possui e gerencia seu próprio banco de dados, completamente isolado dos outros serviços — nenhum serviço acessa diretamente o banco de outro.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Banco de dados compartilhado cria acoplamento forte entre serviços: mudanças de schema impactam múltiplos serviços, um serviço pode degradar o banco para todos, e é impossível escalar ou escolher a tecnologia mais adequada por serviço.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>Cada serviço é o único proprietário do seu banco. Outros serviços acessam dados via API, não diretamente no banco. Cada serviço pode escolher a tecnologia mais adequada (PostgreSQL para transacional, Redis para cache, Elasticsearch para busca, Cassandra para timeseries).</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Joins distribuídos são complexos — dados relacionados estão em bancos diferentes. Consistência transacional entre serviços requer Saga. Consultas analíticas que cruzam dados de múltiplos serviços precisam de uma camada de dados analítica (Data Lake, Data Mesh). Governança de dados mais complexa.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Microsserviços do banco digital: serviço de Contas usa PostgreSQL (ACID transacional), serviço de Transações usa Cassandra (alta escrita, timeseries), serviço de Notificações usa Redis (alta leitura, TTL), serviço de Busca de Agências usa Elasticsearch (full-text geo), serviço de Compliance usa banco imutável append-only. Cada um evolui e escala completamente independente.</p></div>
+<h3 id="52-materialized-view-pattern">5.2 Materialized View Pattern</h3>
+<div class="callout note"><p><strong>Materialized View</strong></p>
+<p>Dados  •  Performance   |   Origem GoF: CQRS + Observer + Prototype</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Pré-calcular e armazenar resultados de consultas complexas que agregam dados de múltiplas fontes, atualizando a view quando os dados fonte mudam.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Consultas analíticas complexas que cruzam múltiplos serviços são lentas, custosas e criam acoplamento. Em sistemas de alto volume, recalcular agregações em tempo real é inviável.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>Uma view materializada é uma projeção pré-calculada dos dados, armazenada em formato otimizado para consulta. É atualizada incrementalmente via eventos quando os dados fonte mudam. O consumidor lê sempre da view — nunca dos dados brutos.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Dados podem estar levemente defasados (consistência eventual). Requer infraestrutura para manter as views atualizadas. Múltiplas views para diferentes padrões de consulta podem ser necessárias. Custo de storage adicional.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Dashboard de Riscos em tempo real: uma view materializada no Redis consolida posição de risco por cliente, produto e carteira — atualizada via eventos de cada nova transação aprovada. O dashboard de risco operacional consulta essa view em &lt;10ms em vez de fazer joins em tempo real entre os bancos de Crédito, Garantias e Mercado. A área de Compliance acessa view materializada de clientes com alertas ativos, atualizada por eventos de análise de comportamento.</p></div>
+<h3 id="53-change-data-capture-cdc">5.3 Change Data Capture (CDC)</h3>
+<div class="callout note"><p><strong>Change Data Capture</strong></p>
+<p>Dados  •  Integração   |   Origem GoF: Observer + Outbox</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Capturar todas as mudanças (inserts, updates, deletes) em um banco de dados e propagá-las como eventos para outros sistemas, sem modificar a aplicação de origem.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Sincronizar dados entre sistemas sem CDC exige polling (ineficiente, latência alta) ou modificação da aplicação para publicar eventos (nem sempre possível em sistemas legados).</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>O CDC lê o transaction log (WAL no PostgreSQL, binlog no MySQL, redo log no Oracle) e converte cada mudança em um evento estruturado. Ferramentas como Debezium publicam esses eventos no Kafka. Downstream, consumidores reagem às mudanças em near-real-time.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Requer acesso ao transaction log do banco — pode exigir permissões especiais. Latência não é zero — há um atraso entre a mudança e o evento. Schema evolution do banco de origem requer atenção. Não substitui uma API para operações síncronas.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Replicação do cadastro de clientes para analytics: o Debezium monitora a tabela CLIENTE do core bancário Oracle. Cada insert ou update gera um evento Kafka que alimenta: (1) o Data Lake para analytics, (2) o Elasticsearch para busca no internet banking, (3) o serviço de compliance para atualização de perfil de risco, (4) o serviço de marketing para segmentação. Zero impacto no sistema legado — ele não sabe que está sendo monitorado.</p></div>
+<div class="callout note"><p><strong>CATEGORIA 5: PADRÕES DE INFRAESTRUTURA E DEPLOYMENT</strong></p></div>
+<p>Padrões que operam na camada de infraestrutura, kubernetes e deployment — tornando aplicações observáveis, resilientes e gerenciáveis sem modificar o código de negócio.</p>
+<h3 id="61-sidecar">6.1 Sidecar</h3>
+<div class="callout note"><p><strong>Sidecar</strong></p>
+<p>Infraestrutura  •  Kubernetes   |   Origem GoF: Proxy + Decorator</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Anexar a um serviço principal um contêiner auxiliar (sidecar) que provê funcionalidades de infraestrutura — logging, tracing, proxy de rede, segurança — sem modificar o serviço principal.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Funcionalidades como mTLS, circuit breaking, distributed tracing e log shipping são transversais a todos os serviços. Implementar em cada serviço gera duplicação, inconsistência e polui o código de negócio.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>O sidecar é um contêiner que roda no mesmo Pod Kubernetes que o serviço principal, compartilhando rede e storage. Ele intercepta todo o tráfego de entrada e saída, adicionando comportamentos transparentemente. O Istio/Envoy é o exemplo canônico — injetado automaticamente como sidecar em todos os pods.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Adiciona overhead de recursos (CPU/memória) para cada pod. Debugging de problemas de rede envolve agora dois contêineres. Versão do sidecar precisa ser gerenciada junto com o serviço. Pode adicionar latência à comunicação entre serviços.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Service Mesh no cluster Kubernetes do Bradesco: o Istio injeta automaticamente o proxy Envoy como sidecar em todos os pods dos microsserviços. O Envoy aplica mTLS entre todos os serviços (zero-trust network), circuit breaking nas chamadas ao core bancário, distributed tracing com Jaeger (cada transação rastreada de ponta a ponta), e coleta de métricas RED (Rate, Errors, Duration) para o Prometheus — sem uma linha de código nos serviços de negócio.</p></div>
+<h3 id="62-blue-green-deployment">6.2 Blue-Green Deployment</h3>
+<div class="callout note"><p><strong>Blue-Green Deployment</strong></p>
+<p>Deployment  •  Zero Downtime   |   Origem GoF: Strategy + Proxy</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Manter dois ambientes de produção idênticos (blue e green), fazendo o switch de tráfego instantaneamente entre eles para deploys sem downtime e rollback imediato.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Deploys tradicionais causam downtime ou estados inconsistentes durante a atualização (algumas instâncias na versão nova, outras na antiga). Rollback é lento e arriscado.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>Blue é o ambiente atual em produção. Green é preparado com a nova versão. Após validação em green (smoke tests, testes de sanidade), o load balancer ou DNS switch roteia 100% do tráfego para green. Blue fica de standby — rollback é apenas trocar o switch de volta. Após estabilização, blue é atualizado para a próxima release.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Requer o dobro de infraestrutura (custo). Sessões ativas no ambiente blue podem ser perdidas no switch (sessões stateless ou sticky sessions). Migrações de banco de dados são o maior desafio — o banco deve ser compatível com ambas as versões durante o switch. Custo proibitivo para aplicações muito grandes sem cloud elástica.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Deploy do Internet Banking em dia de pico (5º dia útil): o pipeline CI/CD prepara o ambiente green com a nova versão. Testes automatizados de regressão são executados em green com tráfego sintético. Às 2h da manhã, o switch no AWS ALB redireciona o tráfego de blue para green em &lt;1 segundo. Se alguma anomalia for detectada nas métricas nos primeiros 5 minutos, o rollback é executado em 30 segundos — reversão automática para blue.</p></div>
+<h3 id="63-canary-release">6.3 Canary Release</h3>
+<div class="callout note"><p><strong>Canary Release</strong></p>
+<p>Deployment  •  Risco Controlado   |   Origem GoF: Strategy + Proxy + Observer</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Lançar uma nova versão gradualmente para um subconjunto de usuários, monitorando métricas antes de expandir o rollout — limitando o impacto de eventuais problemas.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Blue-Green faz o switch de 0% para 100% de uma vez. Se houver um bug que só aparece com carga real de produção, 100% dos usuários são impactados. Necessidade de validação real antes do rollout completo.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>O tráfego é dividido progressivamente: 1% → 5% → 25% → 50% → 100%. Em cada estágio, métricas-chave são monitoradas (taxa de erro, latência, conversão). Se as métricas ficarem dentro do SLO esperado, o percentual aumenta. Se degradarem, o rollback é automático para 0%. Istio, Argo Rollouts e Flagger automatizam a progressão baseada em métricas.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Complexidade operacional de gerenciar múltiplas versões simultaneamente. Requer feature flags para garantir que usuários canary não vejam comportamentos inconsistentes em múltiplos serviços. Análise de métricas requer atenção — amostras pequenas nos primeiros estágios podem gerar falsos negativos.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Novo algoritmo de detecção de fraude PIX: a nova versão do serviço de antifraude é liberada para 2% das transações PIX (seleção aleatória). O Flagger monitora a taxa de falsos positivos, a latência de resposta e a taxa de aprovação. Após 30 minutos sem degradação, progride para 10%. Em 2 horas, se saudável, chega a 100%. Em produção real, o Argo Rollouts executou rollback automático em um deploy quando a taxa de erro subiu 0.1% acima do baseline.</p></div>
+<h3 id="64-health-check-e-readinessliveness-probes">6.4 Health Check e Readiness/Liveness Probes</h3>
+<div class="callout note"><p><strong>Health Check Pattern</strong></p>
+<p>Observabilidade  •  Operações   |   Origem GoF: Proxy + Template Method</p>
+<p><strong>🎯  Intenção</strong></p>
+<p>Expor endpoints dedicados que reportam o estado de saúde de um serviço, permitindo que plataformas de orquestração tomem decisões automáticas de roteamento e restart.</p>
+<p><strong>⚠️  Problema que resolve</strong></p>
+<p>Como o load balancer sabe que um serviço está saudável? Como o Kubernetes sabe se deve reiniciar um pod ou esperar? Sem health checks, tráfego é roteado para instâncias doentes e pods em falha silenciosa ficam rodando.</p>
+<p><strong>✅  Solução / Como funciona</strong></p>
+<p>Dois tipos de probe: Liveness (o processo está vivo? Se não, reiniciar) e Readiness (o serviço está pronto para receber tráfego? Se não, remover do load balancer). O endpoint /health verifica dependências críticas: banco de dados, cache, integrações essenciais. Retorna 200 (saudável) ou 503 (degradado) com detalhes do problema.</p>
+<p><strong>⚖️  Trade-offs e Atenções</strong></p>
+<p>Health checks com dependências externas podem gerar falsos negativos em cascata. Liveness probes muito agressivos causam restart loops. Readiness probes muito lenientes deixam tráfego ir para instâncias degradadas. O health check deve verificar apenas dependências críticas — não todas as dependências.</p>
+<p><strong>📌  Exemplo em Arquitetura Corporativa</strong></p>
+<p>Probes no deploy Kubernetes dos microsserviços do Bradesco: o Liveness probe chama /actuator/health/liveness a cada 10 segundos — verifica apenas se a JVM está respondendo. O Readiness probe chama /actuator/health/readiness — verifica conexão com PostgreSQL, Redis e o serviço de autenticação. Se o PostgreSQL está unreachable, o pod sai do pool do Service automaticamente, evitando que erros de banco sejam entregues ao cliente.</p></div>
+<div class="callout note"><p><strong>REVISÃO CONSOLIDADA</strong></p></div>
+<p>Esta seção centraliza todos os 20 padrões modernos em uma visão comparativa, destaca os anti-patterns a evitar e fecha com o mapa de decisão para escolha de padrão.</p>
+<h3 id="71-tabela-de-referência-rápida">7.1 Tabela de Referência Rápida</h3>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Padrão</strong></th><th><strong>Categoria</strong></th><th><strong>Origem GoF</strong></th><th><strong>Propósito Central</strong></th><th><strong>Tecnologias / Contexto</strong></th></tr></thead><tbody><tr><td><p><strong>Event Sourcing</strong></p></td><td><p>Event-Driven</p></td><td><p>Command + Observer</p></td><td><p>Estado como sequência imutável de eventos</p></td><td><p>Kafka, EventStoreDB, AWS EventBridge</p></td></tr><tr><td><p><strong>CQRS</strong></p></td><td><p>Event-Driven</p></td><td><p>Command + Strategy</p></td><td><p>Separar modelos de escrita e leitura</p></td><td><p>Axon, MediatR, Redis (read side)</p></td></tr><tr><td><p><strong>Saga</strong></p></td><td><p>Event-Driven</p></td><td><p>Command + Mediator</p></td><td><p>Transações distribuídas com compensação</p></td><td><p>AWS Step Functions, Camunda, Temporal</p></td></tr><tr><td><p><strong>Transactional Outbox</strong></p></td><td><p>Event-Driven</p></td><td><p>Command + Proxy</p></td><td><p>Atomicidade entre banco e message broker</p></td><td><p>Debezium, Kafka Connect, CDC</p></td></tr><tr><td><p><strong>ECST</strong></p></td><td><p>Event-Driven</p></td><td><p>Observer + Prototype</p></td><td><p>Eventos auto-suficientes sem chamadas de retorno</p></td><td><p>Kafka, Schema Registry, Avro/Protobuf</p></td></tr><tr><td><p><strong>Circuit Breaker</strong></p></td><td><p>Resiliência</p></td><td><p>Proxy + State</p></td><td><p>Fail-fast em dependências degradadas</p></td><td><p>Resilience4j, Istio, AWS ALB</p></td></tr><tr><td><p><strong>Retry + Backoff</strong></p></td><td><p>Resiliência</p></td><td><p>Proxy + Template</p></td><td><p>Retentativa inteligente de falhas transientes</p></td><td><p>Resilience4j, Polly, Spring Retry</p></td></tr><tr><td><p><strong>Bulkhead</strong></p></td><td><p>Resiliência</p></td><td><p>Proxy + Strategy</p></td><td><p>Isolamento de recursos por dependência</p></td><td><p>Resilience4j, Istio, thread pools</p></td></tr><tr><td><p><strong>Rate Limiter</strong></p></td><td><p>Resiliência</p></td><td><p>Proxy + Strategy</p></td><td><p>Proteção contra sobrecarga por taxa</p></td><td><p>Kong, AWS WAF, Redis, Nginx</p></td></tr><tr><td><p><strong>Strangler Fig</strong></p></td><td><p>Decomposição</p></td><td><p>Adapter + Proxy</p></td><td><p>Migração incremental de sistemas legados</p></td><td><p>NGINX, AWS API GW, Istio traffic split</p></td></tr><tr><td><p><strong>Anti-Corruption Layer</strong></p></td><td><p>Decomposição</p></td><td><p>Adapter + Facade</p></td><td><p>Isolamento de modelos de domínio distintos</p></td><td><p>Mappers, Translators, Integration Layer</p></td></tr><tr><td><p><strong>API Gateway</strong></p></td><td><p>Decomposição</p></td><td><p>Facade + Proxy</p></td><td><p>Ponto de entrada único com preocupações transversais</p></td><td><p>Kong, AWS API GW, NGINX, Apigee</p></td></tr><tr><td><p><strong>BFF</strong></p></td><td><p>Decomposição</p></td><td><p>Facade + Adapter</p></td><td><p>Backend dedicado por tipo de cliente</p></td><td><p>Node.js/GraphQL, Spring Boot BFF</p></td></tr><tr><td><p><strong>Database per Service</strong></p></td><td><p>Dados</p></td><td><p>Abstract Factory</p></td><td><p>Autonomia de dados por serviço</p></td><td><p>PostgreSQL, Cassandra, Redis, MongoDB</p></td></tr><tr><td><p><strong>Materialized View</strong></p></td><td><p>Dados</p></td><td><p>CQRS + Observer</p></td><td><p>Projeções pré-calculadas para consultas rápidas</p></td><td><p>Redis, Elasticsearch, Snowflake</p></td></tr><tr><td><p><strong>Change Data Capture</strong></p></td><td><p>Dados</p></td><td><p>Observer + Outbox</p></td><td><p>Propagação de mudanças de dados em tempo real</p></td><td><p>Debezium, AWS DMS, Oracle GoldenGate</p></td></tr><tr><td><p><strong>Sidecar</strong></p></td><td><p>Infraestrutura</p></td><td><p>Proxy + Decorator</p></td><td><p>Funcionalidades de infra sem modificar o serviço</p></td><td><p>Istio/Envoy, Dapr, Linkerd</p></td></tr><tr><td><p><strong>Blue-Green</strong></p></td><td><p>Deployment</p></td><td><p>Strategy + Proxy</p></td><td><p>Deploy sem downtime com rollback imediato</p></td><td><p>AWS CodeDeploy, Argo CD, Spinnaker</p></td></tr><tr><td><p><strong>Canary Release</strong></p></td><td><p>Deployment</p></td><td><p>Strategy + Observer</p></td><td><p>Rollout gradual com validação por métricas</p></td><td><p>Argo Rollouts, Flagger, Istio</p></td></tr><tr><td><p><strong>Health Check</strong></p></td><td><p>Observabilidade</p></td><td><p>Proxy + Template</p></td><td><p>Visibilidade do estado de saúde do serviço</p></td><td><p>Spring Actuator, Kubernetes Probes</p></td></tr></tbody></table></div>
+<h3 id="72-anti-patterns-o-que-não-fazer">7.2 Anti-Patterns — O que NÃO fazer</h3>
+<p>Tão importante quanto conhecer os padrões é conhecer os anti-patterns que surgem da aplicação incorreta:</p>
+<ul><li>
+<strong>Distributed Monolith: </strong>Microsserviços que se comunicam sincronamente em longas cadeias — toda a resiliência de um monolito com toda a complexidade de microsserviços. Sinal: chamadas HTTP síncronas em cadeia de 5+ serviços para uma operação de negócio.
+</li><li>
+<strong>Shared Database: </strong>Múltiplos serviços acessando as mesmas tabelas — acoplamento de banco de dados destruindo a autonomia de cada serviço. Sinal: deploy de qualquer serviço requer validar impacto em outros.
+</li><li>
+<strong>God Gateway: </strong>API Gateway com lógica de negócio — o gateway se torna um monolito camuflado. Sinal: regras de negócio, transformações complexas e orquestrações dentro do gateway.
+</li><li>
+<strong>Event Chaos: </strong>Event Sourcing sem Schema Registry e sem versionamento de eventos — eventos incompatíveis quebram consumidores silenciosamente. Sinal: nenhum contrato formal para os eventos publicados.
+</li><li>
+<strong>Saga sem Idempotência: </strong>Transações compensatórias não-idempotentes em Sagas — compensações executadas múltiplas vezes causam inconsistências piores que a falha original.
+</li></ul>
+<h3 id="73-guia-de-decisão-qual-padrão-usar">7.3 Guia de Decisão — Qual Padrão Usar?</h3>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Cenário</strong></th><th><strong>Padrão Recomendado</strong></th><th><strong>Combinar com</strong></th></tr></thead><tbody><tr><td><p>Preciso de auditoria total e reconstrução de estado histórico</p></td><td><p><strong>Event Sourcing</strong></p></td><td><p>CQRS + Outbox</p></td></tr><tr><td><p>Operação de negócio envolve múltiplos serviços</p></td><td><p><strong>Saga (Orchestration)</strong></p></td><td><p>Outbox + Idempotência</p></td></tr><tr><td><p>Consultas analíticas lentas no banco transacional</p></td><td><p><strong>CQRS + Materialized View</strong></p></td><td><p>CDC + Redis/Elasticsearch</p></td></tr><tr><td><p>Preciso integrar com sistema legado sem modificá-lo</p></td><td><p><strong>Strangler Fig + ACL</strong></p></td><td><p>CDC + API Gateway</p></td></tr><tr><td><p>Serviço dependente está instável e causando falhas</p></td><td><p><strong>Circuit Breaker + Bulkhead</strong></p></td><td><p>Retry + Fallback</p></td></tr><tr><td><p>Deploy sem downtime em sistema crítico</p></td><td><p><strong>Blue-Green ou Canary</strong></p></td><td><p>Health Checks + Monitoring</p></td></tr><tr><td><p>Múltiplos tipos de cliente com necessidades diferentes</p></td><td><p><strong>BFF por canal</strong></p></td><td><p>API Gateway na borda</p></td></tr><tr><td><p>Publicar eventos de forma confiável do banco</p></td><td><p><strong>Transactional Outbox</strong></p></td><td><p>CDC (Debezium)</p></td></tr><tr><td><p>Preocupações transversais (mTLS, tracing, logs)</p></td><td><p><strong>Sidecar (Service Mesh)</strong></p></td><td><p>Health Check + Observabilidade</p></td></tr><tr><td><p>Serviços precisam de dados de outros sem acoplamento</p></td><td><p><strong>ECST + Observer</strong></p></td><td><p>Schema Registry (Avro)</p></td></tr></tbody></table></div>
+<div class="callout note"><p><strong>Conclusão — O Arquiteto Moderno</strong></p>
+<p><em>O domínio de padrões arquiteturais modernos é o que distingue um arquiteto que 'faz microsserviços' de um arquiteto que projeta sistemas distribuídos resilientes. Cada padrão deste documento já foi validado em produção em sistemas financeiros de larga escala. A chave não é aplicá-los todos — é saber exatamente qual problema cada um resolve e qual o custo de complexidade que traz. Pattern literacy é o vocabulário; judgment é a sabedoria.</em></p></div>
+  </article>
+</main>
+</div>
+<a class="fab" href="../../index.html" aria-label="Voltar ao hub">◂ HUB</a>
+<button class="totop" type="button" aria-label="Voltar ao topo">▲</button>
+<script>
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  /* tema */
+  var TK='hub-theme', modes=['auto','light','dark'];
+  function applyTheme(m){ if(m==='auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme',m); var b=$('#theme'); if(b) b.textContent='tema: '+m; }
+  var tm='auto'; try{tm=localStorage.getItem(TK)||'auto'}catch(e){}
+  applyTheme(tm);
+  $('#theme').addEventListener('click',function(){ tm=modes[(modes.indexOf(tm)+1)%3]; try{localStorage.setItem(TK,tm)}catch(e){} applyTheme(tm); });
+  /* menu mobile */
+  var side=$('aside'), scrim=$('.scrim');
+  function menu(o){ side.classList.toggle('open',o); scrim.classList.toggle('open',o); }
+  $('#menu').addEventListener('click',function(){menu(true)}); scrim.addEventListener('click',function(){menu(false)});
+  $$('nav.toc a').forEach(function(a){a.addEventListener('click',function(){menu(false)})});
+  /* filtro do sumário */
+  $('#filter').addEventListener('input',function(e){ var q=e.target.value.trim().toLowerCase(); $$('nav.toc a').forEach(function(a){ a.hidden = q && a.textContent.toLowerCase().indexOf(q)<0; }); });
+  document.addEventListener('keydown',function(e){ if(e.key==='/' && document.activeElement.tagName!=='INPUT'){ e.preventDefault(); if(innerWidth<=980) menu(true); $('#filter').focus(); } });
+  /* progresso + topo */
+  var bar=$('#progress'), top=$('.totop');
+  function onScroll(){ var h=document.documentElement; var p=h.scrollTop/(h.scrollHeight-h.clientHeight||1); bar.style.width=(p*100)+'%'; top.classList.toggle('show',h.scrollTop>900); }
+  addEventListener('scroll',onScroll,{passive:true}); onScroll();
+  top.addEventListener('click',function(){scrollTo({top:0,behavior:'smooth'})});
+  /* scroll spy */
+  var links=$$('nav.toc a'), map={}; links.forEach(function(a){ map[a.getAttribute('href').slice(1)]=a; });
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){ es.forEach(function(en){ if(en.isIntersecting){ links.forEach(function(l){l.classList.remove('on')}); var a=map[en.target.id]; if(a){ a.classList.add('on'); a.scrollIntoView({block:'nearest'}); } } }); },{rootMargin:'-10% 0px -80% 0px'});
+    Object.keys(map).forEach(function(id){ var el=document.getElementById(id); if(el) io.observe(el); });
+  }
+  /* tabelas largas */
+  $$('.tbl-wrap table').forEach(function(t){ var n=t.rows[0]?t.rows[0].cells.length:0; if(n>=5) t.classList.add('wide'); });
+  /* autoavaliação */
+  var tables=$$('table.assess'); if(!tables.length) return;
+  var KEY='hub-assess:'+document.body.dataset.doc, st={};
+  try{ st=JSON.parse(localStorage.getItem(KEY)||'{}') }catch(e){}
+  var OPTS=[['d','Domino','k-d'],['r','Reviso','k-r'],['e','Estudo','k-e']];
+  var cells=[];
+  tables.forEach(function(t,ti){
+    var heads=$$('thead th',t).map(function(th){return th.textContent.trim()});
+    $$('tbody tr',t).forEach(function(tr,ri){
+      $$('td',tr).forEach(function(td,ci){ if(heads[ci]) td.setAttribute('data-l',heads[ci]); });
+      var td=$('td.mark',tr); if(!td) return;
+      var id=ti+'-'+ri; cells.push(id);
+      td.innerHTML='<span class="mk" role="group" aria-label="Autoavaliação">'+OPTS.map(function(o){return '<button type="button" class="'+o[2]+'" data-id="'+id+'" data-v="'+o[0]+'" aria-pressed="'+(st[id]===o[0])+'">'+o[1]+'</button>'}).join('')+'</span>';
+    });
+  });
+  var barEl=document.createElement('div'); barEl.className='assess-bar';
+  var anchor=$('.doc h2'); anchor.parentNode.insertBefore(barEl,anchor);
+  function render(){
+    var c={d:0,r:0,e:0}; cells.forEach(function(id){ if(st[id]) c[st[id]]++; });
+    var n=cells.length, done=c.d+c.r+c.e, w=function(v){return (v/n*100).toFixed(2)+'%'};
+    barEl.innerHTML='<span>Autoavaliação · '+done+'/'+n+'</span><span class="meter"><i style="width:'+w(c.d)+';background:var(--tip)"></i><i style="width:'+w(c.r)+';background:var(--warn)"></i><i style="width:'+w(c.e)+';background:#E5484D"></i></span><span class="k-d"><b>'+c.d+'</b> domino</span><span class="k-r"><b>'+c.r+'</b> reviso</span><span class="k-e"><b>'+c.e+'</b> estudo</span><button class="theme" type="button" id="aclear">limpar</button>';
+  }
+  render();
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('.mk button');
+    if(b){ var id=b.dataset.id, v=b.dataset.v; st[id]=st[id]===v?undefined:v; if(!st[id]) delete st[id];
+      try{localStorage.setItem(KEY,JSON.stringify(st))}catch(_){}
+      $$('button[data-id="'+id+'"]').forEach(function(x){x.setAttribute('aria-pressed',String(x.dataset.v===st[id]))}); render(); return; }
+    if(e.target.id==='aclear'){ if(e.target.dataset.confirm){ st={}; try{localStorage.removeItem(KEY)}catch(_){} $$('.mk button').forEach(function(x){x.setAttribute('aria-pressed','false')}); render(); } else { e.target.dataset.confirm='1'; e.target.textContent='confirmar?'; } }
+  });
+})();
+</script>
+</body>
+</html>

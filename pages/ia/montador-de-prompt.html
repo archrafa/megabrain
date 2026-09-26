@@ -1,0 +1,1310 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<title>Montador de Prompt</title>
+
+<style>
+  :root{
+    --bg:#EFF1F2;
+    --surface:#FFFFFF;
+    --surface-2:#F5F6F7;
+    --ink:#14181B;
+    --ink-dim:#4B565C;
+    --line:rgba(20,24,27,0.12);
+    --line-strong:rgba(20,24,27,0.22);
+    --static:#0E7C86;
+    --static-tint:rgba(14,124,134,0.09);
+    --static-tint-strong:rgba(14,124,134,0.16);
+    --volatile:#B5560A;
+    --volatile-tint:rgba(181,86,10,0.08);
+    --volatile-tint-strong:rgba(181,86,10,0.15);
+    --danger:#B3261E;
+    --shadow: 0 1px 2px rgba(20,24,27,0.06), 0 8px 24px -12px rgba(20,24,27,0.18);
+    --radius: 10px;
+    --font-ui: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12161A;
+      --surface:#1A2025;
+      --surface-2:#20272C;
+      --ink:#E7ECEE;
+      --ink-dim:#9AA7AC;
+      --line:rgba(231,236,238,0.13);
+      --line-strong:rgba(231,236,238,0.24);
+      --static:#4FD4DE;
+      --static-tint:rgba(79,212,222,0.10);
+      --static-tint-strong:rgba(79,212,222,0.18);
+      --volatile:#F2A65A;
+      --volatile-tint:rgba(242,166,90,0.10);
+      --volatile-tint-strong:rgba(242,166,90,0.18);
+      --danger:#F28A82;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12161A;
+    --surface:#1A2025;
+    --surface-2:#20272C;
+    --ink:#E7ECEE;
+    --ink-dim:#9AA7AC;
+    --line:rgba(231,236,238,0.13);
+    --line-strong:rgba(231,236,238,0.24);
+    --static:#4FD4DE;
+    --static-tint:rgba(79,212,222,0.10);
+    --static-tint-strong:rgba(79,212,222,0.18);
+    --volatile:#F2A65A;
+    --volatile-tint:rgba(242,166,90,0.10);
+    --volatile-tint-strong:rgba(242,166,90,0.18);
+    --danger:#F28A82;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-ui);
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{text-wrap:balance; margin:0;}
+  p{ margin:0; }
+  ::selection{ background:var(--static-tint-strong); }
+
+  button{ font-family:inherit; }
+  textarea,input,select{
+    font-family:inherit;
+    color:var(--ink);
+  }
+
+  .shell{
+    max-width:1400px;
+    margin:0 auto;
+    padding:28px 24px 80px;
+  }
+
+  header.top{
+    margin-bottom:18px;
+  }
+  header.top .brand-row{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  header.top .brand{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+  }
+  header.top h1{
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  header.top .kicker{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    border:1px solid var(--line-strong);
+    padding:3px 8px;
+    border-radius:999px;
+  }
+  header.top p.sub{
+    margin:6px 0 0;
+    color:var(--ink-dim);
+    font-size:13.5px;
+    max-width:66ch;
+  }
+  .quick-actions{
+    display:flex;
+    gap:8px;
+    flex:none;
+  }
+  .legend-row{
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-top:14px;
+    font-size:12px;
+    color:var(--ink-dim);
+  }
+  .legend-row span{ display:flex; align-items:center; gap:6px; }
+  .dot{ width:8px; height:8px; border-radius:50%; flex:none; }
+  .dot.static{ background:var(--static); }
+  .dot.volatile{ background:var(--volatile); }
+
+  .layout{
+    display:grid;
+    grid-template-columns: 210px minmax(0,1fr) 420px;
+    gap:20px;
+    align-items:start;
+  }
+
+  /* ---- step rail ---- */
+  nav.rail{
+    position:sticky;
+    top:20px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:10px;
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .rail-item{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    border-radius:7px;
+    padding:8px 9px;
+    cursor:pointer;
+    color:var(--ink-dim);
+    font-size:12.5px;
+    line-height:1.3;
+  }
+  .rail-item:hover{ background:var(--surface-2); color:var(--ink); }
+  .rail-item.active{ background:var(--surface-2); color:var(--ink); font-weight:600; }
+  .rail-num{
+    flex:none;
+    width:20px; height:20px;
+    border-radius:50%;
+    border:1.5px solid var(--line-strong);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    color:var(--ink-dim);
+  }
+  .rail-item.active .rail-num{ border-color:var(--static); color:var(--static); }
+  .rail-item.volatile.active .rail-num{ border-color:var(--volatile); color:var(--volatile); }
+  .rail-item.done .rail-num{ background:var(--static); border-color:var(--static); color:var(--surface); }
+  .rail-item.volatile.done .rail-num{ background:var(--volatile); border-color:var(--volatile); }
+
+  /* ---- main card ---- */
+  main.card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:26px 28px 22px;
+    min-height:520px;
+    display:flex;
+    flex-direction:column;
+  }
+  .step-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+    margin-bottom:4px;
+  }
+  .step-head h2{
+    font-size:19px;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  .phase-badge{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    letter-spacing:0.07em;
+    text-transform:uppercase;
+    padding:4px 9px;
+    border-radius:999px;
+    white-space:nowrap;
+    flex:none;
+    margin-top:2px;
+    cursor:help;
+  }
+  .phase-badge.static{ color:var(--static); background:var(--static-tint); border:1px solid var(--static-tint-strong); }
+  .phase-badge.volatile{ color:var(--volatile); background:var(--volatile-tint); border:1px solid var(--volatile-tint-strong); }
+  .phase-badge.intro{ color:var(--ink-dim); background:var(--surface-2); border:1px solid var(--line-strong); }
+
+  .step-desc{
+    color:var(--ink-dim);
+    font-size:13.5px;
+    margin:6px 0 20px;
+    max-width:66ch;
+  }
+
+  .step-body{ flex:1; display:flex; flex-direction:column; gap:18px; }
+
+  .field{ display:flex; flex-direction:column; gap:6px; }
+  .field label{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .field .hint{ font-size:12px; color:var(--ink-dim); font-weight:400; margin-top:-2px; line-height:1.5; }
+  .field .hint b{ color:var(--ink); font-weight:600; }
+  .field input[type="text"],
+  .field textarea,
+  .field select{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:9px 11px;
+    font-size:13.5px;
+    resize:vertical;
+    width:100%;
+  }
+  .field input[type="text"]:focus,
+  .field textarea:focus,
+  .field select:focus{
+    outline:2px solid var(--static);
+    outline-offset:1px;
+    border-color:transparent;
+  }
+  .field input[type="text"]::placeholder,
+  .field textarea::placeholder{ color:var(--ink-dim); opacity:0.7; }
+  .field textarea.mono{ font-family:var(--font-mono); font-size:12.5px; line-height:1.6; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+  fieldset.group{
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:14px 14px 12px;
+    margin:0;
+  }
+  fieldset.group legend{
+    font-size:12px;
+    font-weight:600;
+    padding:0 6px;
+    color:var(--ink-dim);
+  }
+  .list-row{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:12px;
+    margin-bottom:10px;
+    background:var(--surface-2);
+    position:relative;
+  }
+  .list-row:last-child{ margin-bottom:0; }
+  .list-row-grid{ display:grid; gap:10px; }
+  .list-row .remove-btn{
+    position:absolute;
+    top:8px; right:8px;
+    background:none;
+    border:none;
+    color:var(--ink-dim);
+    cursor:pointer;
+    font-size:12px;
+    padding:2px 6px;
+    border-radius:5px;
+  }
+  .list-row .remove-btn:hover{ color:var(--danger); background:rgba(179,38,30,0.08); }
+  .add-btn{
+    align-self:flex-start;
+    background:none;
+    border:1px dashed var(--line-strong);
+    color:var(--ink-dim);
+    border-radius:7px;
+    padding:7px 12px;
+    font-size:12.5px;
+    cursor:pointer;
+    margin-top:2px;
+  }
+  .add-btn:hover{ border-color:var(--static); color:var(--static); }
+
+  .checkline{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12.5px;
+    color:var(--ink-dim);
+  }
+  .checkline input{ accent-color:var(--static); }
+
+  .mini-divider{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:2px 0 -4px;
+    font-size:11px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--ink-dim);
+  }
+  .mini-divider::before,.mini-divider::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--line);
+  }
+
+  .step-nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:24px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+  }
+  .btn{
+    font-size:13px;
+    font-weight:600;
+    padding:9px 16px;
+    border-radius:7px;
+    cursor:pointer;
+    border:1px solid var(--line-strong);
+    background:var(--surface);
+    color:var(--ink);
+  }
+  .btn:hover{ background:var(--surface-2); }
+  .btn.primary{ background:var(--ink); color:var(--surface); border-color:var(--ink); }
+  .btn.primary:hover{ opacity:0.88; }
+  .btn:disabled{ opacity:0.35; cursor:not-allowed; }
+  .btn.ghost{ border-color:transparent; background:none; color:var(--ink-dim); }
+  .btn.ghost:hover{ color:var(--ink); background:var(--surface-2); }
+  .btn.sm{ padding:7px 12px; font-size:12px; }
+  .step-count{ font-family:var(--font-mono); font-size:11.5px; color:var(--ink-dim); }
+
+  /* ---- intro step ---- */
+  .intro-lead{ font-size:14.5px; line-height:1.7; max-width:70ch; }
+  .intro-lead + .intro-lead{ margin-top:12px; }
+  .intro-compare{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin:20px 0 4px;
+  }
+  .intro-card{
+    border-radius:9px;
+    padding:14px 15px;
+    border:1px solid var(--line);
+  }
+  .intro-card.static{ background:var(--static-tint); border-color:var(--static-tint-strong); }
+  .intro-card.volatile{ background:var(--volatile-tint); border-color:var(--volatile-tint-strong); }
+  .intro-card h4{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    margin:0 0 6px;
+    display:flex; align-items:center; gap:7px;
+  }
+  .intro-card.static h4{ color:var(--static); }
+  .intro-card.volatile h4{ color:var(--volatile); }
+  .intro-card p{ font-size:13px; color:var(--ink-dim); line-height:1.55; }
+  .intro-card ul{ margin:8px 0 0; padding-left:18px; font-size:12.5px; color:var(--ink-dim); line-height:1.6; }
+
+  details.faq{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:10px 13px;
+    margin-top:4px;
+  }
+  details.faq summary{
+    cursor:pointer;
+    font-size:13px;
+    font-weight:600;
+    list-style:none;
+  }
+  details.faq summary::-webkit-details-marker{ display:none; }
+  details.faq summary::before{ content:"▸ "; color:var(--ink-dim); }
+  details.faq[open] summary::before{ content:"▾ "; }
+  details.faq p{ font-size:13px; color:var(--ink-dim); margin-top:8px; line-height:1.6; }
+
+  .intro-cta{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+    flex-wrap:wrap;
+  }
+
+  .example-banner{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    background:var(--static-tint);
+    border:1px solid var(--static-tint-strong);
+    border-radius:8px;
+    padding:9px 13px;
+    font-size:12.5px;
+    color:var(--ink);
+    margin-bottom:16px;
+  }
+  .example-banner button{
+    background:none;
+    border:1px solid var(--static-tint-strong);
+    color:var(--static);
+    border-radius:6px;
+    padding:5px 10px;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+    flex:none;
+  }
+
+  /* ---- preview panel ---- */
+  aside.preview{
+    position:sticky;
+    top:20px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    max-height:calc(100vh - 40px);
+  }
+  .preview-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 16px 12px;
+    border-bottom:1px solid var(--line);
+    gap:10px;
+  }
+  .preview-head h3{
+    font-size:13px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+  }
+  .preview-meta{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--ink-dim);
+  }
+  .preview-actions{
+    display:flex;
+    gap:8px;
+    padding:12px 16px;
+    border-bottom:1px solid var(--line);
+  }
+  .preview-actions .btn{ flex:1; padding:8px 10px; font-size:12.5px; }
+  .preview-hint{
+    font-size:11.5px;
+    color:var(--ink-dim);
+    padding:0 16px 12px;
+    border-bottom:1px solid var(--line);
+    line-height:1.5;
+  }
+  .preview-body{
+    padding:14px 16px 18px;
+    overflow-y:auto;
+    flex:1;
+  }
+  .preview-block{
+    font-family:var(--font-mono);
+    font-size:11.3px;
+    line-height:1.65;
+    white-space:pre-wrap;
+    word-break:break-word;
+    padding:12px 13px;
+    border-radius:7px;
+    border-left:3px solid var(--static);
+    background:var(--static-tint);
+    margin-bottom:12px;
+  }
+  .preview-block.volatile{
+    border-left-color:var(--volatile);
+    background:var(--volatile-tint);
+    margin-bottom:0;
+  }
+  .cache-divider{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    margin:2px 0 12px;
+  }
+  .cache-divider::before,.cache-divider::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:repeating-linear-gradient(90deg, var(--line-strong) 0 4px, transparent 4px 8px);
+  }
+
+  .copied-toast{
+    position:fixed;
+    bottom:22px;
+    left:50%;
+    transform:translateX(-50%) translateY(8px);
+    background:var(--ink);
+    color:var(--surface);
+    font-size:12.5px;
+    font-weight:600;
+    padding:9px 16px;
+    border-radius:999px;
+    box-shadow:var(--shadow);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.18s ease, transform 0.18s ease;
+    z-index:50;
+  }
+  .copied-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  @media (max-width: 1080px){
+    .layout{ grid-template-columns: 1fr; }
+    nav.rail{
+      position:static;
+      flex-direction:row;
+      overflow-x:auto;
+      order:1;
+    }
+    .rail-item{ flex:none; }
+    main.card{ order:2; }
+    aside.preview{ position:static; order:3; max-height:560px; }
+    .row2{ grid-template-columns:1fr; }
+    .intro-compare{ grid-template-columns:1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="shell">
+  <header class="top">
+    <div class="brand-row">
+      <div>
+        <div class="brand">
+          <h1>Montador de Prompt</h1>
+          <span class="kicker">custo × performance</span>
+        </div>
+        <p class="sub">Um passo a passo para escrever as instruções que você dá para uma IA — sem precisar saber nada técnico. Preencha os campos e o texto final aparece pronto à direita.</p>
+      </div>
+      <div class="quick-actions">
+        <button class="btn sm" id="btnLoadExample" type="button">Ver exemplo preenchido</button>
+        <button class="btn sm ghost" id="btnResetAll" type="button">Limpar tudo</button>
+      </div>
+    </div>
+    <div class="legend-row">
+      <span><span class="dot static"></span> Estático — você preenche uma vez e quase nunca muda</span>
+      <span><span class="dot volatile"></span> Volátil — muda a cada conversa</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="rail" id="rail" aria-label="Passos do formulário"></nav>
+    <main class="card" id="card"></main>
+    <aside class="preview">
+      <div class="preview-head">
+        <h3>Prompt gerado</h3>
+        <span class="preview-meta" id="charCount">0 caracteres</span>
+      </div>
+      <div class="preview-actions">
+        <button class="btn" id="copyBtn" type="button">Copiar</button>
+        <button class="btn primary" id="downloadBtn" type="button">Baixar .txt</button>
+      </div>
+      <div class="preview-hint">Isto é só uma prévia — ela é atualizada sozinha enquanto você preenche os campos ao lado. Cole o resultado onde você conversa com a IA.</div>
+      <div class="preview-body" id="previewBody"></div>
+    </aside>
+  </div>
+</div>
+
+<div class="copied-toast" id="toast">Copiado para a área de transferência</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // Marcadores enxutos (poucos tokens) em vez de caixas ASCII grandes — o
+  // conteúdo estático já é reaproveitado pelo cache, mas o volátil é pago
+  // por inteiro a cada chamada, então cada token aqui conta.
+  var STATIC_MARKER = "<!-- ===== INSTRUÇÕES FIXAS — CACHEÁVEIS, NÃO MUDAM ENTRE CHAMADAS ===== -->";
+  var CACHE_CUT_MARKER = "<!-- ===== PONTO DE CORTE DE CACHE — a partir daqui, paga-se por inteiro a cada chamada ===== -->";
+
+  var DEFAULT_PROCEDIMENTO =
+"Siga nesta ordem:\n" +
+"1. INTERPRETAR — reformule o pedido em uma frase. Identifique o resultado esperado e o formato de entrega.\n" +
+"2. VERIFICAR SUFICIÊNCIA — o contexto já responde? Se sim, pule para o passo 5. (Este passo evita a maior parte do custo.)\n" +
+"3. PLANEJAR — liste as informações faltantes. Uma busca por lacuna. Máximo de 3 chamadas de ferramenta.\n" +
+"4. EXECUTAR — colete. Após cada retorno, extraia apenas o que responde à lacuna e descarte o resto.\n" +
+"5. RESPONDER — no formato definido abaixo.\n" +
+"6. VERIFICAR — cada afirmação tem base no contexto ou na coleta? Remova o que não tiver.";
+
+  var DEFAULT_ORCAMENTO =
+"- Máximo de 6 passos de ferramenta.\n" +
+"- Pare assim que a resposta estiver completa, mesmo com passos sobrando. Não colete \"por garantia\".\n" +
+"- Se após 6 passos a resposta continuar incompleta, entregue o que tem e declare explicitamente o que ficou em aberto.\n" +
+"- Se duas tentativas da mesma abordagem falharem, mude de abordagem ou pare. Não repita.";
+
+  var DEFAULT_REGRA_SELECAO =
+"Prefira sempre a ferramenta de menor custo relativo que responda à pergunta. Nunca chame duas ferramentas para obter a mesma informação.";
+
+  var DEFAULT_RESTRICAO_BASE = "Vá direto ao conteúdo da resposta (sem saudação inicial, sem repetir o pedido e sem resumo ao final).";
+
+  // Colchetes, não "< >" — dentro de tags XML, um placeholder com "<...>"
+  // pareceria mais uma tag aninhada do que um espaço reservado.
+  var PLACEHOLDER_DADOS = "[Inserir aqui, a cada chamada, apenas os trechos relevantes já filtrados e resumidos — nunca o retorno bruto da ferramenta.]";
+  var PLACEHOLDER_HIST = "[Inserir aqui os últimos N turnos relevantes. Turnos antigos entram como resumo compactado.]";
+  var PLACEHOLDER_PEDIDO = "[Inserir aqui o pedido do usuário nesta chamada específica.]";
+
+  function defaultState(){
+    return {
+      papel:"", dominio:"", objetivo:"", criterio:"",
+      contexto:"",
+      termos:[ {sigla:"", def:""} ],
+      ferramentas:[ {nome:"", quando:"", naoQuando:"", custo:"baixo"} ],
+      regraSelecao: DEFAULT_REGRA_SELECAO,
+      regras:[
+        "Responda apenas com base no contexto fornecido e no que for coletado nesta chamada.",
+        "Nunca invente dados, fontes ou resultados de ferramentas que não foram retornados.",
+        "Se houver ambiguidade sobre o que foi pedido, pergunte em vez de assumir.",
+        "Se a informação não estiver disponível, declare a lacuna. Não preencha com estimativa apresentada como fato."
+      ],
+      procedimento: DEFAULT_PROCEDIMENTO,
+      orcamento: DEFAULT_ORCAMENTO,
+      esquema:"",
+      limiteExtensao:"",
+      isJson:false,
+      restricoesExtra:"",
+      exemplos:[
+        {rotulo:"Caso comum", entrada:"", saida:""},
+        {rotulo:"Caso-limite", entrada:"", saida:""},
+        {rotulo:"Recusa / pedido de esclarecimento", entrada:"", saida:""}
+      ],
+      dadosRecuperados:"", dadosPlaceholder:true,
+      historico:"", historicoPlaceholder:true,
+      pedido:"", pedidoPlaceholder:false
+    };
+  }
+
+  // Exemplo completo e coerente: assistente de suporte de uma loja virtual de roupas.
+  // Serve para o usuário leigo ver como cada campo fica preenchido na prática.
+  function exampleState(){
+    return {
+      papel:"um atendente de suporte ao cliente",
+      dominio:"uma loja virtual de roupas",
+      objetivo:"resolver dúvidas sobre pedidos, trocas e devoluções sem precisar transferir para um atendente humano",
+      criterio:"o cliente recebe uma resposta clara sobre o pedido ou sobre como proceder com a troca/devolução, e confirma que entendeu",
+      contexto:"A loja vende roupas femininas e masculinas, com entrega em todo o Brasil. Trocas são aceitas em até 30 dias após o recebimento, desde que a peça não tenha sido usada e esteja com a etiqueta. Devoluções com reembolso levam até 10 dias úteis para cair na conta do cliente.",
+      termos:[
+        {sigla:"SAC", def:"Serviço de Atendimento ao Consumidor"},
+        {sigla:"Nº do pedido", def:"código de 6 dígitos enviado por e-mail na confirmação da compra"}
+      ],
+      ferramentas:[
+        {nome:"Consulta de pedido", quando:"o cliente perguntar sobre status, prazo ou conteúdo de um pedido", naoQuando:"o cliente ainda não informou o número do pedido", custo:"baixo"},
+        {nome:"Abertura de chamado humano", quando:"o cliente pedir para falar com uma pessoa, ou o caso fugir do que está descrito nas regras", naoQuando:"a dúvida puder ser respondida com as regras já descritas aqui", custo:"alto"}
+      ],
+      regraSelecao:"Tente sempre resolver com a Consulta de pedido antes de considerar abrir um chamado humano. Nunca consulte o mesmo pedido duas vezes na mesma conversa.",
+      regras:[
+        "Sempre confirme o número do pedido antes de consultar informações específicas sobre ele.",
+        "Nunca prometa prazos diferentes dos definidos na política de trocas e devoluções.",
+        "Se o cliente disser algo ambíguo (por exemplo 'quero trocar' sem dizer o motivo), pergunte se é por tamanho, defeito ou arrependimento antes de continuar.",
+        "Se a informação pedida não estiver disponível nas ferramentas, diga isso claramente ao cliente e ofereça abrir um chamado com um atendente humano."
+      ],
+      procedimento: DEFAULT_PROCEDIMENTO,
+      orcamento: DEFAULT_ORCAMENTO,
+      esquema:"Uma saudação curta + resposta direta à pergunta do cliente em até 3 frases +, se fizer sentido, o próximo passo que o cliente precisa tomar.",
+      limiteExtensao:"máximo 80 palavras",
+      isJson:false,
+      restricoesExtra:"Nunca use termos técnicos internos (como nomes de sistemas ou de ferramentas).",
+      exemplos:[
+        {rotulo:"Caso comum", entrada:"Meu pedido 482913 ainda não chegou, já faz 12 dias", saida:"Olá! Consultei seu pedido 482913: ele foi enviado há 5 dias e a previsão de entrega é em até 3 dias úteis, dentro do prazo combinado. Se passar disso, me avise que eu abro um chamado para você."},
+        {rotulo:"Caso-limite", entrada:"Quero trocar uma blusa que comprei há 45 dias", saida:"Entendo! Nossa política permite trocas em até 30 dias após o recebimento, e já se passaram 45. Nesse caso não consigo processar a troca por aqui — vou abrir um chamado com um atendente humano para avaliar seu caso, tudo bem?"},
+        {rotulo:"Recusa / pedido de esclarecimento", entrada:"Quero trocar minha compra", saida:"Posso ajudar! Você pode me dizer o número do pedido e o motivo da troca (tamanho, defeito ou arrependimento)? Assim consigo te orientar certinho."}
+      ],
+      dadosRecuperados:"", dadosPlaceholder:true,
+      historico:"", historicoPlaceholder:true,
+      pedido:"Meu pedido 482913 ainda não chegou, já faz 12 dias", pedidoPlaceholder:false
+    };
+  }
+
+  var state = defaultState();
+  var exampleLoaded = false;
+
+  var STEPS = [
+    {id:"intro", label:"Comece aqui", phase:"intro"},
+    {id:"papel", label:"Papel & objetivo", phase:"static"},
+    {id:"contexto", label:"Contexto de domínio", phase:"static"},
+    {id:"ferramentas_regras", label:"Ferramentas & regras", phase:"static"},
+    {id:"procedimento_orcamento", label:"Como pensar & quando parar", phase:"static"},
+    {id:"formato", label:"Formato de saída", phase:"static"},
+    {id:"exemplos", label:"Exemplos", phase:"static"},
+    {id:"volatil", label:"Dados & pedido", phase:"volatile"}
+  ];
+
+  var current = 0;
+
+  function esc(s){
+    return String(s == null ? "" : s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  function isStepDone(idx){
+    var s = state;
+    switch(STEPS[idx].id){
+      case "intro": return true;
+      case "papel": return !!(s.papel.trim() && s.objetivo.trim());
+      case "contexto": return !!s.contexto.trim();
+      case "ferramentas_regras": return s.ferramentas.some(function(f){return f.nome.trim();}) || s.regras.some(function(r){return r.trim();});
+      case "procedimento_orcamento": return !!s.procedimento.trim() || !!s.orcamento.trim();
+      case "formato": return !!s.esquema.trim();
+      case "exemplos": return s.exemplos.some(function(e){return e.entrada.trim();});
+      case "volatil": return !!s.pedido.trim() || s.pedidoPlaceholder;
+      default: return false;
+    }
+  }
+
+  /* ---------------- rail ---------------- */
+  function renderRail(){
+    var rail = document.getElementById("rail");
+    rail.innerHTML = STEPS.map(function(st, i){
+      var cls = "rail-item" + (st.phase === "volatile" ? " volatile" : "") + (i === current ? " active" : "") + (isStepDone(i) && i !== current && st.id !== "intro" ? " done" : "");
+      return '<button type="button" class="' + cls + '" data-goto="' + i + '">' +
+        '<span class="rail-num">' + (i+1) + '</span><span>' + esc(st.label) + '</span></button>';
+    }).join("");
+  }
+
+  /* ---------------- generic list helpers ---------------- */
+  function addRow(arrName, template){
+    state[arrName].push(template);
+    renderStep();
+  }
+  function removeRow(arrName, idx){
+    state[arrName].splice(idx,1);
+    renderStep();
+  }
+
+  /* ---------------- step renderers ---------------- */
+  function stepMeta(){
+    var st = STEPS[current];
+    var badge, badgeText, badgeTitle;
+    if(st.phase === "volatile"){
+      badge = "volatile"; badgeText = "VOLÁTIL — muda a cada conversa";
+      badgeTitle = "O conteúdo desta parte é diferente em cada atendimento, então ele é pago (ou processado) inteiro toda vez, sem desconto de cache.";
+    } else if(st.phase === "static"){
+      badge = "static"; badgeText = "ESTÁTICO — preenche uma vez";
+      badgeTitle = "O conteúdo desta parte se repete igual em todas as conversas. Por isso pode ser reaproveitado (cache) e sai bem mais barato.";
+    } else {
+      badge = "intro"; badgeText = "GUIA RÁPIDO"; badgeTitle = "";
+    }
+    return {st:st, badgeClass: badge, badgeText: badgeText, badgeTitle: badgeTitle};
+  }
+
+  function exampleBanner(){
+    if(!exampleLoaded) return "";
+    return '<div class="example-banner"><span>📋 Você está vendo o exemplo da loja de roupas. Edite os campos à vontade ou limpe para começar do zero.</span>' +
+      '<button type="button" id="bannerReset">Limpar tudo</button></div>';
+  }
+
+  function bodyIntro(){
+    return '' +
+    '<div class="intro-lead">Um <b>prompt</b> é só o conjunto de instruções que você dá para uma IA antes de cada conversa. Quando você usa a mesma IA várias vezes para a mesma tarefa (um assistente de atendimento, por exemplo), grande parte dessas instruções se repete a cada nova mensagem — e reenviar o mesmo texto sempre custa dinheiro e tempo de processamento.</div>' +
+    '<div class="intro-lead">Para economizar, os sistemas de IA guardam na memória (fazem <b>cache</b>) a parte das instruções que não muda. Este formulário existe justamente para separar, com clareza, o que <b>quase nunca muda</b> do que <b>muda em toda conversa</b> — e no final monta o texto pronto para você.</div>' +
+    '<div class="intro-compare">' +
+      '<div class="intro-card static"><h4><span class="dot static"></span> Bloco estático</h4>' +
+        '<p>Preenchido uma única vez. Fica igual em todas as conversas.</p>' +
+        '<ul><li>Quem é o assistente e o que ele deve alcançar</li><li>Informações fixas sobre seu negócio ou assunto</li><li>Regras, formato de resposta e exemplos</li></ul></div>' +
+      '<div class="intro-card volatile"><h4><span class="dot volatile"></span> Bloco volátil</h4>' +
+        '<p>Muda a cada nova conversa ou pergunta.</p>' +
+        '<ul><li>O que foi buscado/consultado naquele momento</li><li>O histórico recente da conversa</li><li>A pergunta da pessoa</li></ul></div>' +
+    '</div>' +
+    '<details class="faq"><summary>Preciso entender tudo isso antes de começar?</summary>' +
+      '<p>Não. Você pode simplesmente ir passo a passo pelos campos ao lado (menu à esquerda) preenchendo com a sua situação. O prompt final é montado sozinho, à direita, conforme você digita.</p></details>' +
+    '<details class="faq"><summary>Não sei o que escrever — como faço?</summary>' +
+      '<p>Clique em <b>"Ver exemplo preenchido"</b> no topo da página. Ele carrega um caso completo (um assistente de suporte de loja de roupas) em todos os campos, para você ver como fica na prática. Depois é só trocar pelo seu próprio caso, campo por campo, ou limpar tudo e começar do zero.</p></details>' +
+    '<details class="faq"><summary>O que eu faço com o resultado final?</summary>' +
+      '<p>No painel da direita, use o botão <b>Copiar</b> para colar o texto onde você conversa com a IA, ou <b>Baixar .txt</b> para salvar um arquivo com o prompt pronto.</p></details>' +
+    '<details class="faq"><summary>Por que o texto final tem marcadores como &lt;papel&gt; e &lt;pedido&gt;?</summary>' +
+      '<p>Eles funcionam como etiquetas: cada uma "embala" uma parte da instrução, deixando claro para a IA onde uma seção termina e a outra começa. Isso é uma prática recomendada de quem escreve prompts profissionalmente — ajuda a IA a não confundir, por exemplo, um dado buscado com uma instrução sua. Você não precisa editar essas etiquetas: elas são geradas automaticamente.</p></details>' +
+    '<div class="intro-cta">' +
+      '<button type="button" class="btn primary" id="introLoadExample">Ver exemplo preenchido</button>' +
+      '<button type="button" class="btn" id="introStart">Começar do zero →</button>' +
+    '</div>';
+  }
+
+  function bodyPapel(){
+    var s = state;
+    return exampleBanner() +
+    '<div class="field"><label for="f-papel">Quem é o assistente?</label>' +
+      '<div class="hint">Descreva o "personagem" que a IA vai assumir — como se fosse o cargo de uma pessoa.</div>' +
+      '<input type="text" id="f-papel" data-field="papel" value="' + esc(s.papel) + '" placeholder="ex: um atendente de suporte ao cliente"></div>' +
+    '<div class="field"><label for="f-dominio">Em qual área ou negócio?</label>' +
+      '<div class="hint">O contexto em que esse assistente atua.</div>' +
+      '<input type="text" id="f-dominio" data-field="dominio" value="' + esc(s.dominio) + '" placeholder="ex: uma loja virtual de roupas"></div>' +
+    '<div class="field"><label for="f-objetivo">O que ele precisa conseguir? (resultado, não tarefa)</label>' +
+      '<div class="hint">Escreva o <b>resultado final</b> esperado, não apenas "responder perguntas". Pense: "no fim, o que deve ter acontecido?"</div>' +
+      '<textarea id="f-objetivo" data-field="objetivo" rows="2" placeholder="ex: resolver dúvidas sobre pedidos, trocas e devoluções sem precisar transferir para um atendente humano">' + esc(s.objetivo) + '</textarea></div>' +
+    '<div class="field"><label for="f-criterio">Como saber se deu certo?</label>' +
+      '<div class="hint">Um jeito concreto de verificar o sucesso — algo que dá para observar, não uma sensação.</div>' +
+      '<textarea id="f-criterio" data-field="criterio" rows="2" placeholder="ex: o cliente recebe uma resposta clara e confirma que entendeu">' + esc(s.criterio) + '</textarea></div>';
+  }
+
+  function bodyContexto(){
+    var s = state;
+    var rows = s.termos.map(function(t, i){
+      return '<div class="list-row"><button type="button" class="remove-btn" data-remove="termos" data-idx="'+i+'">remover</button>' +
+        '<div class="list-row-grid row2">' +
+          '<div class="field"><label>Sigla ou termo</label><input type="text" data-arr="termos" data-idx="'+i+'" data-key="sigla" value="'+esc(t.sigla)+'" placeholder="ex: SAC"></div>' +
+          '<div class="field"><label>O que significa (em uma linha)</label><input type="text" data-arr="termos" data-idx="'+i+'" data-key="def" value="'+esc(t.def)+'" placeholder="ex: Serviço de Atendimento ao Consumidor"></div>' +
+        '</div></div>';
+    }).join("");
+    return exampleBanner() +
+    '<div class="field"><label for="f-contexto">O que a IA precisa saber sobre o seu negócio ou assunto?</label>' +
+      '<div class="hint">A IA não conhece as regras internas da sua empresa, prazos, políticas etc. Escreva aqui como se estivesse explicando para alguém novo no time.</div>' +
+      '<textarea id="f-contexto" data-field="contexto" rows="4" placeholder="ex: A loja vende roupas femininas e masculinas, com entrega em todo o Brasil. Trocas são aceitas em até 30 dias após o recebimento...">' + esc(s.contexto) + '</textarea></div>' +
+    '<fieldset class="group"><legend>Siglas e termos que você usa (opcional)</legend>' +
+      '<div class="hint" style="margin-bottom:10px;">Se você usa siglas ou palavras específicas do seu negócio, explique aqui — assim a IA não vai "chutar" o significado.</div>' + rows +
+      '<button type="button" class="add-btn" data-add="termos">+ adicionar termo</button></fieldset>';
+  }
+
+  function bodyFerramentasRegras(){
+    var s = state;
+    var ferrRows = s.ferramentas.map(function(f, i){
+      return '<div class="list-row"><button type="button" class="remove-btn" data-remove="ferramentas" data-idx="'+i+'">remover</button>' +
+        '<div class="list-row-grid">' +
+          '<div class="row2">' +
+            '<div class="field"><label>Nome da ferramenta</label><input type="text" data-arr="ferramentas" data-idx="'+i+'" data-key="nome" value="'+esc(f.nome)+'" placeholder="ex: Consulta de pedido"></div>' +
+            '<div class="field"><label>Custo relativo</label><select data-arr="ferramentas" data-idx="'+i+'" data-key="custo">' +
+              ["baixo","médio","alto"].map(function(c){ return '<option value="'+c+'"'+(f.custo===c?" selected":"")+'>'+c+'</option>'; }).join("") +
+            '</select></div>' +
+          '</div>' +
+          '<div class="row2">' +
+            '<div class="field"><label>Quando usar</label><input type="text" data-arr="ferramentas" data-idx="'+i+'" data-key="quando" value="'+esc(f.quando)+'" placeholder="ex: o cliente perguntar sobre o status do pedido"></div>' +
+            '<div class="field"><label>Quando NÃO usar</label><input type="text" data-arr="ferramentas" data-idx="'+i+'" data-key="naoQuando" value="'+esc(f.naoQuando)+'" placeholder="ex: o cliente ainda não informou o número do pedido"></div>' +
+          '</div>' +
+        '</div></div>';
+    }).join("");
+    var regrasRows = s.regras.map(function(r, i){
+      return '<div class="list-row"><button type="button" class="remove-btn" data-remove="regras" data-idx="'+i+'">remover</button>' +
+        '<div class="field"><label>Regra ' + (i+1) + '</label>' +
+        '<textarea rows="2" data-arr="regras" data-idx="'+i+'" data-key="__self">' + esc(r) + '</textarea></div></div>';
+    }).join("");
+    return exampleBanner() +
+    '<div class="field"><label>&nbsp;</label>' +
+      '<div class="hint">Se a IA puder consultar sistemas, buscar informações ou realizar ações (e não só conversar), liste cada uma dessas "ferramentas" aqui. Se o seu caso for só conversa, pode pular esta parte.</div></div>' +
+    '<fieldset class="group"><legend>Ferramentas disponíveis (opcional)</legend>' + ferrRows +
+      '<button type="button" class="add-btn" data-add="ferramentas">+ adicionar ferramenta</button></fieldset>' +
+    '<div class="field"><label for="f-regraselecao">Qual usar primeiro, se houver mais de uma opção?</label>' +
+      '<div class="hint">Uma regra simples de prioridade, para a IA não "gastar" mais do que precisa.</div>' +
+      '<textarea id="f-regraselecao" data-field="regraSelecao" rows="2">' + esc(s.regraSelecao) + '</textarea></div>' +
+    '<div class="mini-divider">regras e restrições</div>' +
+    '<div class="field"><label>&nbsp;</label><div class="hint">Pense em 3 tipos de regra: o que a IA <b>sempre</b> deve fazer, o que <b>nunca</b> deve fazer, e o que fazer quando <b>não tiver certeza</b> ou faltar informação. Já deixamos 4 regras de exemplo — edite, apague ou adicione as suas.</div></div>' +
+    '<fieldset class="group"><legend>Regras e restrições (uma por campo, numeradas automaticamente)</legend>' + regrasRows +
+      '<button type="button" class="add-btn" data-add="regras">+ adicionar regra</button></fieldset>';
+  }
+
+  function bodyProcedimentoOrcamento(){
+    var s = state;
+    return exampleBanner() +
+    '<div class="field"><label for="f-proc">Em que ordem a IA deve "pensar" antes de responder?</label>' +
+      '<div class="hint">Este texto já vem com uma sequência que funciona bem na maioria dos casos: entender o pedido → checar se já dá para responder → planejar o que falta → buscar → responder → conferir. Pode deixar como está ou ajustar à vontade. Um roteiro fixo como este ajuda a controlar o custo; uma instrução mais aberta (algo como "pense com cuidado antes de responder") às vezes gera respostas melhores, mas tende a consumir mais tokens.</div>' +
+      '<textarea class="mono" id="f-proc" data-field="procedimento" rows="12">' + esc(s.procedimento) + '</textarea></div>' +
+    '<div class="mini-divider">orçamento de execução</div>' +
+    '<div class="field"><label for="f-orc">Até onde a IA pode "tentar" antes de responder mesmo assim?</label>' +
+      '<div class="hint">Sem esse limite, a IA pode ficar buscando informação sem parar — o que demora mais e custa mais caro. O texto padrão já traz um limite razoável; ajuste o número se quiser.</div>' +
+      '<textarea class="mono" id="f-orc" data-field="orcamento" rows="8">' + esc(s.orcamento) + '</textarea></div>';
+  }
+
+  function bodyFormato(){
+    var s = state;
+    return exampleBanner() +
+    '<div class="field"><label for="f-esquema">Como a resposta final deve ser organizada?</label>' +
+      '<div class="hint">Seja bem específico aqui — quanto mais exata a instrução, menor a chance de a IA "enrolar" na resposta (o que sai mais caro e é mais chato de ler).</div>' +
+      '<textarea id="f-esquema" data-field="esquema" rows="4" placeholder="ex: uma saudação curta + resposta direta em até 3 frases +, se fizer sentido, o próximo passo que a pessoa precisa tomar">' + esc(s.esquema) + '</textarea></div>' +
+    '<div class="row2">' +
+      '<div class="field"><label for="f-limite">Tamanho máximo da resposta</label>' +
+        '<div class="hint">Um limite claro, em palavras ou frases.</div>' +
+        '<input type="text" id="f-limite" data-field="limiteExtensao" value="' + esc(s.limiteExtensao) + '" placeholder="ex: máximo 80 palavras"></div>' +
+      '<div class="field"><label>&nbsp;</label><label class="checkline"><input type="checkbox" data-field="isJson" ' + (s.isJson?"checked":"") + '> A resposta deve ser só um JSON (dado estruturado, sem texto ao redor)</label></div>' +
+    '</div>' +
+    '<div class="field"><label for="f-restextra">Mais alguma restrição?</label>' +
+      '<div class="hint">"Vá direto ao conteúdo da resposta, sem introdução nem resumo no final" já entra automaticamente. Se quiser mais alguma restrição, escreva uma por linha.</div>' +
+      '<textarea id="f-restextra" data-field="restricoesExtra" rows="3" placeholder="ex: nunca usar termos técnicos internos">' + esc(s.restricoesExtra) + '</textarea></div>';
+  }
+
+  function bodyExemplos(){
+    var s = state;
+    var rows = s.exemplos.map(function(e, i){
+      return '<div class="list-row"><button type="button" class="remove-btn" data-remove="exemplos" data-idx="'+i+'">remover</button>' +
+        '<div class="list-row-grid">' +
+          '<div class="field"><label>Rótulo</label><input type="text" data-arr="exemplos" data-idx="'+i+'" data-key="rotulo" value="'+esc(e.rotulo)+'" placeholder="ex: caso comum / caso difícil / recusa"></div>' +
+          '<div class="field"><label>O que a pessoa pergunta ou diz</label><textarea rows="2" data-arr="exemplos" data-idx="'+i+'" data-key="entrada">'+esc(e.entrada)+'</textarea></div>' +
+          '<div class="field"><label>Como a IA deveria responder</label><textarea rows="2" data-arr="exemplos" data-idx="'+i+'" data-key="saida">'+esc(e.saida)+'</textarea></div>' +
+        '</div></div>';
+    }).join("");
+    return exampleBanner() +
+    '<div class="field"><label>&nbsp;</label><div class="hint">Exemplos ensinam a IA melhor do que qualquer regra escrita. Tente cobrir: um caso do dia a dia, um caso mais difícil ou no limite, e um caso em que o certo é recusar ou pedir mais informação.</div></div>' +
+    '<fieldset class="group"><legend>2 a 4 exemplos</legend>' + rows +
+      '<button type="button" class="add-btn" data-add="exemplos">+ adicionar exemplo</button></fieldset>';
+  }
+
+  function bodyVolatil(){
+    var s = state;
+    return exampleBanner() +
+    '<div class="field"><label>&nbsp;</label><div class="hint">Esta é a única parte do prompt que muda em cada conversa. Se você está montando um modelo para reutilizar depois (por exemplo, dentro de um sistema), deixe como "placeholder" — um espaço reservado para ser preenchido na hora. Se é para usar agora, com um caso real, preencha o conteúdo de verdade.</div></div>' +
+    '<div class="field"><label for="f-dados">O que foi consultado/buscado</label>' +
+      '<label class="checkline"><input type="checkbox" data-field="dadosPlaceholder" ' + (s.dadosPlaceholder?"checked":"") + '> Deixar como espaço reservado (preenchido depois, a cada uso)</label>' +
+      (s.dadosPlaceholder ? "" : '<textarea id="f-dados" data-field="dadosRecuperados" rows="4" placeholder="Cole aqui só as informações relevantes já resumidas — não o retorno bruto de um sistema">' + esc(s.dadosRecuperados) + '</textarea>') +
+    '</div>' +
+    '<div class="field"><label for="f-hist">Histórico da conversa</label>' +
+      '<label class="checkline"><input type="checkbox" data-field="historicoPlaceholder" ' + (s.historicoPlaceholder?"checked":"") + '> Deixar como espaço reservado (preenchido depois, a cada uso)</label>' +
+      (s.historicoPlaceholder ? "" : '<textarea id="f-hist" data-field="historico" rows="3">' + esc(s.historico) + '</textarea>') +
+    '</div>' +
+    '<div class="field"><label for="f-pedido">A pergunta ou pedido da pessoa</label>' +
+      '<label class="checkline"><input type="checkbox" data-field="pedidoPlaceholder" ' + (s.pedidoPlaceholder?"checked":"") + '> Deixar como espaço reservado (o pedido real chega depois)</label>' +
+      (s.pedidoPlaceholder ? "" : '<textarea id="f-pedido" data-field="pedido" rows="4" placeholder="ex: Meu pedido 482913 ainda não chegou, já faz 12 dias">' + esc(s.pedido) + '</textarea>') +
+    '</div>';
+  }
+
+  var BODY_RENDERERS = {
+    intro: bodyIntro, papel: bodyPapel, contexto: bodyContexto,
+    ferramentas_regras: bodyFerramentasRegras, procedimento_orcamento: bodyProcedimentoOrcamento,
+    formato: bodyFormato, exemplos: bodyExemplos, volatil: bodyVolatil
+  };
+
+  var STEP_DESC = {
+    intro: "Duas coisas rápidas antes de começar: por que a ordem importa, e como usar este formulário.",
+    papel: "Explique quem é o assistente e o que ele precisa alcançar — isso define o \"personagem\" que a IA vai assumir.",
+    contexto: "Conte para a IA o que ela precisa saber sobre o seu negócio ou assunto, porque ela não sabe nada disso por padrão.",
+    ferramentas_regras: "Se a IA puder usar ferramentas, descreva-as aqui. Depois defina o que ela deve sempre fazer, nunca fazer, e como agir diante de dúvida ou falta de informação.",
+    procedimento_orcamento: "Defina a ordem de raciocínio que a IA deve seguir e um limite de tentativas, para ela não ficar buscando informação sem parar (o que custa caro).",
+    formato: "Diga exatamente como a resposta final deve ser — isso evita respostas longas demais, que custam mais.",
+    exemplos: "Mostre exemplos reais de pergunta e resposta esperada. Isso ensina a IA melhor do que qualquer regra escrita.",
+    volatil: "Esta é a única parte que muda a cada conversa: o que foi buscado, o histórico e a pergunta da pessoa."
+  };
+
+  function renderStep(){
+    var card = document.getElementById("card");
+    var m = stepMeta();
+    var badgeHtml = m.badgeText
+      ? '<span class="phase-badge ' + m.badgeClass + '"' + (m.badgeTitle ? ' title="' + esc(m.badgeTitle) + '"' : '') + '>' + esc(m.badgeText) + '</span>'
+      : '';
+    card.innerHTML =
+      '<div class="step-head"><h2>' + esc(m.st.label) + '</h2>' + badgeHtml + '</div>' +
+      '<p class="step-desc">' + esc(STEP_DESC[m.st.id]) + '</p>' +
+      '<div class="step-body">' + BODY_RENDERERS[m.st.id]() + '</div>' +
+      '<div class="step-nav">' +
+        '<button type="button" class="btn ghost" id="btnBack" ' + (current===0?"disabled":"") + '>← Voltar</button>' +
+        '<span class="step-count">Passo ' + (current+1) + ' de ' + STEPS.length + '</span>' +
+        (current < STEPS.length-1
+          ? '<button type="button" class="btn primary" id="btnNext">Avançar →</button>'
+          : '<button type="button" class="btn primary" id="btnFinish">Ir para o prompt final ↓</button>') +
+      '</div>';
+    renderRail();
+    updatePreview();
+  }
+
+  function bindStepEvents(){
+    // Registrado uma única vez (fora de renderStep) e usa delegação de eventos,
+    // já que #card é reaproveitado — os elementos internos mudam a cada render,
+    // mas o listener no contêiner continua captando os cliques/inputs atuais.
+    var card = document.getElementById("card");
+
+    card.addEventListener("input", function(e){
+      var t = e.target;
+      if(t.dataset.field){
+        var val = t.type === "checkbox" ? t.checked : t.value;
+        state[t.dataset.field] = val;
+        if(t.type === "checkbox"){ renderStep(); return; }
+        updatePreview();
+      } else if(t.dataset.arr){
+        var arr = state[t.dataset.arr];
+        var idx = parseInt(t.dataset.idx, 10);
+        var key = t.dataset.key;
+        if(key === "__self"){ arr[idx] = t.value; } else { arr[idx][key] = t.value; }
+        updatePreview();
+      }
+    });
+
+    card.addEventListener("change", function(e){
+      var t = e.target;
+      if(t.tagName === "SELECT" && t.dataset.arr){
+        state[t.dataset.arr][parseInt(t.dataset.idx,10)][t.dataset.key] = t.value;
+        updatePreview();
+      }
+    });
+
+    card.addEventListener("click", function(e){
+      var add = e.target.closest("[data-add]");
+      var remove = e.target.closest("[data-remove]");
+      var back = e.target.closest("#btnBack");
+      var next = e.target.closest("#btnNext");
+      var finish = e.target.closest("#btnFinish");
+      var introExample = e.target.closest("#introLoadExample");
+      var introStart = e.target.closest("#introStart");
+      var bannerReset = e.target.closest("#bannerReset");
+
+      if(add){
+        var name = add.dataset.add;
+        var tmpl = name === "termos" ? {sigla:"", def:""}
+          : name === "ferramentas" ? {nome:"", quando:"", naoQuando:"", custo:"baixo"}
+          : name === "regras" ? ""
+          : {rotulo:"", entrada:"", saida:""};
+        addRow(name, tmpl);
+      } else if(remove){
+        removeRow(remove.dataset.remove, parseInt(remove.dataset.idx,10));
+      } else if(back){
+        current = Math.max(0, current-1); renderStep();
+        document.getElementById("card").scrollIntoView({block:"start", behavior:"smooth"});
+      } else if(next){
+        current = Math.min(STEPS.length-1, current+1); renderStep();
+        document.getElementById("card").scrollIntoView({block:"start", behavior:"smooth"});
+      } else if(finish){
+        document.getElementById("previewBody").scrollIntoView({block:"start", behavior:"smooth"});
+      } else if(introExample){
+        loadExample(); current = 1; renderStep();
+      } else if(introStart){
+        current = 1; renderStep();
+      } else if(bannerReset){
+        resetAll();
+      }
+    });
+  }
+
+  document.getElementById("rail").addEventListener("click", function(e){
+    var btn = e.target.closest("[data-goto]");
+    if(btn){ current = parseInt(btn.dataset.goto,10); renderStep(); }
+  });
+
+  function loadExample(){
+    state = exampleState();
+    exampleLoaded = true;
+  }
+  function resetAll(){
+    state = defaultState();
+    exampleLoaded = false;
+    current = 0;
+    renderStep();
+  }
+
+  document.getElementById("btnLoadExample").addEventListener("click", function(){
+    loadExample(); current = 1; renderStep();
+    document.getElementById("card").scrollIntoView({block:"start", behavior:"smooth"});
+  });
+  document.getElementById("btnResetAll").addEventListener("click", resetAll);
+
+  /* ---------------- prompt assembly ----------------
+     Cada seção é delimitada por uma tag (<papel>, <pedido>, ...) em vez de
+     um cabeçalho markdown solto. Isso segue a prática recomendada de
+     estruturação de prompts: tags com abertura/fechamento deixam claro
+     onde uma seção termina e outra começa, o que ajuda o modelo a não
+     confundir uma instrução com um dado (especialmente relevante no bloco
+     volátil, que recebe texto de fora — retorno de ferramenta, fala do
+     usuário). O conteúdo dentro de cada tag continua em texto simples /
+     Markdown leve (listas, tabela), para não inflar tokens à toa. */
+  function buildBlocoA(){
+    var s = state;
+    var p = [];
+    p.push(STATIC_MARKER, "");
+
+    p.push("<papel>");
+    p.push("Você é " + (s.papel.trim() || "[papel específico]") + " atuando em " + (s.dominio.trim() || "[domínio]") + ".");
+    p.push("Seu objetivo é " + (s.objetivo.trim() || "[resultado observável]") + ".");
+    p.push("Sucesso significa: " + (s.criterio.trim() || "[critério verificável]") + ".");
+    p.push("</papel>");
+    p.push("");
+
+    p.push("<contexto_dominio>");
+    p.push(s.contexto.trim() || "[conhecimento estável que a IA precisa e não tem]");
+    var termos = s.termos.filter(function(t){return t.sigla.trim() || t.def.trim();});
+    if(termos.length){
+      p.push("");
+      p.push("Termos:");
+      termos.forEach(function(t){ p.push("- " + t.sigla.trim() + ": " + t.def.trim()); });
+    }
+    p.push("</contexto_dominio>");
+    p.push("");
+
+    p.push("<ferramentas>");
+    var ferr = s.ferramentas.filter(function(f){return f.nome.trim();});
+    if(ferr.length){
+      p.push("| Ferramenta | Use quando | Não use quando | Custo relativo |");
+      p.push("|---|---|---|---|");
+      ferr.forEach(function(f){ p.push("| " + f.nome.trim() + " | " + f.quando.trim() + " | " + f.naoQuando.trim() + " | " + f.custo + " |"); });
+      p.push("");
+      p.push("Regra de seleção: " + (s.regraSelecao.trim() || DEFAULT_REGRA_SELECAO));
+    } else {
+      p.push("Nenhuma ferramenta definida — responda apenas com base no papel, no contexto e nas regras abaixo.");
+    }
+    p.push("</ferramentas>");
+    p.push("");
+
+    p.push("<regras>");
+    var regras = s.regras.filter(function(r){return r.trim();});
+    regras.forEach(function(r,i){ p.push((i+1) + ". " + r.trim()); });
+    p.push("</regras>");
+    p.push("");
+
+    p.push("<procedimento>");
+    p.push(s.procedimento.trim() || DEFAULT_PROCEDIMENTO);
+    p.push("</procedimento>");
+    p.push("");
+
+    p.push("<orcamento_execucao>");
+    p.push(s.orcamento.trim() || DEFAULT_ORCAMENTO);
+    p.push("</orcamento_execucao>");
+    p.push("");
+
+    p.push("<formato_saida>");
+    p.push(s.esquema.trim() || "[esquema exato de saída]");
+    p.push("");
+    p.push("Restrições:");
+    p.push("- " + DEFAULT_RESTRICAO_BASE);
+    if(s.limiteExtensao.trim()) p.push("- Limite de extensão: " + s.limiteExtensao.trim() + ".");
+    if(s.isJson) p.push("- Apenas o JSON, sem cercas de código.");
+    s.restricoesExtra.split("\n").forEach(function(l){
+      l = l.trim().replace(/^-\s*/,"");
+      if(l) p.push("- " + l);
+    });
+    p.push("</formato_saida>");
+    p.push("");
+
+    p.push("<exemplos>");
+    var ex = s.exemplos.filter(function(e){return e.entrada.trim() || e.saida.trim();});
+    ex.forEach(function(e){
+      p.push("<example>");
+      p.push("<situacao>" + (e.rotulo.trim() || "exemplo") + "</situacao>");
+      p.push("<entrada>" + e.entrada.trim() + "</entrada>");
+      p.push("<saida_esperada>" + e.saida.trim() + "</saida_esperada>");
+      p.push("</example>");
+    });
+    p.push("</exemplos>");
+
+    return p.join("\n");
+  }
+
+  function buildBlocoB(){
+    var s = state;
+    var p = [];
+    p.push(CACHE_CUT_MARKER, "");
+
+    p.push("<dados_recuperados>");
+    p.push(s.dadosPlaceholder ? PLACEHOLDER_DADOS : (s.dadosRecuperados.trim() || PLACEHOLDER_DADOS));
+    p.push("</dados_recuperados>");
+    p.push("");
+
+    p.push("<historico>");
+    p.push(s.historicoPlaceholder ? PLACEHOLDER_HIST : (s.historico.trim() || PLACEHOLDER_HIST));
+    p.push("</historico>");
+    p.push("");
+
+    p.push("<pedido>");
+    p.push(s.pedidoPlaceholder ? PLACEHOLDER_PEDIDO : (s.pedido.trim() || PLACEHOLDER_PEDIDO));
+    p.push("</pedido>");
+
+    return p.join("\n");
+  }
+
+  function buildFullPrompt(){
+    return buildBlocoA() + "\n\n" + buildBlocoB();
+  }
+
+  function updatePreview(){
+    var blocoA = buildBlocoA();
+    var blocoB = buildBlocoB();
+    var full = blocoA + "\n\n" + blocoB;
+    document.getElementById("previewBody").innerHTML =
+      '<div class="preview-block static">' + esc(blocoA) + '</div>' +
+      '<div class="cache-divider">corte de cache</div>' +
+      '<div class="preview-block volatile">' + esc(blocoB) + '</div>';
+    document.getElementById("charCount").textContent = full.length.toLocaleString("pt-BR") + " caracteres";
+  }
+
+  /* ---------------- preview actions ---------------- */
+  function showToast(msg){
+    var toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(function(){ toast.classList.remove("show"); }, 2200);
+  }
+
+  document.getElementById("copyBtn").addEventListener("click", function(){
+    var text = buildFullPrompt();
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ showToast("Copiado para a área de transferência"); })
+        .catch(function(){ fallbackCopy(text, showToast); });
+    } else {
+      fallbackCopy(text, showToast);
+    }
+  });
+
+  function fallbackCopy(text, cb){
+    try{
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      cb("Copiado para a área de transferência");
+    }catch(err){
+      cb("Não foi possível copiar automaticamente — selecione o texto à mão");
+    }
+  }
+
+  function slugify(str){
+    return (str.trim() || "prompt").toLowerCase()
+      .normalize("NFD").replace(/[̀-ͯ]/g,"")
+      .replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"") || "prompt";
+  }
+
+  function fallbackBlobDownload(text, filename){
+    try{
+      var blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    }catch(e){ /* no-op: nothing more we can do in this context */ }
+  }
+
+  async function getDownloadsNamespace(){
+    if(typeof window.claude === "undefined" || typeof window.claude.use !== "function") return null;
+    try{ return await window.claude.use("downloads"); }catch(e){ return null; }
+  }
+
+  document.getElementById("downloadBtn").addEventListener("click", async function(){
+    var text = buildFullPrompt();
+    var filename = "prompt-" + slugify(state.papel) + ".txt";
+    var downloads = await getDownloadsNamespace();
+    if(downloads){
+      try{
+        await downloads.save({filename: filename, data: text});
+        showToast("Arquivo salvo");
+      }catch(err){
+        var code = err && err.code;
+        if(code === "declined"){ /* usuário cancelou — sem aviso */ }
+        else if(code === "rate_limited"){ showToast("Aguarde um instante e tente novamente"); }
+        else { showToast("Não foi possível salvar — use \"Copiar\" como alternativa"); }
+      }
+    } else {
+      fallbackBlobDownload(text, filename);
+    }
+  });
+
+  bindStepEvents();
+  renderStep();
+})();
+</script>
+
+<a href="../../index.html" class="hub-back" aria-label="Voltar ao índice do hub">◂ HUB</a>
+<style>.hub-back{position:fixed;left:16px;bottom:16px;z-index:9999;font:600 12px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;color:#35E0FF!important;background:rgba(6,10,18,.88)!important;border:1px solid rgba(53,224,255,.45);padding:9px 13px;border-radius:999px;text-decoration:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 0 18px rgba(53,224,255,.25)}.hub-back:hover{background:#35E0FF!important;color:#060A12!important}@media print{.hub-back{display:none}}</style>
+</body>
+</html>

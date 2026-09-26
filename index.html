@@ -22,6 +22,7 @@
   --gold:#FFB547;   /* valor: finanças, FinOps, pragmatismo */
   --violet:#A98BFF; /* GenAI e fundamentos de IA */
   --rose:#FF7AB6;   /* vida, propósito e evolução pessoal */
+  --orbit:#6C9CFF;  /* autoconhecimento técnico */
   --f-disp:"Chakra Petch","Space Grotesk",system-ui,sans-serif;
   --f-body:"Space Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -151,7 +152,7 @@ a.card:hover .go .arr{transform:translateX(6px)}
 .palette{margin-top:80px;padding:26px;border:1px solid var(--line);border-radius:18px;background:var(--panel);backdrop-filter:blur(10px)}
 .palette h2{font:700 22px var(--f-disp);text-transform:uppercase;margin:6px 0 4px}
 .palette>p{color:var(--ink-2);margin:0 0 20px;max-width:70ch;font-size:14px}
-.sw{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.sw{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .s{border-radius:12px;border:1px solid var(--line);overflow:hidden;background:var(--panel-solid)}
 .s .chipc{height:74px;background:var(--c);box-shadow:inset 0 -30px 40px -20px rgba(0,0,0,.35);position:relative}
 .s .chipc::after{content:attr(data-hex);position:absolute;right:10px;bottom:8px;font:600 11px var(--f-mono);color:rgba(6,10,18,.8)}
@@ -171,7 +172,6 @@ footer a{color:var(--cyan);text-decoration:none}
   .orbit{max-width:300px;order:-1}
   .hud{grid-template-columns:repeat(2,minmax(0,1fr))}
   .sw{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .sw .s:last-child{grid-column:1/-1}
 }
 @media (max-width:520px){
   .status span.t{display:none}
@@ -249,9 +249,10 @@ footer a{color:var(--cyan);text-decoration:none}
   <section class="palette rv" aria-labelledby="pal-h">
     <div class="kicker">Paleta · assinatura</div>
     <h2 id="pal-h">Por que essas cores</h2>
-    <p>Cada cor representa uma parte do seu trabalho e da sua vida: a precisão do arquiteto, o pragmatismo de quem pensa em custo e entrega, a curiosidade pela IA, a raiz no agro e o cuidado com a base pessoal que sustenta todo o resto. O fundo é quase preto, que dá contraste e profundidade.</p>
+    <p>Cada cor representa uma parte do seu trabalho e da sua vida: a precisão do arquiteto, a honestidade de quem se autoavalia, o pragmatismo de quem pensa em custo e entrega, a curiosidade pela IA, a raiz no agro e o cuidado com a base pessoal que sustenta todo o resto. O fundo é quase preto, que dá contraste e profundidade.</p>
     <div class="sw">
       <div class="s" style="--c:var(--cyan)"><div class="chipc" data-hex="#35E0FF"></div><div class="t"><b>Ciano sinal</b><p>Arquitetura, multicloud, estrutura. Visão sistêmica e decisões rastreáveis.</p></div></div>
+      <div class="s" style="--c:var(--orbit)"><div class="chipc" data-hex="#6C9CFF"></div><div class="t"><b>Azul órbita</b><p>Autoavaliação honesta: saber o que domina, o que revisa e o que ainda precisa estudar.</p></div></div>
       <div class="s" style="--c:var(--gold)"><div class="chipc" data-hex="#FFB547"></div><div class="t"><b>Âmbar forja</b><p>Engenharia na mão: Git, Python, CI/CD, FinOps. Pragmatismo de quem entrega.</p></div></div>
       <div class="s" style="--c:var(--violet)"><div class="chipc" data-hex="#A98BFF"></div><div class="t"><b>Violeta nébula</b><p>GenAI e seus fundamentos: da matemática dos LLMs à arquitetura de agentes.</p></div></div>
       <div class="s" style="--c:var(--crop)"><div class="chipc" data-hex="#9BF26B"></div><div class="t"><b>Verde safra</b><p>Crédito rural e agronegócio: MCR, Plano Safra, o campo como domínio.</p></div></div>
@@ -272,16 +273,18 @@ footer a{color:var(--cyan);text-decoration:none}
    status: "live" (padrão) ou "lost" (card de placeholder, sem link)
    ===================================================================== */
 const CATS = [
-  {id:"arq",  code:"SYS.ARCH",  n:"Arquitetura & Decisão Técnica", c:"var(--cyan)",
-   d:"Ferramentas e referências para avaliar soluções, escolher tecnologia com critério e raciocinar sobre performance. Prontas para levar a um ARB ou a um ADR."},
-  {id:"eng",  code:"BUILD.OPS", n:"Engenharia & Treinamentos", c:"var(--gold)",
-   d:"Material mão na massa: versionamento, CI/CD e Python, sempre com olhar de arquiteto e exemplos em .NET, nuvem e FinOps."},
-  {id:"ia",   code:"AI.CORE",   n:"IA & Fundamentos", c:"var(--violet)",
-   d:"A base conceitual por trás da GenAI, com instrumentos interativos para mexer em cada ideia."},
-  {id:"agro", code:"BANK.DOMAIN", n:"Negócio Bancário & Crédito Rural", c:"var(--crop)",
-   d:"Mapas de áreas, processos e domínios do banco, cruzando BIAN e DDD, até a esteira de crédito agrícola PF."},
-  {id:"car",  code:"LIFE.PATH", n:"Carreira & Evolução Pessoal", c:"var(--rose)",
-   d:"O plano de vida, estudo e carreira até 2031 e a leitura que sustenta cada frente."}
+  {id:"arq", s:"Arquitetura",  code:"SYS.ARCH",  n:"Arquitetura & Decisão Técnica", c:"var(--cyan)",
+   d:"Ferramentas e referências para avaliar soluções, escolher tecnologia com critério, aplicar padrões e cuidar de segurança e performance. Prontas para levar a um ARB ou a um ADR."},
+  {id:"auto", s:"Autoavaliação", code:"SELF.CHECK", n:"Autoavaliação de Arquitetura", c:"var(--orbit)",
+   d:"Série de quatro inventários de vocabulário. Em cada termo você marca Domino, Reviso ou Estudo, e as marcações viram o seu plano de aprofundamento."},
+  {id:"eng", s:"Engenharia",  code:"BUILD.OPS", n:"Engenharia & Treinamentos", c:"var(--gold)",
+   d:"Material mão na massa: versionamento, CI/CD, Python e ferramentas de engenharia com IA, sempre com olhar de arquiteto."},
+  {id:"ia", s:"IA",   code:"AI.CORE",   n:"IA & Fundamentos", c:"var(--violet)",
+   d:"Da matemática dos LLMs à arquitetura de sistemas de IA, com instrumentos interativos e ferramentas para usar no dia a dia."},
+  {id:"agro", s:"Negócio & Agro", code:"BANK.DOMAIN", n:"Negócio Bancário & Crédito Rural", c:"var(--crop)",
+   d:"Mapas de áreas, processos e domínios do banco, a esteira de crédito agrícola PF e a referência do agronegócio que sustenta tudo."},
+  {id:"car", s:"Carreira",  code:"LIFE.PATH", n:"Carreira & Evolução Pessoal", c:"var(--rose)",
+   d:"O plano de vida, estudo e carreira até 2031, o plano de estudos de IA e a leitura que sustenta cada frente."}
 ];
 
 const PAGES = [
@@ -295,11 +298,51 @@ const PAGES = [
    d:"Responda perguntas sobre consistência, escala, eventos e operação e veja o ranking entre RDS, Aurora, NewSQL, chave-valor e documento. Gera o resumo pronto para o ADR.",
    m:[["25","perguntas"],["5","famílias"],["5","cenários"]],
    tags:["CAP","PACELC","Transactional Outbox","DynamoDB","Aurora","CQRS"]},
+  {cat:"arq", t:"AWS Well-Architected Framework", href:"pages/arquitetura/aws-well-architected.html",
+   type:"Guia de referência", icon:"cloud",
+   d:"Os seis pilares com princípios de design, boas práticas, anti-patterns e perguntas de revisão, mais o processo de Well-Architected Review e os pontos de atenção do arquiteto.",
+   m:[["6","pilares"],["7","seções"]],
+   tags:["Well-Architected","WAR","Confiabilidade","Custo","Sustentabilidade"]},
+  {cat:"arq", t:"OWASP Top 10 · Referência Técnica", href:"pages/arquitetura/owasp-top10.html",
+   type:"Guia de segurança", icon:"shield",
+   d:"Os 10 riscos da edição 2021, cada um com CWEs mapeadas, vetores de ataque, exemplos técnicos e mitigações principais.",
+   m:[["10","riscos"],["2021","edição"]],
+   tags:["AppSec","IDOR","Injeção","SSRF","CWE"]},
+  {cat:"arq", t:"Gang of Four · Design Patterns", href:"pages/arquitetura/gof-design-patterns.html",
+   type:"Catálogo de padrões", icon:"grid",
+   d:"Os 23 padrões do GoF em criacionais, estruturais e comportamentais, lidos com olhar de arquitetura de soluções e sistemas.",
+   m:[["23","padrões"],["3","categorias"]],
+   tags:["Factory","Adapter","Observer","Strategy","Facade"]},
+  {cat:"arq", t:"Padrões Arquiteturais Modernos", href:"pages/arquitetura/padroes-arquiteturais-modernos.html",
+   type:"Catálogo de padrões", icon:"grid",
+   d:"Complemento do GoF para sistemas distribuídos: event-driven, resiliência, decomposição, dados e deploy, com exemplos corporativos e financeiros.",
+   m:[["20","padrões"],["5","categorias"]],
+   tags:["Saga","CQRS","Outbox","Circuit Breaker","Strangler Fig"]},
   {cat:"arq", t:"Performance Computacional", href:"pages/arquitetura/performance-computacional.html",
    type:"Guia de referência", icon:"gauge",
    d:"Do ciclo de clock ao sistema distribuído: leis de escala, filas e cauda, método USE/RED, como medir sem se enganar, playbook de otimização e biblioteca comentada.",
    m:[["14","seções"],["4","leis"],["20","livros"]],
    tags:["Amdahl","USL","Lei de Little","USE/RED","p99","FinOps"]},
+  {cat:"auto", t:"Arquitetura de Soluções", href:"pages/autoavaliacao/arquitetura-solucoes.html",
+   type:"Autoavaliação · 1/4", icon:"target",
+   d:"O desenho entre sistemas: frameworks, atributos de qualidade, estilos, DDD, integração, nuvem, segurança e mais. Marque Domino, Reviso ou Estudo em cada termo; fica salvo no navegador.",
+   m:[["320","termos"],["15","domínios"]],
+   tags:["TOGAF","Atributos de qualidade","DDD","Integração"]},
+  {cat:"auto", t:"Arquitetura de Software", href:"pages/autoavaliacao/arquitetura-software.html",
+   type:"Autoavaliação · 2/4", icon:"target",
+   d:"O que acontece dentro do sistema: estrutura de código, princípios de design, paradigmas, padrões, execução, testes e evolução. Mesma marcação interativa.",
+   m:[["325","termos"],["15","domínios"]],
+   tags:["Princípios de design","Padrões","Testes","Execução"]},
+  {cat:"auto", t:"Arquitetura Corporativa", href:"pages/autoavaliacao/arquitetura-corporativa.html",
+   type:"Autoavaliação · 3/4", icon:"target",
+   d:"Do alinhamento estratégico à gestão de portfólio: frameworks e metamodelos, arquitetura de negócio, capacidades, governança e roadmaps.",
+   m:[["299","termos"],["15","domínios"]],
+   tags:["TOGAF","Metamodelos","Arquitetura de negócio","Portfólio"]},
+  {cat:"auto", t:"Arquitetura de IA", href:"pages/autoavaliacao/arquitetura-ia.html",
+   type:"Autoavaliação · 4/4", icon:"target",
+   d:"Do aprendizado de máquina clássico aos sistemas agênticos, cobrindo a base consolidada e o vocabulário ainda em formação.",
+   m:[["328","termos"],["15","domínios"]],
+   tags:["ML","LLM","RAG","Agentes"]},
   {cat:"eng", t:"Git, GitHub & Actions · TorqueOS", href:"pages/engenharia/treinamento-git-github-actions.html",
    type:"Treinamento narrativo", icon:"branch",
    d:"Curso completo contado como história de um time construindo o TorqueOS em .NET 10: do primeiro commit ao Git Flow, rebase, proteção de branch e pipelines de CI/CD.",
@@ -310,21 +353,46 @@ const PAGES = [
    d:"Python do zero à entrega de produtos, com olhar de arquiteto: fundamentos, OO, APIs, boto3 e FinOps, FastAPI, Docker e um capstone de agente sobre crédito rural. Progresso salvo no navegador.",
    m:[["10","módulos"],["30","lições"],["1","capstone"]],
    tags:["FastAPI","boto3","Pydantic","Docker","LangChain"]},
+  {cat:"eng", t:"Guia Prático do Devin", href:"pages/engenharia/guia-devin.html",
+   type:"Guia de ferramenta", icon:"terminal",
+   d:"O que o Devin (Cognition) é e como executa, comparação direta com o Claude, referência de comandos e recursos do dia a dia, consumo de ACUs e artefatos prontos para copiar.",
+   m:[["4","partes"],["1","anexo"]],
+   tags:["Devin","CLI","Playbooks","Skills","ACUs"]},
   {cat:"ia", t:"A matemática por trás dos LLMs", href:"pages/ia/matematica-por-tras-dos-llms.html",
    type:"Laboratório interativo", icon:"sigma",
    d:"Álgebra linear, cálculo e probabilidade explicados com instrumentos para arrastar e deslizar: produto escalar, descida do gradiente, softmax com temperatura e cross-entropy.",
    m:[["5","módulos"],["7","instrumentos"],["5","perguntas"]],
    tags:["Embeddings","Gradiente","Softmax","top_p","Cross-entropy"]},
+  {cat:"ia", t:"Arquitetura de IA — do zero ao arquiteto", href:"pages/ia/arquitetura-ia-do-zero.html",
+   type:"Curso de referência", icon:"layers",
+   d:"Cada conceito com o que é, analogia, exemplo prático e por que importa: anatomia de um LLM, custo e FinOps de IA, provisionamento, padrões de GenAI, context engineering, evals, segurança, governança e arquiteturas de referência.",
+   m:[["18","partes"],["80+","conceitos"]],
+   tags:["LLM","RAG","MCP","Context engineering","FinOps de IA"]},
+  {cat:"ia", t:"As Vísceras da IA", href:"pages/ia/visceras-da-ia.html",
+   type:"Guia de arquitetura", icon:"cpu",
+   d:"Do arquivo em disco ao token gerado: formatos de pesos, pipeline de carregamento, componentes de execução, storages temporários da inferência e onde ficam os dados do usuário.",
+   m:[["6","partes"],["1","glossário"]],
+   tags:["safetensors","Pesos","KV cache","VRAM","Inferência"]},
+  {cat:"ia", t:"Montador de Prompt", href:"pages/ia/montador-de-prompt.html",
+   type:"Ferramenta interativa", icon:"wand",
+   d:"Passo a passo para escrever as instruções de uma IA sem precisar saber nada técnico. Separa o bloco estático (cacheável) do volátil e monta o prompt pronto para copiar ou baixar em .txt.",
+   m:[["8","passos"],["2","blocos"]],
+   tags:["Prompt","Cache","Custo","Performance"]},
   {cat:"agro", t:"Mapa de Áreas e Domínios de um Banco × BIAN", href:"pages/negocio/mapa-areas-banco-bian.html",
    type:"Mapa de referência", icon:"map",
    d:"As 22 áreas de um banco brasileiro, de cadastro a controladoria, com processos, entidades de domínio, dependências e service domains BIAN 14.0. Inclui matriz de dependência, sequências ponta a ponta e exemplos ancorados em crédito rural.",
    m:[["22","áreas"],["6","business areas"],["14.0","BIAN"]],
    tags:["BIAN","DDD","Service domains","Pix","PLD/FT","Glossário"]},
-  {cat:"agro", t:"Mapa de Domínios · Esteira de Crédito Agrícola PF", href:"", status:"lost",
+  {cat:"agro", t:"Mapa de Domínios · Esteira de Crédito Agrícola PF", href:"pages/agro/esteira-credito-agricola.html",
    type:"Mapa navegável", icon:"map",
-   d:"18 domínios da esteira de crédito rural PF, do onboarding à liquidação, cruzando DDD, BIAN e MCR, com as zonas cinzentas entre domínios. Ainda não entrou no repositório.",
-   m:[["18","domínios"]],
-   tags:["DDD","BIAN","MCR","Bounded contexts"]},
+   d:"18 domínios da esteira de crédito rural PF, da abertura de conta ao pós-venda, cruzando DDD, BIAN e MCR, com as zonas cinzentas entre domínios e o padrão de context mapping sugerido para cada uma.",
+   m:[["18","domínios"],["27","zonas cinzentas"],["4","estágios"]],
+   tags:["DDD","BIAN","MCR","Bounded contexts","Context mapping"]},
+  {cat:"agro", t:"Guia do Agronegócio Brasileiro", href:"pages/agro/guia-agronegocio-brasileiro.html",
+   type:"Guia de referência", icon:"leaf",
+   d:"Do macro ao micro para quem desenha sistemas financeiros no agro: culturas e calendário de safras, pecuária, regulação, MCR, ZARC, órgãos e sistemas da cadeia, agtech e glossário.",
+   m:[["11","capítulos"],["1","glossário"]],
+   tags:["MCR","ZARC","Pecuária","Regulação","Agtech"]},
   {cat:"car", t:"Guia Mestre 2026", href:"pages/carreira/guia-mestre-2026.html", date:"2026-07",
    type:"Documento de cabeceira", icon:"compass",
    d:"Vida, saúde, estudo e carreira numa fonte única: as sete lacunas técnicas, a leitura de mercado, rotas de derivação e o plano em ondas até 2031.",
@@ -334,10 +402,25 @@ const PAGES = [
    type:"Checklist de leitura", icon:"book",
    d:"Livros amarrados a cada frente do Guia Mestre, com cronograma trimestral que termina sempre num artefato público. Marque o que já leu e fica salvo no navegador.",
    m:[["29","livros"],["8","frentes"],["5","trimestres"]],
-   tags:["AI Engineering","DDIA","Staff Engineer","Deep Work"]}
+   tags:["AI Engineering","DDIA","Staff Engineer","Deep Work"]},
+  {cat:"car", t:"Plano de Estudos · Arquiteto de Soluções & IA", href:"pages/carreira/plano-estudos-arquiteto-ia.html",
+   type:"Plano de estudo", icon:"route",
+   d:"Da fundação técnica à liderança estratégica de IA em ambientes regulados: quatro fases com módulos, recursos gratuitos e pagos, exercícios práticos e um entregável de portfólio por fase.",
+   m:[["14","meses"],["4","fases"],["20+","recursos"]],
+   tags:["LLMs","RAG","Agentes","Governança","Certificações"]}
 ];
 
 const ICONS = {
+  cloud:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 9.5a4.25 4.25 0 0 1-.5 8.5z"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.2 7.5 9.5 4.3-1.3 7.5-4.9 7.5-9.5V6z"/><path d="m9 12 2 2 4-4"/></svg>',
+  grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="6.5" height="6.5" rx="1.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.2"/></svg>',
+  target:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>',
+  terminal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="m7 10 3 2.5L7 15M12.5 15H17"/></svg>',
+  layers:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg>',
+  cpu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="6" y="6" width="12" height="12" rx="1.5"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg>',
+  wand:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m4 20 11-11M14 4v2M19 9h2M17.5 5.5 19 4M9 4v1M20 14h-1"/></svg>',
+  leaf:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14z"/><path d="M5 19 12 12"/></svg>',
+  route:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/></svg>',
   gauge:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 18a8 8 0 1 1 16 0"/><path d="m12 18 4-6"/><circle cx="12" cy="18" r="1.2" fill="currentColor"/></svg>',
   branch:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="8" r="2"/><path d="M6 7v10M18 10c0 4-6 3-12 7"/></svg>',
   code:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>',
@@ -369,7 +452,7 @@ function hud(){
 /* chips */
 function chips(){
   $("#chips").innerHTML = `<button class="chip" data-cat="" aria-pressed="true"><i></i>Tudo</button>` +
-    CATS.map(c => `<button class="chip" data-cat="${c.id}" style="--c:${c.c}" aria-pressed="false"><i></i>${esc(c.n.split(" &")[0].split(" ·")[0])}</button>`).join("");
+    CATS.map(c => `<button class="chip" data-cat="${c.id}" style="--c:${c.c}" aria-pressed="false"><i></i>${esc(c.s||c.n)}</button>`).join("");
   $("#chips").addEventListener("click", e => {
     const b = e.target.closest(".chip"); if(!b) return;
     F.cat = b.dataset.cat || null;
@@ -444,7 +527,7 @@ function clock(){
 /* terminal digitando */
 const LINES = [
   ['<span class="p">rafael@hub</span>:<span class="c">~</span>$ ', "ls ./paginas --por-categoria"],
-  ['<span class="p">→</span> ', "arquitetura · engenharia · ia · agro · carreira"],
+  ['<span class="p">→</span> ', "arquitetura · autoavaliação · engenharia · ia · agro · carreira"],
   ['<span class="p">rafael@hub</span>:<span class="c">~</span>$ ', "echo $PRINCIPIO"],
   ['<span class="p">→</span> ', "decisão boa é decisão registrada, com trade-off explícito."]
 ];

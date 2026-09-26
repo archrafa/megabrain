@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Guia Prático do Devin</title>
+
+<meta name="description" content="Conceitos, comandos e boas práticas do Devin (Cognition) para arquitetos de soluções">
+<script>try{var m=localStorage.getItem('hub-theme');if(m&&m!=='auto')document.documentElement.setAttribute('data-theme',m)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F4F6FA; --surface:#FFFFFF; --sunk:#EBEFF5; --ink:#141B2B; --ink-2:#44506A; --ink-3:#6B7790;
+  --line:#D8DFEA; --line-2:#C5CEDD; --accent:#A35F00; --accent-soft:color-mix(in srgb,var(--accent) 12%,var(--surface));
+  --warn:#B4531A; --warn-soft:#FCEEE3; --tip:#1E7C4B; --tip-soft:#E4F4EA;
+  --code-bg:#0E1628; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(20,27,43,.05),0 10px 30px -18px rgba(20,27,43,.25);
+  --f-disp:"Chakra Petch","Space Grotesk",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --side:300px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#070B14; --surface:#0E1628; --sunk:#0A1120; --ink:#E6EEFB; --ink-2:#A9B7D0; --ink-3:#7485A3;
+  --line:#1D2A42; --line-2:#2A3A58; --accent:#FFB547; --accent-soft:color-mix(in srgb,var(--accent) 14%,var(--surface));
+  --warn:#FFB547; --warn-soft:#2A1F10; --tip:#7EE2A8; --tip-soft:#10261B; --code-bg:#050910; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 36px -20px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#070B14; --surface:#0E1628; --sunk:#0A1120; --ink:#E6EEFB; --ink-2:#A9B7D0; --ink-3:#7485A3;
+  --line:#1D2A42; --line-2:#2A3A58; --accent:#FFB547; --accent-soft:color-mix(in srgb,var(--accent) 14%,var(--surface));
+  --warn:#FFB547; --warn-soft:#2A1F10; --tip:#7EE2A8; --tip-soft:#10261B; --code-bg:#050910; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 36px -20px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+::selection{background:var(--accent);color:var(--bg)}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;box-shadow:0 0 12px var(--accent)}
+
+.shell{display:grid;grid-template-columns:var(--side) minmax(0,1fr);min-height:100vh}
+aside{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;border-right:1px solid var(--line);background:var(--surface)}
+.side-top{padding:18px 18px 12px;border-bottom:1px solid var(--line)}
+.hub{display:inline-flex;align-items:center;gap:8px;font:600 11.5px var(--f-mono);letter-spacing:.16em;color:var(--ink-2);text-decoration:none;margin-bottom:14px}
+.hub b{color:var(--accent)}
+.hub:hover{color:var(--accent)}
+.side-title{font:700 15px/1.25 var(--f-disp);letter-spacing:.01em;margin:0 0 12px;text-transform:uppercase}
+.filter{width:100%;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:500 13px var(--f-body);color:var(--ink)}
+.filter:focus{outline:none;border-color:var(--accent)}
+nav.toc{flex:1;overflow:auto;padding:10px 0 20px}
+nav.toc a{display:block;padding:5px 18px 5px 16px;border-left:2px solid transparent;color:var(--ink-2);text-decoration:none;font-size:13.5px;line-height:1.35}
+nav.toc a.l3{padding-left:30px;font-size:12.8px;color:var(--ink-3)}
+nav.toc a:hover{color:var(--ink);background:var(--sunk)}
+nav.toc a.on{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft);font-weight:600}
+nav.toc a[hidden]{display:none}
+.side-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 18px;border-top:1px solid var(--line);font:500 11px var(--f-mono);color:var(--ink-3)}
+.theme{background:none;border:1px solid var(--line);border-radius:6px;padding:5px 9px;font:500 11px var(--f-mono);color:var(--ink-2);cursor:pointer}
+.theme:hover{border-color:var(--accent);color:var(--accent)}
+
+main{min-width:0;padding:0 clamp(16px,5vw,64px) 120px;overflow-x:clip}
+.doc{max-width:900px;margin:0 auto}
+.hero{padding:56px 0 30px;border-bottom:1px solid var(--line);margin-bottom:12px;position:relative}
+.hero::before{content:"";position:absolute;inset:0 -40px auto;height:220px;background:radial-gradient(600px 200px at 10% 0%,var(--accent-soft),transparent 70%);z-index:-1}
+.kicker{font:600 11.5px var(--f-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px}
+.kicker::before{content:"";width:24px;height:1px;background:var(--accent)}
+.hero h1{font:700 clamp(32px,5.2vw,54px)/1.02 var(--f-disp);letter-spacing:-.005em;margin:14px 0 12px;text-transform:uppercase;text-wrap:balance}
+.hero .sub{font-size:18px;color:var(--ink-2);max-width:62ch;margin:0 0 16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+.chip{font:500 11.5px var(--f-mono);color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:4px 10px;background:var(--surface)}
+.hero-extra{margin-top:20px;color:var(--ink-2);font-size:15px}
+.hero-extra p{margin:0 0 8px;max-width:70ch}
+
+.doc h2{font:700 clamp(22px,2.6vw,28px)/1.15 var(--f-disp);margin:56px 0 14px;padding-top:14px;border-top:1px solid var(--line);letter-spacing:.005em;text-wrap:balance}
+.doc h3{font:600 19px/1.3 var(--f-disp);margin:34px 0 10px;color:var(--ink)}
+.doc h4{font:600 16px/1.35 var(--f-body);margin:26px 0 8px;color:var(--accent)}
+.doc h5{font:600 14px var(--f-mono);margin:20px 0 6px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.hero + h2,.hero + .assess-bar + h2{border-top:0;margin-top:30px;padding-top:0}
+.doc h2.banner{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.doc h2.banner .code{font:700 14px var(--f-mono);color:var(--bg);background:var(--accent);padding:4px 9px;border-radius:6px}
+.doc h2.banner .tag{font:600 11px var(--f-mono);letter-spacing:.1em;color:var(--warn);border:1px solid currentColor;border-radius:999px;padding:3px 10px}
+.doc p{margin:0 0 14px;max-width:74ch}
+.doc p.lead-in{font:600 14.5px var(--f-body);color:var(--ink);margin:20px 0 8px}
+.doc ul,.doc ol{margin:0 0 16px;padding-left:22px;max-width:74ch}
+.doc li{margin:4px 0}
+.doc li>ul,.doc li>ol{margin:4px 0}
+.doc li::marker{color:var(--accent)}
+.doc strong{font-weight:600;color:var(--ink)}
+.doc code{font:500 .86em var(--f-mono);background:var(--sunk);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.doc pre{background:var(--code-bg);color:var(--code-ink);border-radius:10px;padding:14px 16px;overflow:auto;font:13px/1.55 var(--f-mono);margin:0 0 18px;border:1px solid var(--line)}
+.doc pre code{background:none;border:0;padding:0;color:inherit;font-size:inherit}
+.doc blockquote{margin:0 0 16px;padding:10px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 8px 8px 0}
+.doc blockquote p{margin:0}
+.callout{border:1px solid var(--line);border-left:3px solid var(--accent);background:var(--surface);border-radius:10px;padding:14px 18px;margin:18px 0 20px;box-shadow:var(--shadow)}
+.callout>*:last-child{margin-bottom:0}
+.callout p{max-width:none}
+.callout.warn{border-left-color:var(--warn);background:var(--warn-soft)}
+.callout.tip{border-left-color:var(--tip);background:var(--tip-soft)}
+.tbl-wrap{overflow-x:auto;margin:0 0 20px;border:1px solid var(--line);border-radius:10px;background:var(--surface);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+thead th{position:sticky;top:0;background:var(--sunk);font:600 11.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);border-bottom:1px solid var(--line-2);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:color-mix(in srgb,var(--accent) 4%,transparent)}
+td p{margin:0 0 6px;max-width:none}
+td p:last-child{margin:0}
+td ul,td ol{margin:0;padding-left:18px}
+.tbl-wrap table.wide{min-width:760px}
+
+/* autoavaliação */
+.assess-bar{position:sticky;top:0;z-index:20;margin:18px 0 0;padding:10px 14px;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:10px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font:500 12.5px var(--f-mono);color:var(--ink-2)}
+.assess-bar .meter{flex:1 1 180px;height:8px;border-radius:4px;background:var(--sunk);overflow:hidden;display:flex}
+.assess-bar .meter i{display:block;height:100%}
+.k-d{--k:var(--tip)} .k-r{--k:var(--warn)} .k-e{--k:#E5484D}
+.assess-bar b{color:var(--k,var(--ink))}
+.assess-bar button{margin-left:auto}
+table.assess td:nth-child(1){font-weight:600;min-width:160px}
+table.assess td:nth-child(5){white-space:nowrap;font:500 12px var(--f-mono);color:var(--ink-3)}
+td.mark{white-space:nowrap}
+.mk{display:inline-flex;gap:4px}
+.mk button{border:1px solid var(--line-2);background:transparent;color:var(--ink-3);border-radius:6px;padding:3px 7px;font:600 11px var(--f-mono);cursor:pointer}
+.mk button:hover{border-color:var(--k);color:var(--k)}
+.mk button[aria-pressed="true"]{background:var(--k);border-color:var(--k);color:var(--bg)}
+.sec-count{font:500 12px var(--f-mono);color:var(--ink-3);margin:-6px 0 12px}
+
+
+/* componentes extras */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:18px 0 22px}
+.stats div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow)}
+.stats b{display:block;font:700 30px/1 var(--f-disp);color:var(--accent)}
+.stats span{font:500 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin:0 0 20px}
+.cols>div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.cols h5{margin:0 0 6px;color:var(--accent)}
+.cols ul{margin:0;padding-left:18px;font-size:14px}
+.res{list-style:none;padding:0!important;margin:0 0 20px;display:grid;gap:6px}
+.res li{display:flex;gap:10px;align-items:baseline;font-size:14px;margin:0}
+.res li::marker{content:none}
+.badge{flex:none;font:600 10px var(--f-mono);letter-spacing:.08em;padding:2px 7px;border-radius:5px;border:1px solid currentColor}
+.badge.free{color:var(--tip)} .badge.paid{color:var(--warn)}
+.phase{margin:64px 0 0;padding:22px 22px 6px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,var(--accent-soft),transparent 60%)}
+.phase .kicker{margin-bottom:4px}
+.doc .phase h2{border-top:0;margin-top:6px;padding-top:0}
+.mod-k{font:600 11px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:34px 0 0}
+.doc .mod-k + h3{margin-top:4px}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:0 0 18px}
+.split div{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.split b{font:700 24px var(--f-disp);color:var(--accent);display:block}
+
+.mobile-bar{display:none}
+.fab{position:fixed;left:16px;bottom:16px;z-index:50;font:600 12px/1 var(--f-mono);letter-spacing:.12em;color:#35E0FF!important;background:rgba(6,10,18,.9)!important;border:1px solid rgba(53,224,255,.45);padding:9px 13px;border-radius:999px;text-decoration:none;box-shadow:0 0 18px rgba(53,224,255,.25);display:none}
+.totop{position:fixed;right:18px;bottom:18px;z-index:50;width:40px;height:40px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:var(--shadow)}
+.totop.show{opacity:1;pointer-events:auto}
+@media (max-width:980px){
+  .shell{grid-template-columns:1fr}
+  aside{position:fixed;inset:0 auto 0 0;width:min(86vw,320px);z-index:70;transform:translateX(-102%);transition:transform .25s ease;box-shadow:var(--shadow)}
+  aside.open{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(5,8,15,.5);z-index:65;display:none}
+  .scrim.open{display:block}
+  .mobile-bar{display:flex;position:sticky;top:0;z-index:40;align-items:center;gap:10px;padding:10px 16px;margin:0 calc(-1 * clamp(16px,5vw,64px));background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .mobile-bar button{border:1px solid var(--line-2);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 10px;font:600 12px var(--f-mono);cursor:pointer}
+  .mobile-bar span{font:700 13px var(--f-disp);text-transform:uppercase;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .fab{display:inline-block}
+  .hero{padding-top:28px}
+  table.assess thead{display:none}
+  .tbl-wrap table.assess{min-width:0}
+  .assess-bar{top:54px}
+  .mobile-bar button{white-space:nowrap}
+  table.assess,table.assess tbody,table.assess tr,table.assess td{display:block;width:100%}
+  table.assess tr{border-bottom:1px solid var(--line);padding:10px 12px}
+  table.assess td{border:0;padding:3px 0}
+  table.assess td[data-l]::before{content:attr(data-l);display:block;font:600 10.5px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+  table.assess td:nth-child(1){font-size:16px}
+}
+@media print{
+  aside,.mobile-bar,.fab,.totop,#progress,.assess-bar button{display:none!important}
+  .shell{display:block} main{padding:0} body{background:#fff;color:#000}
+  .tbl-wrap,.callout{box-shadow:none}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body data-doc="engenharia-guia-devin">
+<div id="progress"></div>
+<div class="scrim"></div>
+<div class="shell">
+<aside aria-label="Sumário">
+  <div class="side-top">
+    <a class="hub" href="../../index.html">◂ RAFAEL<b>//</b>HUB</a>
+    <p class="side-title">Guia Prático do Devin</p>
+    <input class="filter" id="filter" type="search" placeholder="Filtrar seções…  ( / )" aria-label="Filtrar seções">
+  </div>
+  <nav class="toc"><a href="#parte-1-conceitos-o-que-é-o-devin-e-como-ele-funciona" class="l2">Parte 1 — Conceitos: o que é o Devin e como ele funciona</a>
+<a href="#11-definição" class="l3">1.1 Definição</a>
+<a href="#12-como-uma-sessão-funciona" class="l3">1.2 Como uma sessão funciona</a>
+<a href="#13-as-superfícies-do-produto" class="l3">1.3 As superfícies do produto</a>
+<a href="#14-principais-características-funcionais" class="l3">1.4 Principais características funcionais</a>
+<a href="#15-onde-o-devin-rende-e-onde-não-rende" class="l3">1.5 Onde o Devin rende — e onde não rende</a>
+<a href="#parte-2-devin-e-claude-uma-comparação-direta" class="l2">Parte 2 — Devin e Claude: uma comparação direta</a>
+<a href="#21-quadro-comparativo" class="l3">2.1 Quadro comparativo</a>
+<a href="#22-como-dividir-o-trabalho-na-prática" class="l3">2.2 Como dividir o trabalho na prática</a>
+<a href="#parte-3-comandos-e-recursos-do-dia-a-dia" class="l2">Parte 3 — Comandos e recursos do dia a dia</a>
+<a href="#31-iniciar-retomar-e-encerrar-sessões-cli" class="l3">3.1 Iniciar, retomar e encerrar sessões (CLI)</a>
+<a href="#32-modos-de-operação-e-nível-de-autonomia" class="l3">3.2 Modos de operação e nível de autonomia</a>
+<a href="#33-gestão-da-conversa-e-do-histórico" class="l3">3.3 Gestão da conversa e do histórico</a>
+<a href="#34-diretórios-de-trabalho-mudar-o-escopo-da-sessão" class="l3">3.4 Diretórios de trabalho: mudar o escopo da sessão</a>
+<a href="#35-skills-o-recurso-mais-valioso-para-trabalho-repetitivo" class="l3">3.5 Skills — o recurso mais valioso para trabalho repetitivo</a>
+<a href="#36-carregar-arquivos-markdown-como-contexto" class="l3">3.6 Carregar arquivos Markdown como contexto</a>
+<a href="#37-configuração" class="l3">3.7 Configuração</a>
+<a href="#38-mcp-conectar-o-agente-às-ferramentas-do-ecossistema" class="l3">3.8 MCP — conectar o agente às ferramentas do ecossistema</a>
+<a href="#39-subagentes" class="l3">3.9 Subagentes</a>
+<a href="#310-modelos" class="l3">3.10 Modelos</a>
+<a href="#311-comandos-do-devin-cloud-aplicação-web" class="l3">3.11 Comandos do Devin Cloud (aplicação web)</a>
+<a href="#312-manutenção-e-autenticação" class="l3">3.12 Manutenção e autenticação</a>
+<a href="#parte-4-otimizar-consumo-e-maximizar-a-experiência" class="l2">Parte 4 — Otimizar consumo e maximizar a experiência</a>
+<a href="#41-as-variáveis-que-puxam-o-consumo-para-cima" class="l3">4.1 As variáveis que puxam o consumo para cima</a>
+<a href="#42-regras-de-ouro" class="l3">4.2 Regras de ouro</a>
+<a href="#43-qualidade-do-prompt-o-que-a-documentação-chama-de-bom" class="l3">4.3 Qualidade do prompt: o que a documentação chama de bom</a>
+<a href="#44-feedback-loops-e-verificação" class="l3">4.4 Feedback loops e verificação</a>
+<a href="#45-rotina-sugerida-para-um-arquiteto" class="l3">4.5 Rotina sugerida para um arquiteto</a>
+<a href="#anexo-artefatos-prontos-para-copiar" class="l2">Anexo — Artefatos prontos para copiar</a>
+<a href="#a1-skill-investigação-de-módulo-somente-leitura" class="l3">A.1 Skill: investigação de módulo (somente leitura)</a>
+<a href="#a2-skill-verificação-antes-do-pr" class="l3">A.2 Skill: verificação antes do PR</a>
+<a href="#a3-skill-de-orquestração-com-subagentes-cli" class="l3">A.3 Skill de orquestração com subagentes (CLI)</a>
+<a href="#a4-estrutura-de-arquivos-recomendada-no-repositório" class="l3">A.4 Estrutura de arquivos recomendada no repositório</a>
+<a href="#a5-fontes" class="l3">A.5 Fontes</a></nav>
+  <div class="side-foot"><span>convertido de .docx</span><button class="theme" id="theme" type="button">tema: auto</button></div>
+</aside>
+<main>
+  <div class="mobile-bar"><button id="menu" type="button" aria-label="Abrir sumário">☰ Sumário</button><span>Guia Prático do Devin</span></div>
+  <article class="doc">
+    <header class="hero">
+      <div class="kicker">BUILD.OPS · Ferramenta</div>
+      <h1>Guia Prático do Devin</h1>
+      <p class="sub">Conceitos, comandos e boas práticas do Devin (Cognition) para arquitetos de soluções</p>
+      <div class="chips"><span class="chip">4 partes + anexo</span><span class="chip">julho/2026</span><span class="chip">convertido de .docx</span></div>
+      <div class="hero-extra"><p><em>Baseado na documentação oficial (docs.devin.ai)</em></p>
+<div class="callout note"><p><strong>Como usar este guia</strong></p>
+<p>As Partes 1 e 2 dão o modelo mental — o que o Devin é, como ele executa e onde ele difere de um assistente de chat. A Parte 3 é a referência de bolso: cada comando aparece com o que faz, sintaxe e um exemplo em contexto de arquitetura corporativa. A Parte 4 trata de consumo (ACUs) e de como extrair mais do produto com menos sessão desperdiçada. O Anexo traz artefatos prontos para copiar.</p></div></div>
+    </header>
+<h2 id="parte-1-conceitos-o-que-é-o-devin-e-como-ele-funciona">Parte 1 — Conceitos: o que é o Devin e como ele funciona</h2>
+<h3 id="11-definição">1.1 Definição</h3>
+<p>O Devin é descrito pela Cognition como um engenheiro de software autônomo baseado em nuvem: ele escreve, executa e testa código por conta própria. A régua sugerida na própria documentação é direta — se uma tarefa levaria até cerca de três horas de trabalho manual, provavelmente o Devin dá conta dela.</p>
+<p>A diferença estrutural em relação a um assistente de código convencional é que o Devin não devolve apenas texto: ele recebe uma tarefa, monta um plano, opera uma máquina virtual completa, abre pull requests e responde a comentários de revisão. O ciclo natural de uso é “prompt → sessão → PR”.</p>
+<h3 id="12-como-uma-sessão-funciona">1.2 Como uma sessão funciona</h3>
+<p>Cada sessão do Devin roda em uma máquina virtual dedicada. Essa VM parte de um snapshot pré-configurado que já contém os repositórios conectados, dependências instaladas e ferramentas de build. A documentação usa uma analogia útil: sem essa configuração prévia, é como se, a cada tarefa, o notebook e parte da memória do engenheiro fossem apagados.</p>
+<p>Dentro da sessão, o Devin opera três ferramentas visíveis para o usuário:</p>
+<ul><li>
+<strong>Shell</strong> — terminal onde os comandos são executados e os logs podem ser acompanhados e copiados.
+</li><li>
+<strong>IDE</strong> — editor de código embarcado. Você pode assumir o controle a qualquer momento, editar diretamente e devolver a sessão ao agente.
+</li><li>
+<strong>Browser</strong> — navegador real, usado para ler documentação, testar a aplicação, baixar e subir arquivos. Há um modo interativo em que você navega junto.
+</li></ul>
+<p>O consumo é medido em ACUs (Agent Compute Units) no plano Enterprise, ou em cota/créditos on-demand nos planos self-serve. O detalhe operacional relevante: o Devin não consome enquanto espera sua resposta, enquanto uma suíte de testes roda ou durante o clone e setup dos repositórios. Quando a sessão fica ociosa, ele dorme — e sessão dormindo não consome. O adormecimento automático ocorre tipicamente após cerca de 0,1 ACU de inatividade.</p>
+<h3 id="13-as-superfícies-do-produto">1.3 As superfícies do produto</h3>
+<p>“Devin” hoje é um guarda-chuva com várias portas de entrada. Saber em qual delas você está evita metade da confusão com comandos, porque nem todo recurso existe em todas.</p>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Superfície</strong></th><th><strong>O que é</strong></th><th><strong>Observação prática</strong></th></tr></thead><tbody><tr><td><p>Devin Cloud (app.devin.ai)</p></td><td><p>Agente autônomo na nuvem, com IDE, shell e browser próprios.</p></td><td><p>Superfície completa: Playbooks, Knowledge, Secrets, Automations, sessões agendadas.</p></td></tr><tr><td><p>Devin CLI (Devin for Terminal)</p></td><td><p>Agente local que roda no seu terminal, sobre os seus arquivos.</p></td><td><p>Rápido e interativo. Ainda não suporta Knowledge, Playbooks e Secrets da conta cloud.</p></td></tr><tr><td><p>Devin Desktop</p></td><td><p>IDE derivada do Windsurf, com Cascade, autocomplete e Agent Command Center.</p></td><td><p>Para quem quer o agente dentro do editor.</p></td></tr><tr><td><p>Devin API</p></td><td><p>REST (v1/v2/v3) para criar sessões, gerenciar knowledge, playbooks, secrets e métricas.</p></td><td><p>Base de automações e de integração com esteiras internas.</p></td></tr><tr><td><p>Integrações</p></td><td><p>GitHub, GitLab, Bitbucket, Azure DevOps, Jira, Linear, Slack, Teams, MCP.</p></td><td><p>É onde o Devin deixa de ser ferramenta e vira colega de time.</p></td></tr></tbody></table></div>
+<h3 id="14-principais-características-funcionais">1.4 Principais características funcionais</h3>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Recurso</strong></th><th><strong>Para que serve</strong></th></tr></thead><tbody><tr><td><p>Knowledge</p></td><td><p>Banco de dicas, convenções e instruções que o Devin recupera automaticamente quando relevante, em todas as sessões. Cada item tem uma trigger description que controla a recuperação; pode ser fixado em um repositório específico ou em todos.</p></td></tr><tr><td><p>Playbooks</p></td><td><p>Prompts reutilizáveis e compartilháveis para tarefas repetidas, gerenciados na aplicação web. Funcionam como um system prompt customizado por tipo de tarefa, com histórico de versões.</p></td></tr><tr><td><p>Skills</p></td><td><p>Arquivos SKILL.md versionados no repositório que ensinam procedimentos reutilizáveis (testar antes do PR, publicar, investigar um módulo). Seguem o padrão aberto Agent Skills.</p></td></tr><tr><td><p>AGENTS.md</p></td><td><p>Padrão aberto de contexto sempre ativo por projeto — comandos de setup, estilo de código, estrutura de pastas, fluxo de trabalho.</p></td></tr><tr><td><p>DeepWiki</p></td><td><p>Indexação automática dos repositórios gerando wiki com diagramas de arquitetura, resumos e links para o código-fonte.</p></td></tr><tr><td><p>Ask Devin</p></td><td><p>Perguntas sobre a base de código, planejamento de tarefas e geração de sessões já com contexto.</p></td></tr><tr><td><p>MultiDevin</p></td><td><p>Delegação de backlogs grandes a um time de Devins trabalhando em paralelo.</p></td></tr><tr><td><p>Devin Review</p></td><td><p>Revisão de pull requests, com Auto-Fix respondendo a comentários e falhas de CI.</p></td></tr><tr><td><p>Automations e sessões agendadas</p></td><td><p>Disparo de sessões por evento (webhook, ticket, mensagem) ou por agenda.</p></td></tr><tr><td><p>Secrets &amp; Site Cookies</p></td><td><p>Compartilhamento seguro de credenciais para que o Devin acesse ferramentas internas.</p></td></tr><tr><td><p>Session Insights</p></td><td><p>Análise das sessões, consumo por sessão e feedback acionável para melhorar as próximas.</p></td></tr></tbody></table></div>
+<h3 id="15-onde-o-devin-rende-e-onde-não-rende">1.5 Onde o Devin rende — e onde não rende</h3>
+<p>A documentação de casos de uso corporativos é explícita quanto ao formato de trabalho que funciona. Vale internalizar isso antes de qualquer comando, porque nenhum truque de prompt compensa uma tarefa mal fatiada.</p>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Rende bem</strong></th><th><strong>Rende mal</strong></th></tr></thead><tbody><tr><td><p>Backlog grande de tarefas repetitivas e horizontalmente escaláveis (ex.: resolver issues de SonarQube em centenas de módulos).</p></td><td><p>Feature nova, complexa e profunda, com muitas decisões de design em aberto.</p></td></tr><tr><td><p>Migrações, refatorações e modernizações fatiadas em slices independentes (JavaScript → TypeScript, upgrade de Java, COBOL, SAS → PySpark, NoSQL → SQL).</p></td><td><p>Migração de repositório inteiro que exige todas as mudanças de uma vez.</p></td></tr><tr><td><p>Tarefas de complexidade de engenheiro júnior, isoladas, incrementais e objetivamente verificáveis.</p></td><td><p>Tarefas com dependências externas pesadas ou sem critério claro de sucesso.</p></td></tr><tr><td><p>Slices que caberiam em menos de 90 minutos de trabalho manual e são retrocompatíveis.</p></td><td><p>Estética e design sem especificação — o Devin constrói a partir de um Figma ou spec, mas não inventa a estética.</p></td></tr></tbody></table></div>
+<div class="callout note"><p><strong>O princípio do “wide &amp; shallow”</strong></p>
+<p>A documentação contrapõe tarefas “tall &amp; deep” (altas e profundas) a “wide &amp; shallow” (largas e rasas). O Devin é confiável no segundo formato. Quanto mais simples o slice, mais confiável o projeto inteiro — e como não há limite de sessões concorrentes, a alavanca de produtividade está em paralelizar slices simples, não em pedir uma coisa gigante.</p></div>
+<h2 id="parte-2-devin-e-claude-uma-comparação-direta">Parte 2 — Devin e Claude: uma comparação direta</h2>
+<p>As duas ferramentas são frequentemente colocadas na mesma prateleira, mas resolvem problemas diferentes. A comparação abaixo é funcional, não de mérito — e, na prática, a maioria dos arquitetos acaba usando as duas em momentos distintos do mesmo trabalho.</p>
+<h3 id="21-quadro-comparativo">2.1 Quadro comparativo</h3>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Dimensão</strong></th><th><strong>Devin (Cognition)</strong></th><th><strong>Claude (Anthropic)</strong></th></tr></thead><tbody><tr><td><p>Natureza</p></td><td><p>Agente de engenharia autônomo com máquina própria. Recebe a tarefa e sai executando.</p></td><td><p>Modelo de linguagem acessível por chat, API e agentes (Claude Code, Cowork). O grau de autonomia depende da superfície escolhida.</p></td></tr><tr><td><p>Ambiente de execução</p></td><td><p>VM em nuvem dedicada por sessão, com shell, IDE e browser reais. O CLI roda local sobre seus arquivos.</p></td><td><p>Claude Code e Cowork executam no seu ambiente (terminal, desktop); a interface de chat trabalha em um sandbox de análise, sem acesso ao seu repositório.</p></td></tr><tr><td><p>Unidade de trabalho</p></td><td><p>Sessão → pull request. Fluxo desenhado para terminar em código mergeável.</p></td><td><p>Conversa, artefato ou tarefa delegada. O código é um entre vários resultados possíveis.</p></td></tr><tr><td><p>Contexto persistente</p></td><td><p>Knowledge (org/enterprise), Playbooks, Skills em repositório, AGENTS.md, snapshots de máquina.</p></td><td><p>Memória entre conversas, Projects, Skills e arquivos anexados; instruções de estilo e preferências por usuário.</p></td></tr><tr><td><p>Paralelismo</p></td><td><p>Sessões concorrentes ilimitadas e MultiDevin para orquestrar times de agentes.</p></td><td><p>Subagentes e múltiplas sessões de Claude Code; a orquestração é mais manual.</p></td></tr><tr><td><p>Integrações nativas</p></td><td><p>Git (GitHub/GitLab/Bitbucket/ADO), Jira, Linear, Slack, Teams, MCP, CI.</p></td><td><p>MCP, conectores (Drive, Slack, etc.), extensões para Chrome, Excel, PowerPoint, Word, Outlook.</p></td></tr><tr><td><p>Medida de consumo</p></td><td><p>ACUs ou cota/créditos, proporcionais ao trabalho executado e ao tempo de VM.</p></td><td><p>Tokens por mensagem; limites por plano ou por chamada de API.</p></td></tr><tr><td><p>Modelo subjacente</p></td><td><p>Modelos próprios (família SWE) e de terceiros — Anthropic, OpenAI, Google e abertos, selecionáveis por sessão.</p></td><td><p>Modelos da própria Anthropic (Opus, Sonnet, Haiku, Fable/Mythos).</p></td></tr><tr><td><p>Ponto forte</p></td><td><p>Volume: fatiar um backlog e deixar rodar sem supervisão contínua.</p></td><td><p>Raciocínio, redação técnica, análise arquitetural, documentação e trabalho exploratório.</p></td></tr><tr><td><p>Ponto fraco</p></td><td><p>Tarefas ambíguas, decisões de design em aberto, estética sem especificação.</p></td><td><p>Não opera uma VM persistente de longa duração nem abre PRs por conta própria na interface de chat.</p></td></tr></tbody></table></div>
+<h3 id="22-como-dividir-o-trabalho-na-prática">2.2 Como dividir o trabalho na prática</h3>
+<p>Para um arquiteto de soluções, o encaixe mais produtivo costuma ser este:</p>
+<ul><li>
+<strong>Pense e especifique com o Claude. </strong>Comparativos de tecnologia, ADRs, avaliação de trade-offs, desenho de fatiamento de uma migração, redação do prompt/playbook que o Devin vai executar, documentação para públicos mistos.
+</li><li>
+<strong>Execute e escale com o Devin. </strong>Depois que o slice está definido e verificável, é o Devin quem abre cem sessões, roda os testes e devolve cem PRs.
+</li><li>
+<strong>Revise com os dois. </strong>O Devin Review fecha o loop dentro do PR; a leitura crítica do desenho continua sendo trabalho humano assistido.
+</li></ul>
+<div class="callout note"><p><strong>Um detalhe de compatibilidade que economiza retrabalho</strong></p>
+<p>O Devin CLI lê arquivos de outras ferramentas: AGENTS.md, AGENT.md e CLAUDE.md são tratados de forma idêntica como regras sempre ativas, e o CLI também lê ~/.claude/CLAUDE.md como regra global, além de importar skills e subagentes do formato .claude/. Ou seja: o material de contexto que você escreve para um agente aproveita no outro, sem duplicação.</p></div>
+<h2 id="parte-3-comandos-e-recursos-do-dia-a-dia">Parte 3 — Comandos e recursos do dia a dia</h2>
+<p>Cada item abaixo segue o mesmo formato: o que faz, sintaxe e um exemplo em contexto. Os comandos com prefixo devin são de terminal; os com barra (/) são digitados dentro de uma sessão interativa.</p>
+<h3 id="31-iniciar-retomar-e-encerrar-sessões-cli">3.1 Iniciar, retomar e encerrar sessões (CLI)</h3>
+<pre><code>devin</code></pre>
+<p><strong>O que faz. </strong>Abre uma sessão interativa (REPL) no diretório atual. Com um prompt inicial, já começa trabalhando. Use -- antes do texto para que ele não seja interpretado como subcomando.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>devin [OPTIONS] [prompt]
+devin -- &lt;seu prompt&gt;</code></pre>
+<p><strong>Exemplo — </strong><em>abrir sessão já apontando a tarefa em um serviço legado</em></p>
+<pre><code>cd ~/repos/credito-integracoes
+devin -- mapeie todos os pontos de integracao SOAP deste servico e
+     liste os que ainda usam autenticacao basica
+devin -p / --print</code></pre>
+<p><strong>O que faz. </strong>Executa em turno único, imprime a resposta no stdout e sai. É o modo para scripts, pipelines e automações.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>devin -p "&lt;prompt&gt;"
+devin -p -- &lt;prompt sem aspas&gt;</code></pre>
+<p><strong>Exemplo — </strong><em>gerar inventário de dependências para um relatório de arquitetura</em></p>
+<pre><code>devin -p "liste todas as dependencias com CVE conhecida no pom.xml" \
+  &gt; inventario-cve.txt
+devin --prompt-file</code></pre>
+<p><strong>O que faz. </strong>Carrega o prompt inicial a partir de um arquivo, em vez de digitá-lo. É a forma mais limpa de reaproveitar uma especificação longa em Markdown como ponto de partida.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>devin --prompt-file &lt;arquivo&gt;</code></pre>
+<p><strong>Exemplo — </strong><em>usar uma especificação de migração escrita previamente</em></p>
+<pre><code>devin --prompt-file specs/migracao-java17.md</code></pre>
+<p><strong>Nota: </strong><em>Combine com --model para tarefas mais pesadas: devin --model opus --prompt-file specs/migracao-java17.md</em></p>
+<pre><code>devin -c  |  devin -r</code></pre>
+<p><strong>O que faz. </strong>-c (--continue) retoma a sessão mais recente do diretório atual. -r (--resume) abre o seletor de sessões ou retoma uma sessão específica por ID.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>devin -c
+devin -r
+devin -r &lt;SESSION_ID&gt;</code></pre>
+<p><strong>Exemplo — </strong><em>voltar depois do almoço para a sessão de refatoração</em></p>
+<pre><code>devin -c
+# ou, escolhendo entre várias:
+devin -r brisk-otter
+devin list  |  devin ls</code></pre>
+<p><strong>O que faz. </strong>Lista as sessões do diretório atual. Aceita saída estruturada, útil para inventariar o que foi executado.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>devin list
+devin list --format json
+devin list --format csv</code></pre>
+<p><strong>Exemplo — </strong><em>exportar as sessões da semana para prestação de contas</em></p>
+<pre><code>devin list --format csv &gt; sessoes-sprint-42.csv
+devin --export</code></pre>
+<p><strong>O que faz. </strong>Exporta a conversa para um arquivo após cada turno, em formato ATIF. Serve como trilha de auditoria da sessão.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>devin --export [CAMINHO] -- &lt;prompt&gt;</code></pre>
+<p><strong>Exemplo — </strong><em>manter registro de uma alteração sensível</em></p>
+<pre><code>devin --export evidencias/refatoracao-auth.json -- \
+  extraia a validacao de token para um modulo comum</code></pre>
+<h3 id="32-modos-de-operação-e-nível-de-autonomia">3.2 Modos de operação e nível de autonomia</h3>
+<p>Modos combinam um nível de permissão com um perfil de agente. Trocar de modo é a alavanca mais direta que existe entre “o agente me pergunta tudo” e “o agente resolve sozinho”.</p>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Modo</strong></th><th><strong>Comando</strong></th><th><strong>Comportamento</strong></th></tr></thead><tbody><tr><td><p>Normal (padrão)</p></td><td><p>/normal ou /mode normal</p></td><td><p>Aprova automaticamente leituras no diretório atual; pede permissão para escrever e executar.</p></td></tr><tr><td><p>Accept Edits</p></td><td><p>/accept-edits</p></td><td><p>Aprova edições de arquivo no workspace, mas ainda pergunta sobre comandos de shell. É onde se passa a maior parte do tempo.</p></td></tr><tr><td><p>Plan</p></td><td><p>/plan</p></td><td><p>Somente planejamento, com ferramentas de leitura. Nada é modificado.</p></td></tr><tr><td><p>Ask</p></td><td><p>/ask &lt;pergunta&gt;</p></td><td><p>Pergunta pontual, sem alterar código e sem trocar o modo corrente.</p></td></tr><tr><td><p>Bypass</p></td><td><p>/bypass (aliases /yolo, /dangerous)</p></td><td><p>Aprova tudo automaticamente. Nunca sobrepõe políticas de organização definidas pelo administrador.</p></td></tr><tr><td><p>Autonomous</p></td><td><p>devin --sandbox --permission-mode autonomous</p></td><td><p>Equivalente ao Accept Edits com execução de qualquer comando dentro de um sandbox de sistema operacional. Só existe com --sandbox.</p></td></tr></tbody></table></div>
+<p><strong>Atalho: </strong><code>Shift+Tab</code> cicla entre os modos sem digitar nada.</p>
+<pre><code>/plan</code></pre>
+<p><strong>O que faz. </strong>Coloca o agente em modo somente-leitura para desenhar a abordagem antes de tocar em qualquer arquivo. Para arquiteto, é o modo padrão de entrada em um repositório desconhecido.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>/plan
+/mode plan</code></pre>
+<p><strong>Exemplo — </strong><em>avaliar impacto antes de autorizar a mudança</em></p>
+<pre><code>/plan
+Preciso separar a camada de calculo de limite de credito do controller.
+Mapeie os pontos de acoplamento, proponha a fatia minima segura e
+estime o risco de regressao. Nao altere nada ainda.</code></pre>
+<h3 id="33-gestão-da-conversa-e-do-histórico">3.3 Gestão da conversa e do histórico</h3>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Comando</strong></th><th><strong>O que faz</strong></th></tr></thead><tbody><tr><td><pre><code>/clear (alias /new)</code></pre></td><td><p>Limpa o histórico e começa uma sessão nova — o jeito mais barato de sair de um contexto poluído.</p></td></tr><tr><td><pre><code>/continue [id]</code></pre></td><td><p>Retoma uma sessão anterior.</p></td></tr><tr><td><pre><code>/resume [id]</code></pre></td><td><p>Abre o seletor interativo de sessões ou retoma pelo ID.</p></td></tr><tr><td><pre><code>/ls [--all]</code></pre></td><td><p>Lista sessões recentes; --all cobre todos os diretórios.</p></td></tr><tr><td><pre><code>/steps</code></pre></td><td><p>Lista os passos da conversa, para usar com /fork e /revert.</p></td></tr><tr><td><pre><code>/fork [passo]</code></pre></td><td><p>Cria uma nova sessão a partir da atual, opcionalmente de um passo específico.</p></td></tr><tr><td><pre><code>/revert &lt;passo&gt;</code></pre></td><td><p>Desfaz as alterações de arquivo a partir daquele passo e rebobina a conversa.</p></td></tr><tr><td><pre><code>/rename-session &lt;título&gt;</code></pre></td><td><p>Renomeia a sessão corrente.</p></td></tr><tr><td><pre><code>/rm-session &lt;id&gt;</code></pre></td><td><p>Apaga irreversivelmente uma sessão e seus dados.</p></td></tr><tr><td><pre><code>/context</code></pre></td><td><p>Mostra o uso atual da janela de contexto.</p></td></tr><tr><td><pre><code>/compact</code></pre></td><td><p>Força a compactação da conversa.</p></td></tr><tr><td><pre><code>/btw &lt;prompt&gt;</code></pre></td><td><p>Pergunta lateral: responde usando o contexto atual sem inserir a pergunta na conversa principal.</p></td></tr><tr><td><pre><code>/loop &lt;prompt&gt;</code></pre></td><td><p>Executa o prompt e revisa o diff em laço automático (exige árvore git limpa para começar).</p></td></tr></tbody></table></div>
+<pre><code>/fork e /revert</code></pre>
+<p><strong>O que faz. </strong>Permitem explorar duas abordagens a partir do mesmo ponto ou voltar atrás quando o agente seguiu por um caminho ruim, sem perder o trabalho anterior.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>/steps
+/fork &lt;numero-do-passo&gt;
+/revert &lt;numero-do-passo&gt;</code></pre>
+<p><strong>Exemplo — </strong><em>comparar duas estratégias de desacoplamento</em></p>
+<pre><code>/steps
+# passo 6 é onde o desenho ainda estava aberto
+/fork 6
+Agora tente a abordagem com fila assincrona em vez de chamada sincrona.
+/btw</code></pre>
+<p><strong>O que faz. </strong>Roda uma cadeia lateral com o contexto atual e imprime a resposta em um quadro, sem sujar a conversa principal. Excelente para dúvidas de arquitetura no meio de uma execução.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>/btw &lt;pergunta&gt;</code></pre>
+<p><strong>Exemplo — </strong><em>checar uma convenção sem quebrar o fluxo do agente</em></p>
+<pre><code>/btw esse projeto usa Flyway ou Liquibase para migracao de schema?</code></pre>
+<h3 id="34-diretórios-de-trabalho-mudar-o-escopo-da-sessão">3.4 Diretórios de trabalho: mudar o escopo da sessão</h3>
+<p>Por padrão, a sessão do CLI enxerga o diretório onde foi iniciada, e a raiz do projeto é detectada procurando por .git ou .jj a partir do diretório corrente para cima. Em cenários multi-repositório — comuns em arquitetura corporativa — é preciso ampliar o workspace explicitamente.</p>
+<pre><code>/workspace  |  /add-dir  |  /undo-add-dir</code></pre>
+<p><strong>O que faz. </strong>Lista, adiciona e remove diretórios do workspace da sessão. Adicionar um diretório dá ao agente acesso de leitura e escrita àquele caminho durante a sessão.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>/workspace
+/add-dir &lt;caminho&gt;
+/undo-add-dir &lt;caminho&gt;</code></pre>
+<p><strong>Exemplo — </strong><em>trabalhar em contrato de API compartilhado entre produtor e consumidor</em></p>
+<pre><code>cd ~/repos/servico-consumidor
+devin
+/add-dir ~/repos/servico-produtor
+/add-dir ~/repos/contratos-openapi
+/workspace
+Alinhe o cliente do servico-consumidor ao contrato v3 em contratos-openapi
+e aponte qualquer campo que o produtor ainda nao expoe.</code></pre>
+<p><strong>Nota: </strong><em>Em monorepo com diretórios .devin/ aninhados, a configuração do subdiretório tem precedência sobre a do diretório ancestral.</em></p>
+<h3 id="35-skills-o-recurso-mais-valioso-para-trabalho-repetitivo">3.5 Skills — o recurso mais valioso para trabalho repetitivo</h3>
+<p>Skills são arquivos SKILL.md que ensinam procedimentos reutilizáveis ao agente. Seguem o padrão aberto Agent Skills, o que significa que o mesmo arquivo funciona em várias ferramentas de IA. A diferença em relação a “colocar tudo no AGENTS.md” é decisiva: skills só entram no contexto quando são invocadas — a documentação recomenda explicitamente preferir skills a regras sempre ativas, justamente para melhorar a capacidade de código, a velocidade e o custo.</p>
+<h4 id="onde-os-arquivos-ficam">Onde os arquivos ficam</h4>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Contexto</strong></th><th><strong>Caminho</strong></th><th><strong>Escopo</strong></th></tr></thead><tbody><tr><td><p>Devin Cloud (recomendado)</p></td><td><p>.agents/skills/&lt;nome&gt;/SKILL.md</p></td><td><p>Repositório; descoberto automaticamente em todos os repos conectados</p></td></tr><tr><td><p>Devin Cloud (também aceitos)</p></td><td><p>.github/ · .claude/ · .cursor/ · .codex/ · .cognition/ · .windsurf/ + /skills/&lt;nome&gt;/SKILL.md</p></td><td><p>Repositório</p></td></tr><tr><td><p>Devin CLI — projeto</p></td><td><p>.devin/skills/&lt;nome&gt;/SKILL.md ou .agents/skills/...</p></td><td><p>Projeto, versionado em git</p></td></tr><tr><td><p>Devin CLI — global (Linux/macOS)</p></td><td><p>~/.config/devin/skills/&lt;nome&gt;/SKILL.md</p></td><td><p>Todos os projetos da máquina</p></td></tr><tr><td><p>Devin CLI — global (Windows)</p></td><td><p>%APPDATA%\devin\skills\&lt;nome&gt;\SKILL.md</p></td><td><p>Todos os projetos da máquina</p></td></tr></tbody></table></div>
+<h4 id="anatomia-de-um-skillmd">Anatomia de um SKILL.md</h4>
+<pre><code>---
+name: revisao-adr
+description: Revisa uma mudanca estrutural contra os principios de arquitetura do time
+argument-hint: &lt;modulo ou caminho&gt;
+allowed-tools:
+  - read
+  - grep
+  - glob
+triggers:
+  - user
+model: opus
+---</code></pre>
+<pre><code>## Contexto</code></pre>
+<pre><code>Branch atual: !`git branch --show-current`
+Diff em analise: !`git diff --stat origin/main...HEAD`</code></pre>
+<pre><code>## Procedimento</code></pre>
+<pre><code>1. Leia os arquivos alterados em $ARGUMENTS
+2. Verifique acoplamento entre camadas e vazamento de regra de negocio
+3. Confronte com o padrao descrito em @padroes-arquitetura.md</code></pre>
+<pre><code>## Saida esperada</code></pre>
+<pre><code>Um parecer com: decisao, alternativas descartadas, consequencias e
+riscos, com caminho de arquivo e linha para cada afirmacao.</code></pre>
+<h4 id="campos-do-frontmatter">Campos do frontmatter</h4>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Campo</strong></th><th><strong>Efeito</strong></th></tr></thead><tbody><tr><td><pre><code>name</code></pre></td><td><p>Identifica a skill. Se omitido, usa o nome do diretório.</p></td></tr><tr><td><pre><code>description</code></pre></td><td><p>Resumo mostrado na lista de skills e na autocompletar.</p></td></tr><tr><td><pre><code>argument-hint</code></pre></td><td><p>Texto de ajuda sobre os argumentos esperados.</p></td></tr><tr><td><pre><code>allowed-tools</code></pre></td><td><p>Restringe as ferramentas disponíveis (read, edit, grep, glob, exec e ferramentas MCP). Sem esse campo, a skill tem acesso a tudo.</p></td></tr><tr><td><pre><code>triggers</code></pre></td><td><p>Quem pode invocar: [user, model] por padrão. Use [user] para impedir que o agente ative sozinho.</p></td></tr><tr><td><pre><code>model</code></pre></td><td><p>Sobrescreve o modelo apenas durante a skill; ao terminar, volta ao anterior. (CLI)</p></td></tr><tr><td><pre><code>subagent / agent</code></pre></td><td><p>Executa a skill como subagente, com janela de contexto própria. Experimental. (CLI)</p></td></tr><tr><td><pre><code>permissions</code></pre></td><td><p>Permissões específicas da skill (allow/deny/ask), aditivas às da sessão — nunca concedem o que foi negado em nível superior.</p></td></tr></tbody></table></div>
+<h4 id="conteúdo-dinâmico-no-corpo-da-skill">Conteúdo dinâmico no corpo da skill</h4>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Sintaxe</strong></th><th><strong>O que faz</strong></th></tr></thead><tbody><tr><td><pre><code>$ARGUMENTS</code></pre></td><td><p>Toda a string de argumentos passada na invocação.</p></td></tr><tr><td><pre><code>$0, $1 · $ARGUMENTS[0]</code></pre></td><td><p>Argumentos individuais por índice, separados por espaço.</p></td></tr><tr><td><pre><code>!`comando`</code></pre></td><td><p>Executa o comando na raiz do repositório e injeta a saída.</p></td></tr><tr><td><pre><code>@arquivo.md</code></pre></td><td><p>Inclui o conteúdo do arquivo (relativo ao diretório de configuração). Disponível no CLI.</p></td></tr></tbody></table></div>
+<pre><code>@skills:&lt;nome&gt;   (Devin Cloud)</code></pre>
+<p><strong>O que faz. </strong>Invoca explicitamente uma skill dentro de um prompt, com argumentos opcionais. Apenas uma skill fica ativa por vez — invocar outra substitui a anterior.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>&lt;seu prompt&gt; @skills:&lt;nome&gt; [argumentos]</code></pre>
+<p><strong>Exemplo — </strong><em>forçar a rotina de teste antes de abrir o PR</em></p>
+<pre><code>Corrija o bug de arredondamento no calculo de juros em
+LimiteCreditoService @skills:test-before-pr
+/&lt;nome-da-skill&gt;   (Devin CLI)</code></pre>
+<p><strong>O que faz. </strong>No CLI, cada skill vira um slash command. Argumentos vão logo em seguida.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>/&lt;nome-da-skill&gt; [argumentos]</code></pre>
+<p><strong>Exemplo — </strong><em>rodar a revisão arquitetural sobre um módulo</em></p>
+<pre><code>/revisao-adr src/main/java/br/com/banco/credito/limite
+devin skills</code></pre>
+<p><strong>O que faz. </strong>Gerencia as skills disponíveis: lista, mostra o conteúdo de uma delas e exibe os diretórios onde são procuradas. É o primeiro comando a rodar em um repositório novo.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>devin skills list
+devin skills list --trigger &lt;user|model&gt;
+devin skills show &lt;nome&gt;
+devin skills paths</code></pre>
+<p><strong>Exemplo — </strong><em>descobrir o que já existe antes de escrever uma skill duplicada</em></p>
+<pre><code>devin skills list
+devin skills show deploy
+devin skills paths</code></pre>
+<div class="callout note"><p><strong>O Devin sugere skills sozinho</strong></p>
+<p>Depois de testar a aplicação ou descobrir algo sobre o seu setup durante uma sessão, o Devin propõe criar ou atualizar uma skill, mostrando o conteúdo sugerido do SKILL.md e um botão “Create PR”. Com o tempo, o repositório acumula uma biblioteca de procedimentos sobre como rodar, testar e publicar a aplicação. Vale aceitar essas sugestões — é conhecimento operacional que normalmente só existe na cabeça de duas pessoas do time.</p></div>
+<h4 id="skills-playbooks-e-knowledge-qual-usar">Skills, Playbooks e Knowledge: qual usar</h4>
+<div class="tbl-wrap"><table><thead><tr><th></th><th><strong>Skills</strong></th><th><strong>Playbooks</strong></th><th><strong>Knowledge</strong></th></tr></thead><tbody><tr><td><p>Onde vive</p></td><td><p>No repositório, versionado</p></td><td><p>Na aplicação web</p></td><td><p>Na aplicação web</p></td></tr><tr><td><p>Como entra em cena</p></td><td><p>Automaticamente ou via @skills:nome / /nome</p></td><td><p>Anexado manualmente ao iniciar a sessão (ou por macro !nome)</p></td><td><p>Recuperado automaticamente quando relevante à trigger description</p></td></tr><tr><td><p>Escopo</p></td><td><p>Do repositório</p></td><td><p>Da organização (ou enterprise)</p></td><td><p>Da organização (ou enterprise); pode ser fixado em um repo ou em todos</p></td></tr><tr><td><p>Melhor para</p></td><td><p>Procedimento passo a passo ligado a um repo: testar, publicar, investigar</p></td><td><p>Prompt reutilizável que se repete entre repos e times</p></td><td><p>Convenções, dicas, bugs conhecidos, como usar ferramentas internas</p></td></tr></tbody></table></div>
+<h3 id="36-carregar-arquivos-markdown-como-contexto">3.6 Carregar arquivos Markdown como contexto</h3>
+<p>Há quatro caminhos distintos para levar um .md para dentro do agente, e escolher o errado é a causa mais comum de contexto inflado sem necessidade.</p>
+<h4 id="a-agentsmd-contexto-sempre-ativo-do-projeto">a) AGENTS.md — contexto sempre ativo do projeto</h4>
+<p>Basta colocar um AGENTS.md na raiz do projeto. O Devin lê antes de começar a codificar. O CLI trata AGENTS.md, AGENT.md e CLAUDE.md de forma idêntica, e também lê ~/.claude/CLAUDE.md como regra global.</p>
+<pre><code># AGENTS.md</code></pre>
+<pre><code>## Setup
+- Build: `mvn -q clean package -DskipTests`
+- Testes: `mvn test`
+- Subir dependencias locais: `docker compose up -d`</code></pre>
+<pre><code>## Convencoes
+- Java 17, records para DTO, Lombok proibido
+- Toda chamada externa passa por resilience4j com fallback explicito
+- Migracao de schema apenas via Flyway, nunca DDL manual</code></pre>
+<pre><code>## Skills
+- Antes de abrir PR, use a skill `test-before-pr`
+- Para revisar mudanca estrutural, use a skill `revisao-adr`</code></pre>
+<div class="callout note"><p><strong>Mantenha o AGENTS.md curto</strong></p>
+<p>A documentação é enfática: regras e AGENTS devem ser tão pequenos quanto possível, porque entram no contexto de toda sessão. O padrão recomendado é usar uma regra curta que aponte para as skills a serem usadas em cada cenário — exatamente como no exemplo acima — em vez de despejar o manual inteiro no arquivo.</p></div>
+<h4 id="b-arquivos-em-subdiretórios-carregamento-tardio">b) Arquivos em subdiretórios — carregamento tardio</h4>
+<p>AGENTS.md e regras podem existir em vários níveis do projeto, não só na raiz. Os da raiz do workspace carregam no início da sessão; os de subdiretórios são descobertos de forma preguiçosa, quando o agente acessa arquivos daquela pasta. Em monorepo, isso é a diferença entre um contexto enxuto e um contexto entupido com regras de módulos irrelevantes.</p>
+<h4 id="c-mencionar-arquivos-no-prompt">c) @ — mencionar arquivos no prompt</h4>
+<pre><code>@ (menção de arquivo)</code></pre>
+<p><strong>O que faz. </strong>No campo de entrada do CLI, digitar @ abre o autocompletar de arquivos e diretórios locais. O item selecionado entra como contexto daquela mensagem — pontual, sem virar regra permanente.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>@&lt;caminho-do-arquivo&gt;</code></pre>
+<p><strong>Exemplo — </strong><em>levar uma especificação e um diagrama para a conversa</em></p>
+<pre><code>Implemente o endpoint descrito em @docs/spec-consulta-limite.md
+seguindo o fluxo de @docs/diagrama-sequencia.md</code></pre>
+<p><strong>Nota: </strong><em>Por padrão arquivos em .gitignore não aparecem no autocompletar. Para incluí-los, defina include_gitignored_files: true na configuração de usuário.</em></p>
+<h4 id="d-playbooks-a-partir-de-arquivo-devinmd">d) Playbooks a partir de arquivo .devin.md</h4>
+<p>Na aplicação web, um arquivo salvo com a extensão .devin.md pode ser arrastado para a tela ao iniciar uma sessão, anexando-o como playbook. Se aparecer uma pílula azul com um componente de edição inline, o playbook foi anexado corretamente. Playbooks também recebem macros — identificadores curtos começando com ! — para serem chamados direto no prompt.</p>
+<pre><code># arquivo: migracao-batch.devin.md</code></pre>
+<pre><code>## Overview
+Migrar um job batch de Spring Batch 4 para Spring Batch 5.</code></pre>
+<pre><code>## Procedure
+1. Identifique o job em $MODULO e mapeie steps, readers e writers
+2. Atualize as dependencias no pom.xml
+3. Ajuste as assinaturas alteradas na versao 5
+4. Execute `mvn test` e corrija ate passar
+5. Abra o PR com o resumo das mudancas de assinatura</code></pre>
+<pre><code>## Specifications
+- A suite de testes passa integralmente
+- Nenhuma mudanca de comportamento funcional do job</code></pre>
+<pre><code>## Forbidden Actions
+- Nao altere o schema das tabelas de metadados do Spring Batch</code></pre>
+<p><strong>Seções recomendadas em um playbook: </strong>Procedure (um passo por linha, no imperativo, cobrindo setup, execução e entrega), Specifications (pós-condições), Advice and Pointers, Forbidden Actions e Required from User.</p>
+<h3 id="37-configuração">3.7 Configuração</h3>
+<p>A configuração do CLI usa arquivos JSON com suporte a comentários. Há três níveis de arquivo, além das políticas da organização.</p>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Prioridade</strong></th><th><strong>Origem</strong></th><th><strong>Observação</strong></th></tr></thead><tbody><tr><td><p>1 (maior)</p></td><td><p>Organização / Team Settings</p></td><td><p>Definida pelo administrador; não pode ser sobreposta</p></td></tr><tr><td><p>2</p></td><td><p>Sessão (aprovações interativas)</p></td><td><p>Somente em memória</p></td></tr><tr><td><p>3</p></td><td><p>.devin/config.local.json</p></td><td><p>Pessoal, fora do git — é onde ficam chaves e tokens</p></td></tr><tr><td><p>4</p></td><td><p>.devin/config.json</p></td><td><p>Do projeto, compartilhado com o time</p></td></tr><tr><td><p>5 (menor)</p></td><td><p>~/.config/devin/config.json</p></td><td><p>Seus padrões pessoais (no Windows, %APPDATA%\devin\config.json)</p></td></tr></tbody></table></div>
+<p>Atenção a uma restrição prática: no nível de projeto só valem permissions, mcpServers, read_config_from e hooks. Modelo padrão, tema, sandbox e afins são exclusivos da configuração de usuário.</p>
+<h4 id="configuração-de-usuário-exemplo-comentado">Configuração de usuário — exemplo comentado</h4>
+<pre><code>// ~/.config/devin/config.json
+{
+  "agent": {
+    "model": "swe-1-6-fast",        // modelo padrao das sessoes
+    "show_history_on_continue": true
+  },
+  "theme_mode": "dark",
+  "show_path": true,                 // mostra o diretorio atual na borda do input
+  "respect_gitignore": true,         // bloqueia acesso a caminhos ignorados
+  "include_gitignored_files": false,
+  "attribution": true,               // assina commits e PRs como gerados com Devin
+  "auto_update": true,
+  "notify": "smart",
+  "permissions": {
+    "allow": ["Read(**)", "Exec(git)", "Exec(mvn test)"],
+    "deny":  ["Exec(sudo)"],
+    "ask":   ["Write(**/.env*)"]
+  },
+  "proxy": {
+    "mode": "manual",
+    "url": "http://proxy.corp.exemplo:8080",
+    "no_proxy": "localhost,127.0.0.1,.interno.corp"
+  },
+  "read_config_from": {
+    "cursor": true,
+    "windsurf": true,
+    "claude": true
+  }
+}</code></pre>
+<p>O bloco proxy é o que resolve a maior parte dos problemas de conectividade em rede corporativa. Os modos são system (respeita HTTP_PROXY/HTTPS_PROXY e PAC), manual (rota fixa pela url informada) e off.</p>
+<h4 id="configuração-de-projeto">Configuração de projeto</h4>
+<pre><code>// .devin/config.json  — versionado, compartilhado com o time
+{
+  "permissions": {
+    "allow": ["Exec(mvn)", "Read(src/**)"],
+    "deny":  ["Write(src/main/resources/application-prod.yml)"]
+  },
+  "mcpServers": {
+    "atlassian": { "url": "https://mcp.atlassian.com/v1/mcp", "transport": "http" }
+  }
+}
+// .devin/config.local.json  — pessoal, ignorado pelo git
+{
+  "mcpServers": {
+    "atlassian": { "url": "https://mcp.atlassian.com/v1/mcp" }
+  }
+}
+devin --config</code></pre>
+<p><strong>O que faz. </strong>Aponta explicitamente para um arquivo de configuração, útil quando você mantém perfis distintos (ex.: um perfil restrito para repositórios sensíveis).</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>devin --config &lt;caminho&gt;</code></pre>
+<p><strong>Exemplo — </strong><em>usar um perfil endurecido em repositório regulado</em></p>
+<pre><code>devin --config ~/.config/devin/config-restrito.json -- \
+  atualize apenas a documentacao deste modulo</code></pre>
+<h4 id="permissões-sintaxe-dos-escopos">Permissões — sintaxe dos escopos</h4>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Padrão</strong></th><th><strong>Alcance</strong></th></tr></thead><tbody><tr><td><pre><code>Read(src/**)</code></pre></td><td><p>Leitura restrita a um caminho</p></td></tr><tr><td><pre><code>Write(**/.env*)</code></pre></td><td><p>Escrita em arquivos que casem com o padrão</p></td></tr><tr><td><pre><code>Exec(mvn test)</code></pre></td><td><p>Execução de um comando específico</p></td></tr><tr><td><pre><code>mcp__servidor__ferramenta</code></pre></td><td><p>Uma ferramenta específica de um servidor MCP</p></td></tr><tr><td><pre><code>mcp__servidor__*</code></pre></td><td><p>Todas as ferramentas de um servidor MCP</p></td></tr><tr><td><pre><code>mcp__*</code></pre></td><td><p>Todas as ferramentas MCP de todos os servidores</p></td></tr></tbody></table></div>
+<p>Listas de permissão são mescladas entre níveis, e uma negação em nível superior nunca é revertida por uma permissão em nível inferior. O modo Bypass também não sobrepõe políticas de organização.</p>
+<h3 id="38-mcp-conectar-o-agente-às-ferramentas-do-ecossistema">3.8 MCP — conectar o agente às ferramentas do ecossistema</h3>
+<p>Para arquitetura corporativa, é aqui que o Devin deixa de olhar só para o código e passa a enxergar Jira, monitoração, catálogo de dados e desenhos. Cada cliente MCP mantém a própria sessão OAuth — autenticar no Windsurf ou em outro agente não vale para o CLI.</p>
+<pre><code>devin mcp add</code></pre>
+<p><strong>O que faz. </strong>Registra um servidor MCP. O transporte é inferido: URL implica HTTP; argumentos após -- implicam stdio. Por padrão grava no escopo local (.devin/config.local.json, fora do git).</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>devin mcp add &lt;nome&gt; &lt;URL&gt;
+devin mcp add &lt;nome&gt; -- &lt;comando&gt; [args...]
+devin mcp add -s &lt;local|project|user&gt; &lt;nome&gt; &lt;URL&gt;
+devin mcp add -e CHAVE=VALOR &lt;nome&gt; -- &lt;comando&gt;</code></pre>
+<p><strong>Exemplo — </strong><em>conectar Jira e um servidor interno de catálogo de dados</em></p>
+<pre><code>devin mcp add -s project atlassian https://mcp.atlassian.com/v1/mcp
+devin mcp login atlassian</code></pre>
+<pre><code>devin mcp add catalogo -- python ./tools/mcp-catalogo.py
+devin mcp list
+devin mcp list / get / remove / login / logout</code></pre>
+<p><strong>O que faz. </strong>Ciclo de vida dos servidores configurados: inspecionar, remover e gerenciar credenciais OAuth.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>devin mcp list
+devin mcp get &lt;nome&gt;
+devin mcp remove &lt;nome&gt; [-s &lt;escopo&gt;]
+devin mcp login &lt;nome&gt; [--scopes leitura,escrita]
+devin mcp logout &lt;nome&gt;</code></pre>
+<p><strong>Exemplo — </strong><em>resolver um erro de “Auth required”</em></p>
+<pre><code>devin mcp logout atlassian
+devin mcp login atlassian</code></pre>
+<h3 id="39-subagentes">3.9 Subagentes</h3>
+<p>Subagentes são trabalhadores independentes que o agente principal cria para subtarefas. Eles compartilham ferramentas e contexto de código, mas têm cadeia de conversa própria — não herdam o histórico do pai. Segundo a documentação da Cognition, nas medições deles subagentes melhoram o desempenho de código e reduzem o custo ao mesmo tempo.</p>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Perfil</strong></th><th><strong>Acesso</strong></th></tr></thead><tbody><tr><td><pre><code>subagent_explore</code></pre></td><td><p>Exploração e pesquisa somente leitura, mais busca na web. Não edita arquivos.</p></td></tr><tr><td><pre><code>subagent_general</code></pre></td><td><p>Uso geral, incluindo alterações de código. Em primeiro plano tem acesso total; em segundo plano, só ferramentas pré-aprovadas.</p></td></tr><tr><td><pre><code>Perfis customizados</code></pre></td><td><p>Definidos em AGENT.md dentro de .devin/agents/&lt;nome&gt;/ ou ~/.config/devin/agents/&lt;nome&gt;/, com system prompt, modelo, ferramentas e permissões próprios. Experimental.</p></td></tr></tbody></table></div>
+<p>Subagentes em primeiro plano pausam o agente pai; em segundo plano rodam em paralelo, herdam apenas as permissões já concedidas na sessão e não conseguem pedir novas. Ctrl+B envia um subagente de primeiro para segundo plano.</p>
+<pre><code># invocando explicitamente, em linguagem natural
+Pesquise em um subagente como a autenticacao entre os tres servicos
+de credito se conecta, e me traga o mapa com caminho de arquivo e linha.</code></pre>
+<h3 id="310-modelos">3.10 Modelos</h3>
+<p>O Devin suporta modelos da Anthropic, OpenAI, Google, da própria Cognition (família SWE) e modelos abertos. Nomes curtos como opus, sonnet, swe, codex e gemini sempre resolvem para a versão mais recente daquela família.</p>
+<pre><code>--model  |  /model</code></pre>
+<p><strong>O que faz. </strong>Define o modelo da sessão, na linha de comando ou durante a conversa. Sem argumento, /model abre o seletor.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>devin --model &lt;modelo&gt; -- &lt;prompt&gt;
+/model &lt;modelo&gt;
+/model</code></pre>
+<p><strong>Exemplo — </strong><em>usar modelo mais capaz só no trecho que exige raciocínio</em></p>
+<pre><code>devin --model swe -- corrija os imports nao utilizados neste modulo</code></pre>
+<pre><code># dentro da sessao, ao chegar na parte estrutural:
+/model opus</code></pre>
+<p><strong>Nota: </strong><em>A recomendação da própria documentação é testar pelo menos swe, gpt e opus — a preferência varia bastante por pessoa e por tarefa. Alt+T (Opt+T no macOS) cicla o nível de raciocínio em modelos que suportam.</em></p>
+<h3 id="311-comandos-do-devin-cloud-aplicação-web">3.11 Comandos do Devin Cloud (aplicação web)</h3>
+<p>Na aplicação web, digitar / abre um menu de templates de prompt. Selecionado, o comando vira um chip que pode ser expandido e editado antes do envio.</p>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Comando</strong></th><th><strong>Uso</strong></th></tr></thead><tbody><tr><td><pre><code>/plan</code></pre></td><td><p>Escopo e planejamento antes da implementação: analisa a base, identifica arquivos relevantes e propõe abordagem detalhada.</p></td></tr><tr><td><pre><code>/review</code></pre></td><td><p>Fluxo de revisão de código com feedback sobre qualidade, boas práticas e bugs potenciais.</p></td></tr><tr><td><pre><code>/test</code></pre></td><td><p>Criar testes, executar suítes existentes ou analisar cobertura.</p></td></tr><tr><td><pre><code>/think-hard</code></pre></td><td><p>Pede raciocínio mais cuidadoso e demorado antes da solução — para problemas complexos.</p></td></tr><tr><td><pre><code>/implement</code></pre></td><td><p>Implementação de uma mudança específica e já definida.</p></td></tr></tbody></table></div>
+<p>Administradores da organização podem criar comandos customizados em Settings &gt; Customization — por exemplo, um /security-review com as diretrizes internas ou um /onboard para novos integrantes. A criação e edição exigem a permissão ManageOrgSettings; o uso é liberado a todos os membros.</p>
+<h4 id="macros-de-knowledge-e-playbooks">Macros de Knowledge e Playbooks</h4>
+<p>Itens de Knowledge e Playbooks aceitam macros — identificadores curtos começando com ! e contendo apenas letras, números e hífens, únicos na organização. Digitar a macro no prompt referencia o item diretamente, sem precisar navegar pela interface.</p>
+<pre><code>!checklist-deploy  aplique este procedimento ao servico de consulta de limite
+/handoff</code></pre>
+<p><strong>O que faz. </strong>Transfere a tarefa do CLI local para uma sessão do Devin na nuvem, empacotando o contexto da conversa e o branch git atual. Sem descrição, a sessão na nuvem simplesmente continua de onde você parou.</p>
+<p class="lead-in">Sintaxe</p>
+<pre><code>/handoff [descrição da tarefa]</code></pre>
+<p><strong>Exemplo — </strong><em>começar local, terminar na nuvem enquanto você vai para a reunião</em></p>
+<pre><code>/handoff conclua a migracao dos 40 modulos restantes seguindo o padrao
+que ja aplicamos nos 5 primeiros e abra um PR por modulo</code></pre>
+<h3 id="312-manutenção-e-autenticação">3.12 Manutenção e autenticação</h3>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Comando</strong></th><th><strong>O que faz</strong></th></tr></thead><tbody><tr><td><pre><code>devin auth login | logout | status</code></pre></td><td><p>Autenticação. --force-manual-token-flow para sessões remotas/SSH.</p></td></tr><tr><td><pre><code>devin setup</code></pre></td><td><p>Assistente interativo de autenticação e configuração de MCP.</p></td></tr><tr><td><pre><code>devin update [--force]</code></pre></td><td><p>Verifica e instala atualizações.</p></td></tr><tr><td><pre><code>devin version</code></pre></td><td><p>Mostra a versão instalada.</p></td></tr><tr><td><pre><code>devin rules list | show | paths</code></pre></td><td><p>Inspeciona as regras sempre ativas carregadas.</p></td></tr><tr><td><pre><code>devin uninstall [--clean]</code></pre></td><td><p>Desinstala; --clean remove também configuração e histórico.</p></td></tr><tr><td><pre><code>man devin</code></pre></td><td><p>Referência completa de flags no próprio terminal.</p></td></tr></tbody></table></div>
+<h2 id="parte-4-otimizar-consumo-e-maximizar-a-experiência">Parte 4 — Otimizar consumo e maximizar a experiência</h2>
+<p>O consumo do Devin não é medido por token de prompt, e sim pelo trabalho efetivamente executado: número e complexidade das ações (planejar, buscar contexto, executar, navegar), mais tempo de VM e banda — esta última tipicamente uma fração pequena do total. A consequência prática é contraintuitiva: prompt longo e bem especificado é barato; prompt curto e vago é caro, porque o agente gasta ações descobrindo o que você queria.</p>
+<h3 id="41-as-variáveis-que-puxam-o-consumo-para-cima">4.1 As variáveis que puxam o consumo para cima</h3>
+<ul><li>
+Complexidade da tarefa
+</li><li>
+Qualidade e especificidade do prompt
+</li><li>
+Tamanho do contexto e da base de código
+</li><li>
+Quantidade de arquivos tocados ou modificados
+</li><li>
+Tempo de execução da sessão
+</li><li>
+Extensão da conversa e frequência de idas e vindas
+</li></ul>
+<h3 id="42-regras-de-ouro">4.2 Regras de ouro</h3>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Prática</strong></th><th><strong>Por que funciona</strong></th></tr></thead><tbody><tr><td><p>Delegue tarefas com escopo claro e objetivo final definido</p></td><td><p>Elimina as ações que o agente gastaria interpretando a intenção</p></td></tr><tr><td><p>Mantenha prompts e sessões curtos</p></td><td><p>Conversa longa é contexto pesado carregado em cada turno</p></td></tr><tr><td><p>Uma tarefa por sessão</p></td><td><p>Misturar assuntos na mesma sessão multiplica o contexto sem ganho</p></td></tr><tr><td><p>Quebre projetos grandes em subtarefas, uma sessão para cada</p></td><td><p>Não há limite de sessões concorrentes — paralelizar é literalmente de graça em termos de limite</p></td></tr><tr><td><p>Prefira skills a regras sempre ativas</p></td><td><p>Skills só entram no contexto quando invocadas; AGENTS.md entra sempre, em toda sessão</p></td></tr><tr><td><p>Use /clear ao mudar de assunto</p></td><td><p>Recomeçar custa menos que arrastar um contexto irrelevante</p></td></tr><tr><td><p>Use /compact quando a conversa alongar</p></td><td><p>Compacta o histórico mantendo o essencial</p></td></tr><tr><td><p>Acompanhe com /context</p></td><td><p>Mostra quanto da janela de contexto já foi consumido antes de o problema aparecer</p></td></tr><tr><td><p>Use modelo leve para tarefas simples</p></td><td><p>swe é rápido e barato para edições diretas; reserve opus ou gpt para refatorações multiarquivo e decisões estruturais</p></td></tr><tr><td><p>Use subagentes para exploração</p></td><td><p>Melhoram o desempenho e reduzem custo, porque a pesquisa acontece em janela própria e só o resumo volta</p></td></tr><tr><td><p>Deixe a sessão dormir</p></td><td><p>Sessão ociosa dorme sozinha após cerca de 0,1 ACU e não consome enquanto dorme</p></td></tr></tbody></table></div>
+<h3 id="43-qualidade-do-prompt-o-que-a-documentação-chama-de-bom">4.3 Qualidade do prompt: o que a documentação chama de bom</h3>
+<p>Um prompt eficaz, segundo a Cognition, faz quatro coisas simultaneamente: dá contexto (qual repositório, qual propósito), quebra em passos lógicos, define critério de sucesso verificável e aponta padrões existentes no código a serem seguidos.</p>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Evite</strong></th><th><strong>Prefira</strong></th></tr></thead><tbody><tr><td><p>“Melhore a performance do banco”</p></td><td><p>“Otimize a query getOrderDetails em orderService.js adicionando índice composto em order_id e product_id, e troque a subquery correlacionada por um JOIN”</p></td></tr><tr><td><p>“Garanta que funciona”</p></td><td><p>“Rode npm test após cada iteração e confirme que o pipeline não falha”</p></td></tr><tr><td><p>“Deixe a tela mais bonita”</p></td><td><p>“Siga o Figma anexado; capture screenshots em 1440px e 375px e confirme que o layout bate com o design”</p></td></tr><tr><td><p>Deixar decisões de design em aberto</p></td><td><p>Tomar as decisões de arquitetura você mesmo e passá-las como diretriz</p></td></tr></tbody></table></div>
+<h3 id="44-feedback-loops-e-verificação">4.4 Feedback loops e verificação</h3>
+<p>A alavanca mais subestimada é dar ao agente uma forma de saber se acertou. Sem critério de sucesso verificável, ele não tem como se autocorrigir e o consumo sobe sem resultado.</p>
+<ul><li>
+Peça execução de testes unitários e de integração a cada iteração
+</li><li>
+Exija que lint, build e checagens estáticas passem antes de qualquer commit
+</li><li>
+Defina checkpoints e peça relatório ao final de cada um
+</li><li>
+Habilite o Devin Review com Auto-Fix para que o agente responda a comentários de revisão e falhas de CI sozinho
+</li><li>
+Peça que ele teste o próprio trabalho no browser: subir a aplicação, navegar, capturar tela, gravar vídeo do fluxo
+</li></ul>
+<h3 id="45-rotina-sugerida-para-um-arquiteto">4.5 Rotina sugerida para um arquiteto</h3>
+<ol><li>
+Antes de tudo: rode devin skills list e devin rules list no repositório para saber o que já existe de contexto.
+</li><li>
+Entre em /plan e peça o mapeamento e a proposta de fatiamento — sem alterar nada.
+</li><li>
+Valide o plano você mesmo. Essa é a etapa que não se delega.
+</li><li>
+Transforme o procedimento validado em uma skill (repo) ou playbook (organização), para não reescrever o prompt na próxima vez.
+</li><li>
+Execute os slices em sessões paralelas, uma por slice, cada uma com critério de verificação próprio.
+</li><li>
+Revise os PRs. Sempre — a documentação coloca a revisão humana como etapa obrigatória antes do merge na main.
+</li><li>
+Ao final, transforme o que você aprendeu corrigindo o agente em Knowledge, para que a organização inteira aproveite.
+</li></ol>
+<div class="callout note"><p><strong>Onde ver quanto foi gasto</strong></p>
+<p>Session Insights mostra o consumo por sessão, disponível para qualquer usuário. No self-serve, o consumo do mês, cota restante e saldo de créditos ficam em Settings &gt; Billing. No Enterprise, o consumo por organização fica nas páginas de Consumption e Consumption Analytics.</p></div>
+<h2 id="anexo-artefatos-prontos-para-copiar">Anexo — Artefatos prontos para copiar</h2>
+<h3 id="a1-skill-investigação-de-módulo-somente-leitura">A.1 Skill: investigação de módulo (somente leitura)</h3>
+<p>Restringe o agente a ferramentas de leitura, o que a torna segura para rodar em qualquer repositório sem risco de efeito colateral. Caminho sugerido: .agents/skills/investigar/SKILL.md</p>
+<pre><code>---
+name: investigar
+description: Pesquisa uma area do codigo e produz um resumo com referencias de arquivo
+allowed-tools: Read, Grep, ListDir
+argument-hint: &lt;tema ou area a investigar&gt;
+triggers: ["user"]
+---</code></pre>
+<pre><code>## Pesquisa</code></pre>
+<pre><code>1. Busque no codigo os arquivos relacionados a: $ARGUMENTS
+2. Leia integralmente os mais relevantes
+3. Trace a cadeia de chamadas e o fluxo de dados</code></pre>
+<pre><code>## Resumo</code></pre>
+<pre><code>1. Explique como $ARGUMENTS funciona hoje
+2. Inclua caminho de arquivo e linha para cada afirmacao
+3. Aponte pontos de acoplamento, riscos e casos de borda</code></pre>
+<h3 id="a2-skill-verificação-antes-do-pr">A.2 Skill: verificação antes do PR</h3>
+<pre><code>---
+name: test-before-pr
+description: Executa build, testes e lint antes de abrir qualquer PR neste repositorio
+---</code></pre>
+<pre><code>## Contexto</code></pre>
+<pre><code>- Branch: !`git branch --show-current`
+- Arquivos alterados: !`git diff --name-only origin/main...HEAD`</code></pre>
+<pre><code>## Verificacao</code></pre>
+<pre><code>1. Suba as dependencias: `docker compose up -d`
+2. Compile: `mvn -q clean package -DskipTests`
+3. Rode os testes: `mvn test`
+4. Rode o lint e corrija o que aparecer
+5. Se algo falhar, pare e explique antes de continuar</code></pre>
+<pre><code>## Antes de abrir o PR</code></pre>
+<pre><code>1. Resuma o que mudou e por que
+2. Liste os testes executados e o resultado de cada um
+3. Aponte qualquer risco de regressao que voce identificou</code></pre>
+<h3 id="a3-skill-de-orquestração-com-subagentes-cli">A.3 Skill de orquestração com subagentes (CLI)</h3>
+<p>Skills marcadas como subagent rodam em janela de contexto própria; uma skill orquestradora chama as demais e sintetiza os resultados. A orquestração é sempre de um nível — subagentes não criam subagentes.</p>
+<pre><code>---
+name: diagnostico-repo
+description: Diagnostico completo do repositorio antes de planejar uma migracao
+triggers: ["user"]
+---</code></pre>
+<pre><code>Execute um diagnostico completo deste repositorio:</code></pre>
+<pre><code>1. Use a skill /investigar sobre a camada de integracao
+2. Use a skill /test-before-pr para verificar se a base esta saudavel
+3. Sintetize em um unico parecer:
+   - estado atual da arquitetura
+   - dividas tecnicas que bloqueiam a migracao
+   - proposta de fatiamento em slices de ate 90 minutos cada</code></pre>
+<h3 id="a4-estrutura-de-arquivos-recomendada-no-repositório">A.4 Estrutura de arquivos recomendada no repositório</h3>
+<pre><code>repositorio/
+├── AGENTS.md                       # regras curtas, apontando para as skills
+├── .agents/
+│   └── skills/
+│       ├── investigar/SKILL.md
+│       ├── test-before-pr/SKILL.md
+│       └── revisao-adr/SKILL.md
+├── .devin/
+│   ├── config.json                 # permissoes e MCP do time (versionado)
+│   ├── config.local.json           # chaves pessoais (fora do git)
+│   └── agents/
+│       └── revisor/AGENT.md        # subagente customizado
+└── docs/
+    └── spec-*.md                   # especificacoes citadas com @ nos prompts</code></pre>
+<h3 id="a5-fontes">A.5 Fontes</h3>
+<p>Este guia foi construído a partir da documentação oficial em docs.devin.ai, em especial as páginas: Introducing Devin; Skills (produto e CLI); Creating Skills; Commands &amp; Flags; Essential Commands; Rules &amp; AGENTS.md; Configuration File; Configuration Precedence; MCP Configuration; Subagents; Models; Knowledge; Creating Playbooks; Slash Commands; Instructing Devin Effectively; Best Practices; Usage (billing); AGENTS.md; Devin CLI.</p>
+<p><em>A Cognition adverte que o produto evolui rápido e que a documentação pode estar desatualizada em alguns pontos. Vale conferir as release notes e o índice completo em docs.devin.ai/llms.txt antes de padronizar qualquer processo no time.</em></p>
+  </article>
+</main>
+</div>
+<a class="fab" href="../../index.html" aria-label="Voltar ao hub">◂ HUB</a>
+<button class="totop" type="button" aria-label="Voltar ao topo">▲</button>
+<script>
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  /* tema */
+  var TK='hub-theme', modes=['auto','light','dark'];
+  function applyTheme(m){ if(m==='auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme',m); var b=$('#theme'); if(b) b.textContent='tema: '+m; }
+  var tm='auto'; try{tm=localStorage.getItem(TK)||'auto'}catch(e){}
+  applyTheme(tm);
+  $('#theme').addEventListener('click',function(){ tm=modes[(modes.indexOf(tm)+1)%3]; try{localStorage.setItem(TK,tm)}catch(e){} applyTheme(tm); });
+  /* menu mobile */
+  var side=$('aside'), scrim=$('.scrim');
+  function menu(o){ side.classList.toggle('open',o); scrim.classList.toggle('open',o); }
+  $('#menu').addEventListener('click',function(){menu(true)}); scrim.addEventListener('click',function(){menu(false)});
+  $$('nav.toc a').forEach(function(a){a.addEventListener('click',function(){menu(false)})});
+  /* filtro do sumário */
+  $('#filter').addEventListener('input',function(e){ var q=e.target.value.trim().toLowerCase(); $$('nav.toc a').forEach(function(a){ a.hidden = q && a.textContent.toLowerCase().indexOf(q)<0; }); });
+  document.addEventListener('keydown',function(e){ if(e.key==='/' && document.activeElement.tagName!=='INPUT'){ e.preventDefault(); if(innerWidth<=980) menu(true); $('#filter').focus(); } });
+  /* progresso + topo */
+  var bar=$('#progress'), top=$('.totop');
+  function onScroll(){ var h=document.documentElement; var p=h.scrollTop/(h.scrollHeight-h.clientHeight||1); bar.style.width=(p*100)+'%'; top.classList.toggle('show',h.scrollTop>900); }
+  addEventListener('scroll',onScroll,{passive:true}); onScroll();
+  top.addEventListener('click',function(){scrollTo({top:0,behavior:'smooth'})});
+  /* scroll spy */
+  var links=$$('nav.toc a'), map={}; links.forEach(function(a){ map[a.getAttribute('href').slice(1)]=a; });
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){ es.forEach(function(en){ if(en.isIntersecting){ links.forEach(function(l){l.classList.remove('on')}); var a=map[en.target.id]; if(a){ a.classList.add('on'); a.scrollIntoView({block:'nearest'}); } } }); },{rootMargin:'-10% 0px -80% 0px'});
+    Object.keys(map).forEach(function(id){ var el=document.getElementById(id); if(el) io.observe(el); });
+  }
+  /* tabelas largas */
+  $$('.tbl-wrap table').forEach(function(t){ var n=t.rows[0]?t.rows[0].cells.length:0; if(n>=5) t.classList.add('wide'); });
+  /* autoavaliação */
+  var tables=$$('table.assess'); if(!tables.length) return;
+  var KEY='hub-assess:'+document.body.dataset.doc, st={};
+  try{ st=JSON.parse(localStorage.getItem(KEY)||'{}') }catch(e){}
+  var OPTS=[['d','Domino','k-d'],['r','Reviso','k-r'],['e','Estudo','k-e']];
+  var cells=[];
+  tables.forEach(function(t,ti){
+    var heads=$$('thead th',t).map(function(th){return th.textContent.trim()});
+    $$('tbody tr',t).forEach(function(tr,ri){
+      $$('td',tr).forEach(function(td,ci){ if(heads[ci]) td.setAttribute('data-l',heads[ci]); });
+      var td=$('td.mark',tr); if(!td) return;
+      var id=ti+'-'+ri; cells.push(id);
+      td.innerHTML='<span class="mk" role="group" aria-label="Autoavaliação">'+OPTS.map(function(o){return '<button type="button" class="'+o[2]+'" data-id="'+id+'" data-v="'+o[0]+'" aria-pressed="'+(st[id]===o[0])+'">'+o[1]+'</button>'}).join('')+'</span>';
+    });
+  });
+  var barEl=document.createElement('div'); barEl.className='assess-bar';
+  var anchor=$('.doc h2'); anchor.parentNode.insertBefore(barEl,anchor);
+  function render(){
+    var c={d:0,r:0,e:0}; cells.forEach(function(id){ if(st[id]) c[st[id]]++; });
+    var n=cells.length, done=c.d+c.r+c.e, w=function(v){return (v/n*100).toFixed(2)+'%'};
+    barEl.innerHTML='<span>Autoavaliação · '+done+'/'+n+'</span><span class="meter"><i style="width:'+w(c.d)+';background:var(--tip)"></i><i style="width:'+w(c.r)+';background:var(--warn)"></i><i style="width:'+w(c.e)+';background:#E5484D"></i></span><span class="k-d"><b>'+c.d+'</b> domino</span><span class="k-r"><b>'+c.r+'</b> reviso</span><span class="k-e"><b>'+c.e+'</b> estudo</span><button class="theme" type="button" id="aclear">limpar</button>';
+  }
+  render();
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('.mk button');
+    if(b){ var id=b.dataset.id, v=b.dataset.v; st[id]=st[id]===v?undefined:v; if(!st[id]) delete st[id];
+      try{localStorage.setItem(KEY,JSON.stringify(st))}catch(_){}
+      $$('button[data-id="'+id+'"]').forEach(function(x){x.setAttribute('aria-pressed',String(x.dataset.v===st[id]))}); render(); return; }
+    if(e.target.id==='aclear'){ if(e.target.dataset.confirm){ st={}; try{localStorage.removeItem(KEY)}catch(_){} $$('.mk button').forEach(function(x){x.setAttribute('aria-pressed','false')}); render(); } else { e.target.dataset.confirm='1'; e.target.textContent='confirmar?'; } }
+  });
+})();
+</script>
+</body>
+</html>

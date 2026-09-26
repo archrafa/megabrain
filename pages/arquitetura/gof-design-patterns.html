@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gang of Four</title>
+
+<meta name="description" content="Design patterns em arquitetura de soluções e sistemas">
+<script>try{var m=localStorage.getItem('hub-theme');if(m&&m!=='auto')document.documentElement.setAttribute('data-theme',m)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F4F6FA; --surface:#FFFFFF; --sunk:#EBEFF5; --ink:#141B2B; --ink-2:#44506A; --ink-3:#6B7790;
+  --line:#D8DFEA; --line-2:#C5CEDD; --accent:#0A7EA4; --accent-soft:color-mix(in srgb,var(--accent) 12%,var(--surface));
+  --warn:#B4531A; --warn-soft:#FCEEE3; --tip:#1E7C4B; --tip-soft:#E4F4EA;
+  --code-bg:#0E1628; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(20,27,43,.05),0 10px 30px -18px rgba(20,27,43,.25);
+  --f-disp:"Chakra Petch","Space Grotesk",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --side:300px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#070B14; --surface:#0E1628; --sunk:#0A1120; --ink:#E6EEFB; --ink-2:#A9B7D0; --ink-3:#7485A3;
+  --line:#1D2A42; --line-2:#2A3A58; --accent:#35E0FF; --accent-soft:color-mix(in srgb,var(--accent) 14%,var(--surface));
+  --warn:#FFB547; --warn-soft:#2A1F10; --tip:#7EE2A8; --tip-soft:#10261B; --code-bg:#050910; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 36px -20px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#070B14; --surface:#0E1628; --sunk:#0A1120; --ink:#E6EEFB; --ink-2:#A9B7D0; --ink-3:#7485A3;
+  --line:#1D2A42; --line-2:#2A3A58; --accent:#35E0FF; --accent-soft:color-mix(in srgb,var(--accent) 14%,var(--surface));
+  --warn:#FFB547; --warn-soft:#2A1F10; --tip:#7EE2A8; --tip-soft:#10261B; --code-bg:#050910; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 36px -20px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+::selection{background:var(--accent);color:var(--bg)}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;box-shadow:0 0 12px var(--accent)}
+
+.shell{display:grid;grid-template-columns:var(--side) minmax(0,1fr);min-height:100vh}
+aside{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;border-right:1px solid var(--line);background:var(--surface)}
+.side-top{padding:18px 18px 12px;border-bottom:1px solid var(--line)}
+.hub{display:inline-flex;align-items:center;gap:8px;font:600 11.5px var(--f-mono);letter-spacing:.16em;color:var(--ink-2);text-decoration:none;margin-bottom:14px}
+.hub b{color:var(--accent)}
+.hub:hover{color:var(--accent)}
+.side-title{font:700 15px/1.25 var(--f-disp);letter-spacing:.01em;margin:0 0 12px;text-transform:uppercase}
+.filter{width:100%;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:500 13px var(--f-body);color:var(--ink)}
+.filter:focus{outline:none;border-color:var(--accent)}
+nav.toc{flex:1;overflow:auto;padding:10px 0 20px}
+nav.toc a{display:block;padding:5px 18px 5px 16px;border-left:2px solid transparent;color:var(--ink-2);text-decoration:none;font-size:13.5px;line-height:1.35}
+nav.toc a.l3{padding-left:30px;font-size:12.8px;color:var(--ink-3)}
+nav.toc a:hover{color:var(--ink);background:var(--sunk)}
+nav.toc a.on{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft);font-weight:600}
+nav.toc a[hidden]{display:none}
+.side-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 18px;border-top:1px solid var(--line);font:500 11px var(--f-mono);color:var(--ink-3)}
+.theme{background:none;border:1px solid var(--line);border-radius:6px;padding:5px 9px;font:500 11px var(--f-mono);color:var(--ink-2);cursor:pointer}
+.theme:hover{border-color:var(--accent);color:var(--accent)}
+
+main{min-width:0;padding:0 clamp(16px,5vw,64px) 120px;overflow-x:clip}
+.doc{max-width:900px;margin:0 auto}
+.hero{padding:56px 0 30px;border-bottom:1px solid var(--line);margin-bottom:12px;position:relative}
+.hero::before{content:"";position:absolute;inset:0 -40px auto;height:220px;background:radial-gradient(600px 200px at 10% 0%,var(--accent-soft),transparent 70%);z-index:-1}
+.kicker{font:600 11.5px var(--f-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px}
+.kicker::before{content:"";width:24px;height:1px;background:var(--accent)}
+.hero h1{font:700 clamp(32px,5.2vw,54px)/1.02 var(--f-disp);letter-spacing:-.005em;margin:14px 0 12px;text-transform:uppercase;text-wrap:balance}
+.hero .sub{font-size:18px;color:var(--ink-2);max-width:62ch;margin:0 0 16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+.chip{font:500 11.5px var(--f-mono);color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:4px 10px;background:var(--surface)}
+.hero-extra{margin-top:20px;color:var(--ink-2);font-size:15px}
+.hero-extra p{margin:0 0 8px;max-width:70ch}
+
+.doc h2{font:700 clamp(22px,2.6vw,28px)/1.15 var(--f-disp);margin:56px 0 14px;padding-top:14px;border-top:1px solid var(--line);letter-spacing:.005em;text-wrap:balance}
+.doc h3{font:600 19px/1.3 var(--f-disp);margin:34px 0 10px;color:var(--ink)}
+.doc h4{font:600 16px/1.35 var(--f-body);margin:26px 0 8px;color:var(--accent)}
+.doc h5{font:600 14px var(--f-mono);margin:20px 0 6px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.hero + h2,.hero + .assess-bar + h2{border-top:0;margin-top:30px;padding-top:0}
+.doc h2.banner{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.doc h2.banner .code{font:700 14px var(--f-mono);color:var(--bg);background:var(--accent);padding:4px 9px;border-radius:6px}
+.doc h2.banner .tag{font:600 11px var(--f-mono);letter-spacing:.1em;color:var(--warn);border:1px solid currentColor;border-radius:999px;padding:3px 10px}
+.doc p{margin:0 0 14px;max-width:74ch}
+.doc p.lead-in{font:600 14.5px var(--f-body);color:var(--ink);margin:20px 0 8px}
+.doc ul,.doc ol{margin:0 0 16px;padding-left:22px;max-width:74ch}
+.doc li{margin:4px 0}
+.doc li>ul,.doc li>ol{margin:4px 0}
+.doc li::marker{color:var(--accent)}
+.doc strong{font-weight:600;color:var(--ink)}
+.doc code{font:500 .86em var(--f-mono);background:var(--sunk);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.doc pre{background:var(--code-bg);color:var(--code-ink);border-radius:10px;padding:14px 16px;overflow:auto;font:13px/1.55 var(--f-mono);margin:0 0 18px;border:1px solid var(--line)}
+.doc pre code{background:none;border:0;padding:0;color:inherit;font-size:inherit}
+.doc blockquote{margin:0 0 16px;padding:10px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 8px 8px 0}
+.doc blockquote p{margin:0}
+.callout{border:1px solid var(--line);border-left:3px solid var(--accent);background:var(--surface);border-radius:10px;padding:14px 18px;margin:18px 0 20px;box-shadow:var(--shadow)}
+.callout>*:last-child{margin-bottom:0}
+.callout p{max-width:none}
+.callout.warn{border-left-color:var(--warn);background:var(--warn-soft)}
+.callout.tip{border-left-color:var(--tip);background:var(--tip-soft)}
+.tbl-wrap{overflow-x:auto;margin:0 0 20px;border:1px solid var(--line);border-radius:10px;background:var(--surface);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+thead th{position:sticky;top:0;background:var(--sunk);font:600 11.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);border-bottom:1px solid var(--line-2);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:color-mix(in srgb,var(--accent) 4%,transparent)}
+td p{margin:0 0 6px;max-width:none}
+td p:last-child{margin:0}
+td ul,td ol{margin:0;padding-left:18px}
+.tbl-wrap table.wide{min-width:760px}
+
+/* autoavaliação */
+.assess-bar{position:sticky;top:0;z-index:20;margin:18px 0 0;padding:10px 14px;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:10px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font:500 12.5px var(--f-mono);color:var(--ink-2)}
+.assess-bar .meter{flex:1 1 180px;height:8px;border-radius:4px;background:var(--sunk);overflow:hidden;display:flex}
+.assess-bar .meter i{display:block;height:100%}
+.k-d{--k:var(--tip)} .k-r{--k:var(--warn)} .k-e{--k:#E5484D}
+.assess-bar b{color:var(--k,var(--ink))}
+.assess-bar button{margin-left:auto}
+table.assess td:nth-child(1){font-weight:600;min-width:160px}
+table.assess td:nth-child(5){white-space:nowrap;font:500 12px var(--f-mono);color:var(--ink-3)}
+td.mark{white-space:nowrap}
+.mk{display:inline-flex;gap:4px}
+.mk button{border:1px solid var(--line-2);background:transparent;color:var(--ink-3);border-radius:6px;padding:3px 7px;font:600 11px var(--f-mono);cursor:pointer}
+.mk button:hover{border-color:var(--k);color:var(--k)}
+.mk button[aria-pressed="true"]{background:var(--k);border-color:var(--k);color:var(--bg)}
+.sec-count{font:500 12px var(--f-mono);color:var(--ink-3);margin:-6px 0 12px}
+
+
+/* componentes extras */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:18px 0 22px}
+.stats div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow)}
+.stats b{display:block;font:700 30px/1 var(--f-disp);color:var(--accent)}
+.stats span{font:500 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin:0 0 20px}
+.cols>div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.cols h5{margin:0 0 6px;color:var(--accent)}
+.cols ul{margin:0;padding-left:18px;font-size:14px}
+.res{list-style:none;padding:0!important;margin:0 0 20px;display:grid;gap:6px}
+.res li{display:flex;gap:10px;align-items:baseline;font-size:14px;margin:0}
+.res li::marker{content:none}
+.badge{flex:none;font:600 10px var(--f-mono);letter-spacing:.08em;padding:2px 7px;border-radius:5px;border:1px solid currentColor}
+.badge.free{color:var(--tip)} .badge.paid{color:var(--warn)}
+.phase{margin:64px 0 0;padding:22px 22px 6px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,var(--accent-soft),transparent 60%)}
+.phase .kicker{margin-bottom:4px}
+.doc .phase h2{border-top:0;margin-top:6px;padding-top:0}
+.mod-k{font:600 11px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:34px 0 0}
+.doc .mod-k + h3{margin-top:4px}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:0 0 18px}
+.split div{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.split b{font:700 24px var(--f-disp);color:var(--accent);display:block}
+
+.mobile-bar{display:none}
+.fab{position:fixed;left:16px;bottom:16px;z-index:50;font:600 12px/1 var(--f-mono);letter-spacing:.12em;color:#35E0FF!important;background:rgba(6,10,18,.9)!important;border:1px solid rgba(53,224,255,.45);padding:9px 13px;border-radius:999px;text-decoration:none;box-shadow:0 0 18px rgba(53,224,255,.25);display:none}
+.totop{position:fixed;right:18px;bottom:18px;z-index:50;width:40px;height:40px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:var(--shadow)}
+.totop.show{opacity:1;pointer-events:auto}
+@media (max-width:980px){
+  .shell{grid-template-columns:1fr}
+  aside{position:fixed;inset:0 auto 0 0;width:min(86vw,320px);z-index:70;transform:translateX(-102%);transition:transform .25s ease;box-shadow:var(--shadow)}
+  aside.open{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(5,8,15,.5);z-index:65;display:none}
+  .scrim.open{display:block}
+  .mobile-bar{display:flex;position:sticky;top:0;z-index:40;align-items:center;gap:10px;padding:10px 16px;margin:0 calc(-1 * clamp(16px,5vw,64px));background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .mobile-bar button{border:1px solid var(--line-2);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 10px;font:600 12px var(--f-mono);cursor:pointer}
+  .mobile-bar span{font:700 13px var(--f-disp);text-transform:uppercase;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .fab{display:inline-block}
+  .hero{padding-top:28px}
+  table.assess thead{display:none}
+  .tbl-wrap table.assess{min-width:0}
+  .assess-bar{top:54px}
+  .mobile-bar button{white-space:nowrap}
+  table.assess,table.assess tbody,table.assess tr,table.assess td{display:block;width:100%}
+  table.assess tr{border-bottom:1px solid var(--line);padding:10px 12px}
+  table.assess td{border:0;padding:3px 0}
+  table.assess td[data-l]::before{content:attr(data-l);display:block;font:600 10.5px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+  table.assess td:nth-child(1){font-size:16px}
+}
+@media print{
+  aside,.mobile-bar,.fab,.totop,#progress,.assess-bar button{display:none!important}
+  .shell{display:block} main{padding:0} body{background:#fff;color:#000}
+  .tbl-wrap,.callout{box-shadow:none}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body data-doc="arquitetura-gof-design-patterns">
+<div id="progress"></div>
+<div class="scrim"></div>
+<div class="shell">
+<aside aria-label="Sumário">
+  <div class="side-top">
+    <a class="hub" href="../../index.html">◂ RAFAEL<b>//</b>HUB</a>
+    <p class="side-title">Gang of Four</p>
+    <input class="filter" id="filter" type="search" placeholder="Filtrar seções…  ( / )" aria-label="Filtrar seções">
+  </div>
+  <nav class="toc"><a href="#1-o-que-é-o-gang-of-four-gof" class="l2">1. O que é o Gang of Four (GoF)?</a>
+<a href="#11-as-três-categorias" class="l3">1.1 As Três Categorias</a>
+<a href="#categoria-1-padrões-criacionais" class="l2">CATEGORIA 1: PADRÕES CRIACIONAIS</a>
+<a href="#21-abstract-factory" class="l3">2.1 Abstract Factory</a>
+<a href="#22-builder" class="l3">2.2 Builder</a>
+<a href="#23-factory-method" class="l3">2.3 Factory Method</a>
+<a href="#24-prototype" class="l3">2.4 Prototype</a>
+<a href="#25-singleton" class="l3">2.5 Singleton</a>
+<a href="#categoria-2-padrões-estruturais" class="l2">CATEGORIA 2: PADRÕES ESTRUTURAIS</a>
+<a href="#31-adapter" class="l3">3.1 Adapter</a>
+<a href="#32-bridge" class="l3">3.2 Bridge</a>
+<a href="#33-composite" class="l3">3.3 Composite</a>
+<a href="#34-decorator" class="l3">3.4 Decorator</a>
+<a href="#35-facade" class="l3">3.5 Facade</a>
+<a href="#36-flyweight" class="l3">3.6 Flyweight</a>
+<a href="#37-proxy" class="l3">3.7 Proxy</a>
+<a href="#categoria-3-padrões-comportamentais" class="l2">CATEGORIA 3: PADRÕES COMPORTAMENTAIS</a>
+<a href="#41-chain-of-responsibility" class="l3">4.1 Chain of Responsibility</a>
+<a href="#42-command" class="l3">4.2 Command</a>
+<a href="#43-observer" class="l3">4.3 Observer</a>
+<a href="#44-strategy" class="l3">4.4 Strategy</a>
+<a href="#45-template-method" class="l3">4.5 Template Method</a>
+<a href="#46-state" class="l3">4.6 State</a>
+<a href="#47-mediator" class="l3">4.7 Mediator</a>
+<a href="#48-iterator" class="l3">4.8 Iterator</a>
+<a href="#49-outros-padrões-comportamentais" class="l3">4.9 Outros Padrões Comportamentais</a>
+<a href="#revisão-consolidada" class="l2">REVISÃO CONSOLIDADA</a>
+<a href="#51-tabela-de-referência-rápida" class="l3">5.1 Tabela de Referência Rápida</a>
+<a href="#52-princípios-subjacentes" class="l3">5.2 Princípios Subjacentes</a>
+<a href="#53-padrões-mais-frequentes-em-arquitetura-corporativa" class="l3">5.3 Padrões mais Frequentes em Arquitetura Corporativa</a>
+<a href="#54-gof-e-arquiteturas-modernas" class="l3">5.4 GoF e Arquiteturas Modernas</a></nav>
+  <div class="side-foot"><span>convertido de .docx</span><button class="theme" id="theme" type="button">tema: auto</button></div>
+</aside>
+<main>
+  <div class="mobile-bar"><button id="menu" type="button" aria-label="Abrir sumário">☰ Sumário</button><span>Gang of Four</span></div>
+  <article class="doc">
+    <header class="hero">
+      <div class="kicker">SYS.ARCH · Padrões</div>
+      <h1>Gang of Four</h1>
+      <p class="sub">Design patterns em arquitetura de soluções e sistemas</p>
+      <div class="chips"><span class="chip">23 padrões</span><span class="chip">3 categorias</span><span class="chip">convertido de .docx</span></div>
+      <div class="hero-extra"><div class="callout note"><p><strong>23 Padrões de Projeto Organizados em 3 Categorias</strong></p>
+<p>Criacionais  •  Estruturais  •  Comportamentais</p></div>
+<p><em>Referência: Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides</em></p>
+<p><em>"Design Patterns: Elements of Reusable Object-Oriented Software" (1994)</em></p></div>
+    </header>
+<h2 id="1-o-que-é-o-gang-of-four-gof">1. O que é o Gang of Four (GoF)?</h2>
+<p>O Gang of Four (GoF) é o nome pelo qual ficaram conhecidos os quatro autores do livro 'Design Patterns: Elements of Reusable Object-Oriented Software', publicado em 1994: Erich Gamma, Richard Helm, Ralph Johnson e John Vlissides. A obra catalogou 23 padrões de projeto que solucionam problemas recorrentes no design de software orientado a objetos.</p>
+<p>No contexto de Arquitetura de Soluções e Sistemas, os padrões GoF são ferramentas fundamentais que transcendem linguagens de programação: eles representam soluções arquiteturais testadas e aprovadas para desafios estruturais e comportamentais que surgem continuamente no design de sistemas corporativos, microsserviços, APIs, plataformas cloud e integrações complexas.</p>
+<div class="callout note"><p><strong>Por que o GoF é relevante para Arquitetos de Soluções?</strong></p>
+<p><em>Arquitetos utilizam padrões GoF para comunicar decisões de design de forma precisa, garantir manutenibilidade, escalabilidade e extensibilidade dos sistemas, e evitar soluções que criam dívida técnica. Conhecer os 23 padrões é o alfabeto do design de sistemas profissional.</em></p></div>
+<h3 id="11-as-três-categorias">1.1 As Três Categorias</h3>
+<p>Os 23 padrões são divididos em três grandes categorias, cada uma endereçando um aspecto diferente do design:</p>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Criacionais</strong></th><th><strong>Estruturais</strong></th><th><strong>Comportamentais</strong></th></tr></thead><tbody><tr><td><p>Como objetos são criados. Desacoплam instanciação da lógica de negócio.</p></td><td><p>Como classes e objetos se relacionam e compõem para formar estruturas maiores.</p></td><td><p>Como objetos interagem, se comunicam e distribuem responsabilidades.</p></td></tr><tr><td><ul><li>
+Abstract Factory
+</li><li>
+Builder
+</li><li>
+Factory Method
+</li><li>
+Prototype
+</li><li>
+Singleton
+</li></ul></td><td><ul><li>
+Adapter
+</li><li>
+Bridge
+</li><li>
+Composite
+</li><li>
+Decorator
+</li><li>
+Facade
+</li><li>
+Flyweight
+</li><li>
+Proxy
+</li></ul></td><td><ul><li>
+Chain of Responsibility
+</li><li>
+Command
+</li><li>
+Interpreter
+</li><li>
+Iterator
+</li><li>
+Mediator
+</li><li>
+Memento
+</li><li>
+Observer
+</li><li>
+State
+</li><li>
+Strategy
+</li><li>
+Template Method
+</li><li>
+Visitor
+</li></ul></td></tr></tbody></table></div>
+<h2 id="categoria-1-padrões-criacionais">  CATEGORIA 1: PADRÕES CRIACIONAIS</h2>
+<p>Os padrões criacionais abstraem o processo de instanciação de objetos. Em arquitetura de sistemas, eles permitem que componentes de alto nível sejam independentes de como seus objetos colaboradores são criados, compostos e representados — aspecto crítico em sistemas distribuídos, multi-cloud e com inversão de controle (IoC).</p>
+<h3 id="21-abstract-factory">2.1 Abstract Factory</h3>
+<div class="callout note"><p><strong>Abstract Factory</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Fornece uma interface para criar famílias de objetos relacionados ou dependentes sem especificar suas classes concretas.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Um sistema precisa ser independente de como seus produtos são criados, compostos e representados. Diferentes ambientes ou plataformas requerem diferentes implementações.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Defina interfaces abstratas para cada tipo de produto. Crie fábricas concretas que implementam essas interfaces para cada família de produtos.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Plataforma de pagamentos multi-gateway: Uma Abstract Factory para 'ConectorDePagamento' cria instâncias de ProcessadorPIX, ProcessadorCartao e ProcessadorBoleto. Há uma fábrica concreta para cada provedor (Cielo, Rede, PagSeguro), permitindo trocar todo o gateway sem alterar a lógica de negócio. Em cloud, uma fábrica abstrata de 'RecursosCloud' instancia StorageService, QueueService e DatabaseService, com implementações concretas para AWS, Azure e GCP.</p></div>
+<h3 id="22-builder">2.2 Builder</h3>
+<div class="callout note"><p><strong>Builder</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Separa a construção de um objeto complexo de sua representação, permitindo que o mesmo processo crie representações diferentes.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Construção de objetos complexos com muitos parâmetros opcionais gera construtores telescópicos e código frágil. Diferentes variantes do mesmo objeto são necessárias.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Separe o algoritmo de construção do objeto (Director) da construção passo a passo (Builder). O cliente usa o Director para orquestrar os passos.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Construção de pipelines de dados: Um PipelineBuilder monta pipelines com etapas opcionais — fonte de dados, transformações, validações, destino — sem expor a complexidade de configuração. Também amplamente usado para construir objetos de Request em SDKs de APIs REST, queries SQL complexas em ORMs, e configuração de infraestrutura como código (Terraform builders, CloudFormation stacks).</p></div>
+<h3 id="23-factory-method">2.3 Factory Method</h3>
+<div class="callout note"><p><strong>Factory Method</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Define uma interface para criar um objeto, mas deixa as subclasses decidirem qual classe instanciar.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Uma classe não pode antecipar a classe de objetos que deve criar, ou quer que subclasses especifiquem os objetos que criam.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Declare um método abstrato de criação (factory method) na classe base. Subclasses implementam esse método e retornam instâncias de classes concretas compatíveis.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Framework de conectores de integração: Uma classe abstrata ConectorMensageria define processarMensagem() com um factory method criarConsumer(). Subclasses KafkaConector, RabbitMQConector e SQSConector implementam criarConsumer() retornando o cliente correto para cada broker. Amplamente aplicado em frameworks como Spring (BeanFactory) e no padrão Repository do DDD.</p></div>
+<h3 id="24-prototype">2.4 Prototype</h3>
+<div class="callout note"><p><strong>Prototype</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Especifica os tipos de objetos a criar usando uma instância-protótipo e cria novos objetos copiando esse protótipo.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Criar objetos do zero é custoso ou complexo. O sistema precisa ser independente de como produtos são criados e representados.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Implemente uma interface de clonagem nos objetos. O cliente clona o protótipo em vez de instanciar novas classes.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Cache de configurações complexas: Em sistemas que carregam configurações pesadas de banco de dados (ex: regras de compliance de um banco), o Prototype permite clonar o objeto de configuração já populado em vez de recarregá-lo. Útil em engines de regras de negócio, criação de templates de contrato jurídico pré-populados, e replicação de configurações de ambiente em pipelines CI/CD.</p></div>
+<h3 id="25-singleton">2.5 Singleton</h3>
+<div class="callout note"><p><strong>Singleton</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Garante que uma classe tenha apenas uma instância e fornece um ponto de acesso global a ela.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Alguns recursos devem ter exatamente uma instância compartilhada por toda a aplicação (pools de conexão, registros de configuração, loggers).</p>
+<p><strong>✅ Solução</strong></p>
+<p>Controle a instanciação tornando o construtor privado e fornecendo um método estático que retorna sempre a mesma instância.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Pool de conexões de banco de dados: Um DataSourceManager Singleton gerencia o pool de conexões JDBC ou de um cache Redis, garantindo que toda a aplicação compartilhe o mesmo pool sem criar conexões duplicadas. Utilizado em configuração de aplicações (application context do Spring), registro de métricas centralizadas e gerenciadores de cache (Redis client, Ehcache). Atenção: em arquiteturas distribuídas, o Singleton deve ser combinado com soluções de estado distribuído.</p></div>
+<h2 id="categoria-2-padrões-estruturais">  CATEGORIA 2: PADRÕES ESTRUTURAIS</h2>
+<p>Os padrões estruturais tratam de como classes e objetos são compostos para formar estruturas maiores. Em arquitetura de soluções, são especialmente relevantes em cenários de integração de sistemas legados, construção de APIs, orquestração de microsserviços e composição de interfaces complexas.</p>
+<h3 id="31-adapter">3.1 Adapter</h3>
+<div class="callout note"><p><strong>Adapter</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Converte a interface de uma classe em outra interface que os clientes esperam. Permite que classes com interfaces incompatíveis trabalhem juntas.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Sistemas existentes possuem interfaces incompatíveis com as interfaces esperadas pelos novos componentes. Integração sem modificar código legado.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Crie uma classe Adapter que implementa a interface esperada pelo cliente e delega chamadas para o objeto adaptado (Adaptee) usando composição ou herança.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Modernização de mainframe: Um AdaptadorCOBOL implementa a interface REST esperada pelos microsserviços modernos e internamente converte as chamadas para o formato de chamada COBOL/CICS do sistema legado. Padrão onipresente em integrações — adaptadores entre protocolos SOAP e REST, entre formatos EDIFACT e JSON, e em Anti-Corruption Layers do DDD que isolam o domínio moderno dos sistemas legados.</p></div>
+<h3 id="32-bridge">3.2 Bridge</h3>
+<div class="callout note"><p><strong>Bridge</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Desacopla uma abstração de sua implementação para que as duas possam variar independentemente.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Proliferação de subclasses quando abstração e implementação podem variar em múltiplas dimensões. Mudanças na implementação não devem afetar os clientes.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Separe a hierarquia de abstração da hierarquia de implementação conectando-as através de uma referência (a 'ponte'), em vez de usar herança.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Relatórios em múltiplos formatos e canais: A abstração Relatorio define gerarRelatorio(), e as implementações concretas RenderizadorPDF, RenderizadorExcel e RenderizadorHTML variam independentemente dos tipos de relatório (RelatorioFinanceiro, RelatorioAuditoria). Em mensageria, a abstração NotificacaoService pode operar com implementações de Canal independentes: EmailChannel, SMSChannel, WhatsAppChannel e PushChannel.</p></div>
+<h3 id="33-composite">3.3 Composite</h3>
+<div class="callout note"><p><strong>Composite</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Compõe objetos em estruturas de árvore para representar hierarquias todo-parte. Permite tratar objetos individuais e composições de objetos de maneira uniforme.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Sistemas que processam hierarquias de dados precisam tratar objetos simples e compostos da mesma forma, sem lógica condicional.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Crie uma interface comum para componentes folha e compostos. Componentes compostos mantêm uma coleção de filhos e delegam operações a eles recursivamente.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Estrutura organizacional em RH/Jurídico: Um sistema de controle de acesso baseado em hierarquia (RBAC hierárquico) onde Departamento e Colaborador implementam a mesma interface Unidade, permitindo aplicar políticas de acesso a toda uma divisão ou a um colaborador individual de forma uniforme. Também aplicado em menus de sistemas ERP, árvores de categorias de produtos em e-commerce, e representação de portfólios de ativos financeiros com grupos e sub-grupos.</p></div>
+<h3 id="34-decorator">3.4 Decorator</h3>
+<div class="callout note"><p><strong>Decorator</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Anexa responsabilidades adicionais a um objeto dinamicamente. Fornece uma alternativa flexível à herança para estender funcionalidades.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Necessidade de adicionar comportamentos a objetos individualmente sem afetar outros objetos da mesma classe. Extensão por herança seria impraticável.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Envolva o objeto original em um objeto Decorator que implementa a mesma interface e adiciona comportamento antes ou depois de delegar ao objeto original.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Middleware de APIs e pipelines de requisição: Em um API Gateway, cada camada aplica um Decorator — autenticação JWT, logging, rate limiting, compressão GZIP, tracing distribuído — sem modificar o handler original. O Express.js e frameworks similares são implementações clássicas desse padrão. Em streaming de dados (Kafka Streams, Spark), transformações são decorators encadeados sobre um stream base.</p></div>
+<h3 id="35-facade">3.5 Facade</h3>
+<div class="callout note"><p><strong>Facade</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Fornece uma interface simplificada para um subsistema complexo.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Clientes dependem de múltiplos componentes de um subsistema complexo, gerando acoplamento forte. A interface do subsistema é complexa demais para uso direto.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Crie uma classe Facade que expõe uma interface simples e internamente orquestra o subsistema complexo, ocultando sua complexidade.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>API Gateway como Facade: Um serviço de 'ProcessamentoDeProposta' expõe um único endpoint POST /proposta que internamente orquestra chamadas ao serviço de análise de crédito, consulta ao bureau, avaliação de risco e registro no core bancário — tudo invisível ao cliente. O BFF (Backend for Frontend) é uma aplicação direta do Facade para mobile. Em sistemas de compliance como Bradesco Jurídico, uma FacadeDeAuditoria pode unificar múltiplos serviços de rastreabilidade.</p></div>
+<h3 id="36-flyweight">3.6 Flyweight</h3>
+<div class="callout note"><p><strong>Flyweight</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Usa compartilhamento para suportar eficientemente grande quantidade de objetos com granularidade fina.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Grande número de objetos consome memória excessiva. Muitos objetos são idênticos em seu estado intrínseco e diferem apenas em estado extrínseco.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Separe o estado intrínseco (compartilhável) do extrínseco (passado pelo cliente). Mantenha um pool (Flyweight Factory) de objetos compartilhados.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Cache de metadados em sistemas de alto volume: Em um sistema de processamento de transações com milhões de operações por hora, os metadados de tipo de transação, moeda e produto financeiro são objetos Flyweight compartilhados em memória. Também aplicado em renderização de dashboards analíticos com milhares de elementos visuais, e em grids de dados de sistemas de trading onde cada linha compartilha metadados de coluna.</p></div>
+<h3 id="37-proxy">3.7 Proxy</h3>
+<div class="callout note"><p><strong>Proxy</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Fornece um substituto ou espaço reservado para outro objeto controlar o acesso a ele.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Necessidade de controlar acesso a um objeto, adicionar funcionalidades transversais (logging, cache, segurança) ou adiar criação de objetos custosos.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Crie um objeto Proxy com a mesma interface do objeto real. O Proxy controla o acesso, adicionando comportamentos antes ou depois de delegar ao objeto real.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Service Mesh e Sidecar Proxy: O padrão Istio/Envoy no Kubernetes é a implementação distribuída do Proxy — cada serviço tem um proxy sidecar que intercepta todo o tráfego, aplicando mTLS, circuit breaking, load balancing e observabilidade sem modificar o serviço. Em nível de aplicação, lazy loading de entidades JPA/Hibernate, cache de respostas de APIs externas e Virtual Proxy para conexões com sistemas de mainframe.</p></div>
+<h2 id="categoria-3-padrões-comportamentais">  CATEGORIA 3: PADRÕES COMPORTAMENTAIS</h2>
+<p>Os padrões comportamentais são relacionados a algoritmos e à atribuição de responsabilidades entre objetos. Em arquitetura de sistemas modernos, são a base de workflows, event-driven architectures, pipelines de processamento e orquestração de microsserviços.</p>
+<h3 id="41-chain-of-responsibility">4.1 Chain of Responsibility</h3>
+<div class="callout note"><p><strong>Chain of Responsibility</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Evita acoplar o remetente de uma requisição ao seu receptor, dando a mais de um objeto a chance de tratar a requisição. Encadeia os objetos receptores e passa a requisição ao longo da corrente.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Mais de um objeto pode tratar uma requisição, e o handler não é conhecido a priori. A requisição deve ser passada pela cadeia sem o remetente conhecer o receptor.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Construa uma corrente de handlers. Cada handler decide processar a requisição ou passá-la ao próximo da corrente.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Pipeline de validação e aprovação em processos bancários: Uma solicitação de crédito passa por uma cadeia — ValidacaoCadastral, AnaliseDeRisco, ConsultaBureau, AprovacaoAutomatica, AprovacaoGerencial — cada handler processa o que é de sua competência e passa adiante ou interrompe. Em segurança da informação, uma cadeia de filtros (WAF -&gt; AuthFilter -&gt; AuthorizationFilter -&gt; AuditFilter) é a implementação clássica no contexto de APIs.</p></div>
+<h3 id="42-command">4.2 Command</h3>
+<div class="callout note"><p><strong>Command</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Encapsula uma requisição como um objeto, permitindo parametrizar clientes com diferentes requisições, enfileirar ou registrar requisições e suportar operações desfazíveis.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Necessidade de parametrizar ações, suportar undo/redo, implementar filas de operações, logging de ações ou suporte a transações.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Encapsule cada operação em um objeto Command com um método execute(). Opcionalmente, adicione undo(). Um Invoker armazena e dispara commands.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Event Sourcing e CQRS: Em arquiteturas Event Sourcing, cada mudança de estado é um Command (CriarContaCommand, RealizarTransferenciaCommand) persistido como evento imutável. O CQRS separa Commands (escritas) de Queries (leituras). Em sistemas de auditoria (área crítica em compliance e jurídico bancário), todos os comandos ficam registrados permitindo reconstrução do estado em qualquer ponto no tempo.</p></div>
+<h3 id="43-observer">4.3 Observer</h3>
+<div class="callout note"><p><strong>Observer</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Define uma dependência um-para-muitos entre objetos para que quando um objeto muda de estado, todos os seus dependentes sejam notificados e atualizados automaticamente.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Uma mudança em um objeto requer mudanças em outros, mas não se sabe quantos objetos precisam mudar. Acoplamento forte entre publicadores e assinantes.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Defina uma interface Subject com métodos attach/detach/notify. Observers implementam uma interface update() e se registram no Subject.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Event-Driven Architecture e mensageria: Kafka, RabbitMQ e AWS SNS/SQS são implementações distribuídas do Observer. Um evento 'TransacaoAprovada' publicado no tópico Kafka é consumido por múltiplos observadores: ServicoDeNotificacao, ServicoDeAntifraude, ServicoDeContabilidade e ServicoDeCompliance — completamente desacoplados. Em sistemas de monitoramento, alertas de SLO/SLA são implementados com o Observer.</p></div>
+<h3 id="44-strategy">4.4 Strategy</h3>
+<div class="callout note"><p><strong>Strategy</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Define uma família de algoritmos, encapsula cada um e os torna intercambiáveis. Permite que o algoritmo varie independentemente dos clientes que o utilizam.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Múltiplas variações de um algoritmo são necessárias e devem ser intercambiáveis em tempo de execução. Eliminação de condicionais extensos para seleção de comportamento.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Defina uma interface Strategy. Implemente algoritmos concretos que a implementem. O contexto delega a execução à Strategy configurada.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Motor de scoring e avaliação de risco em bancos: Um RiskAssessmentContext utiliza diferentes estratégias — EstrategiaScoreTradicional, EstrategiaMLScore, EstrategiaOpenFinance — de acordo com o perfil do cliente e produto, sem modificar o fluxo principal. Em sistemas de pagamento, estratégias de roteamento de transação entre redes (Visa, Mastercard, Elo) são intercambiadas em runtime baseadas em regras de custo e disponibilidade.</p></div>
+<h3 id="45-template-method">4.5 Template Method</h3>
+<div class="callout note"><p><strong>Template Method</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Define o esqueleto de um algoritmo em uma operação, postergando alguns passos para subclasses. Permite que subclasses redefinam certos passos sem mudar a estrutura do algoritmo.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Múltiplas implementações compartilham o mesmo esqueleto de algoritmo mas diferem em detalhes. Evitar duplicação do código estrutural.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Defina na classe base um método template que chama métodos abstratos (hooks) em ordem fixa. Subclasses implementam apenas os hooks específicos.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Frameworks de processamento batch: Um AbstractBatchJob define o template: inicializar() -&gt; validarEntrada() -&gt; processarRegistros() -&gt; gerarRelatorio() -&gt; finalizar(). Subclasses como ProcessamentoDeFolhaDePagamento e ConciliacaoFinanceira implementam apenas os passos específicos. Em integrações ETL, pipelines Spark e workflows de onboarding bancário, o Template Method garante que etapas obrigatórias (auditoria, log, notificação) sejam sempre executadas.</p></div>
+<h3 id="46-state">4.6 State</h3>
+<div class="callout note"><p><strong>State</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Permite que um objeto altere seu comportamento quando seu estado interno muda. O objeto parecerá ter mudado sua classe.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Comportamento de um objeto depende de seu estado e deve mudar em tempo de execução. Lógica condicional baseada em estado espalha-se pelo código.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Encapsule cada estado em uma classe concreta que implementa a interface State. O contexto delega operações ao estado atual e permite transição entre estados.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Máquina de estados de contratos e processos judiciais: Um Contrato possui estados (EmNegociacao, AssinadoPendente, Ativo, EmDisputa, Rescindido, Encerrado), cada um com comportamentos diferentes para assinar(), cancelar() e renovar(). Em processos judiciais de um banco, um ProcessoJudicial transita por estados (Notificado, Contestado, EmAudiencia, Sentenciado, Transitado) onde cada estado determina as ações permitidas.</p></div>
+<h3 id="47-mediator">4.7 Mediator</h3>
+<div class="callout note"><p><strong>Mediator</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Define um objeto que encapsula como um conjunto de objetos interage. Promove fraco acoplamento evitando que os objetos se refiram explicitamente uns aos outros.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Muitos objetos se comunicam de forma direta, gerando acoplamento forte e dificultando reutilização. Interações complexas são difíceis de entender e modificar.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Crie um objeto Mediator que centraliza a comunicação entre objetos. Cada objeto conhece apenas o Mediator, não os outros objetos.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Barramento de eventos corporativo (ESB/Event Bus): Um ESB como o MuleSoft ou Azure Service Bus atua como Mediator central — sistemas de CRM, ERP, Core Bancário e Compliance se comunicam apenas com o barramento, não diretamente entre si. Em microsserviços, o API Gateway com orquestração e o Saga Orchestrator são Mediators. Em sistemas de compliance, um MediadorDeAlerta coordena respostas entre sistemas de detecção, registro e notificação.</p></div>
+<h3 id="48-iterator">4.8 Iterator</h3>
+<div class="callout note"><p><strong>Iterator</strong></p>
+<p><strong>🎯 Intenção</strong></p>
+<p>Fornece uma forma de acessar sequencialmente os elementos de um objeto agregado sem expor sua representação subjacente.</p>
+<p><strong>⚠️ Problema que resolve</strong></p>
+<p>Necessidade de percorrer diferentes estruturas de dados de forma uniforme, sem expor detalhes de implementação interna das coleções.</p>
+<p><strong>✅ Solução</strong></p>
+<p>Defina uma interface Iterator com hasNext() e next(). A coleção retorna um Iterator adequado à sua estrutura interna.</p>
+<p><strong>📌 Exemplo Arquitetural</strong></p>
+<p>Paginação de resultados em APIs e consultas analíticas: Um CursorIterator para consultas a grandes volumes de dados (ex: extrato completo de transações) abstrai a paginação do banco, cursor de DynamoDB ou scroll de Elasticsearch. Em pipelines de dados, Iterators permitem processar streams de eventos Kafka, resultados de queries de data warehouse e arquivos CSV de grande volume sem carregar tudo em memória.</p></div>
+<h3 id="49-outros-padrões-comportamentais">4.9 Outros Padrões Comportamentais</h3>
+<p>Os padrões abaixo completam a categoria comportamental e também têm aplicações relevantes em arquitetura:</p>
+<ul><li>
+<strong>Memento: </strong>Captura e externaliza o estado interno de um objeto sem violar encapsulamento. Aplicado em funcionalidades de undo/redo, snapshots de configuração de ambiente e versionamento de documentos e contratos.
+</li><li>
+<strong>Visitor: </strong>Representa uma operação a ser realizada sobre elementos de uma estrutura de objetos sem modificá-los. Amplamente usado em compiladores, análise de AST, e em sistemas de auditoria que precisam aplicar verificações variadas sobre uma estrutura de dados estável.
+</li><li>
+<strong>Interpreter: </strong>Define uma gramática para uma linguagem e um interpretador para lidar com essa gramática. Aplicado em engines de expressão de regras de negócio (BRMS), validadores de linguagens de consulta customizadas e configurações baseadas em DSL.
+</li></ul>
+<h2 id="revisão-consolidada">  REVISÃO CONSOLIDADA</h2>
+<p>Esta seção consolida todos os 23 padrões GoF em uma visão unificada, destacando propósito, categoria e aplicações arquiteturais. Use como referência rápida durante decisões de design.</p>
+<h3 id="51-tabela-de-referência-rápida">5.1 Tabela de Referência Rápida</h3>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Padrão</strong></th><th><strong>Categoria</strong></th><th><strong>Propósito</strong></th><th><strong>Exemplo em Arquitetura</strong></th></tr></thead><tbody><tr><td><p><strong>Abstract Factory</strong></p></td><td><p>Criacional</p></td><td><p>Criar famílias de objetos relacionados sem especificar classes concretas</p></td><td><p><em>Factory de conectores multi-cloud (AWS/Azure/GCP)</em></p></td></tr><tr><td><p><strong>Builder</strong></p></td><td><p>Criacional</p></td><td><p>Construir objetos complexos passo a passo</p></td><td><p><em>Pipelines de dados, configuração de infraestrutura como código</em></p></td></tr><tr><td><p><strong>Factory Method</strong></p></td><td><p>Criacional</p></td><td><p>Subclasses decidem qual classe instanciar</p></td><td><p><em>Conectores de mensageria (Kafka, RabbitMQ, SQS)</em></p></td></tr><tr><td><p><strong>Prototype</strong></p></td><td><p>Criacional</p></td><td><p>Criar novos objetos clonando um protótipo</p></td><td><p><em>Cache de configurações de regras de negócio pesadas</em></p></td></tr><tr><td><p><strong>Singleton</strong></p></td><td><p>Criacional</p></td><td><p>Garantir única instância global</p></td><td><p><em>Pool de conexões de banco, configuração de aplicação</em></p></td></tr><tr><td><p><strong>Adapter</strong></p></td><td><p>Estrutural</p></td><td><p>Converter interface incompatível para a esperada</p></td><td><p><em>Anti-Corruption Layer, integração COBOL/REST</em></p></td></tr><tr><td><p><strong>Bridge</strong></p></td><td><p>Estrutural</p></td><td><p>Desacoplar abstração de implementação</p></td><td><p><em>Notificações multi-canal, relatórios multi-formato</em></p></td></tr><tr><td><p><strong>Composite</strong></p></td><td><p>Estrutural</p></td><td><p>Tratar objetos simples e compostos uniformemente</p></td><td><p><em>RBAC hierárquico, árvores de categorias de produto</em></p></td></tr><tr><td><p><strong>Decorator</strong></p></td><td><p>Estrutural</p></td><td><p>Adicionar responsabilidades dinamicamente</p></td><td><p><em>Middleware de API Gateway (auth, logging, rate limit)</em></p></td></tr><tr><td><p><strong>Facade</strong></p></td><td><p>Estrutural</p></td><td><p>Interface simplificada para subsistema complexo</p></td><td><p><em>BFF, API Gateway, orquestrador de proposta de crédito</em></p></td></tr><tr><td><p><strong>Flyweight</strong></p></td><td><p>Estrutural</p></td><td><p>Compartilhar objetos para suportar grande volume</p></td><td><p><em>Cache de metadados em sistemas de alto volume transacional</em></p></td></tr><tr><td><p><strong>Proxy</strong></p></td><td><p>Estrutural</p></td><td><p>Controlar acesso a um objeto</p></td><td><p><em>Sidecar Proxy (Istio/Envoy), lazy loading de entidades</em></p></td></tr><tr><td><p><strong>Chain of Responsibility</strong></p></td><td><p>Comportamental</p></td><td><p>Encadear handlers para processar requisições</p></td><td><p><em>Pipeline de validação de crédito, filtros de segurança</em></p></td></tr><tr><td><p><strong>Command</strong></p></td><td><p>Comportamental</p></td><td><p>Encapsular requisições como objetos</p></td><td><p><em>Event Sourcing, CQRS, registro de auditoria</em></p></td></tr><tr><td><p><strong>Iterator</strong></p></td><td><p>Comportamental</p></td><td><p>Acessar coleções sem expor representação interna</p></td><td><p><em>Paginação de APIs, processamento de streams</em></p></td></tr><tr><td><p><strong>Mediator</strong></p></td><td><p>Comportamental</p></td><td><p>Centralizar comunicação entre objetos</p></td><td><p><em>ESB, API Gateway com orquestração, Saga Orchestrator</em></p></td></tr><tr><td><p><strong>Memento</strong></p></td><td><p>Comportamental</p></td><td><p>Capturar e restaurar estado de um objeto</p></td><td><p><em>Undo/redo, snapshots de configuração, versionamento</em></p></td></tr><tr><td><p><strong>Observer</strong></p></td><td><p>Comportamental</p></td><td><p>Notificar dependentes sobre mudanças de estado</p></td><td><p><em>Kafka/SNS eventos, alertas de SLO, event-driven arch.</em></p></td></tr><tr><td><p><strong>State</strong></p></td><td><p>Comportamental</p></td><td><p>Alterar comportamento conforme estado interno</p></td><td><p><em>Máquina de estados de contratos e processos judiciais</em></p></td></tr><tr><td><p><strong>Strategy</strong></p></td><td><p>Comportamental</p></td><td><p>Tornar algoritmos intercambiáveis</p></td><td><p><em>Motor de scoring de crédito, roteamento de pagamentos</em></p></td></tr><tr><td><p><strong>Template Method</strong></p></td><td><p>Comportamental</p></td><td><p>Definir esqueleto de algoritmo com passos variáveis</p></td><td><p><em>Frameworks batch, pipelines ETL, workflows de onboarding</em></p></td></tr><tr><td><p><strong>Visitor</strong></p></td><td><p>Comportamental</p></td><td><p>Operações sobre estrutura sem modificá-la</p></td><td><p><em>Auditoria de objetos de domínio, análise de AST</em></p></td></tr><tr><td><p><strong>Interpreter</strong></p></td><td><p>Comportamental</p></td><td><p>Interpretar linguagem ou expressão customizada</p></td><td><p><em>Engines de regras de negócio, DSLs de configuração</em></p></td></tr></tbody></table></div>
+<h3 id="52-princípios-subjacentes">5.2 Princípios Subjacentes</h3>
+<p>Os 23 padrões GoF são sustentados por dois princípios fundamentais que todo arquiteto deve internalizar:</p>
+<div class="callout note"><p><strong>Princípio 1: Programe para interfaces, não para implementações</strong></p>
+<p><em>Dependências devem ser sobre abstrações (interfaces, classes abstratas), não sobre implementações concretas. Isso é o que torna os padrões criacionais e estruturais possíveis — e é a base da inversão de dependência (o 'D' do SOLID).</em></p></div>
+<div class="callout note"><p><strong>Princípio 2: Prefira composição de objetos à herança de classes</strong></p>
+<p><em>A herança cria acoplamento forte entre classes. A composição é mais flexível e é o mecanismo central de padrões como Decorator, Composite, Bridge e Strategy. Em arquiteturas de microsserviços, este princípio se traduz em serviços compostos em vez de hierarquias monolíticas.</em></p></div>
+<h3 id="53-padrões-mais-frequentes-em-arquitetura-corporativa">5.3 Padrões mais Frequentes em Arquitetura Corporativa</h3>
+<p>Com base na aplicação prática em sistemas financeiros, cloud e integrações corporativas, os padrões de maior impacto são:</p>
+<div class="tbl-wrap"><table><thead><tr><th><strong>#</strong></th><th><strong>Padrão</strong></th><th><strong>Por que é onipresente em arquitetura corporativa</strong></th></tr></thead><tbody><tr><td><p><strong>1</strong></p></td><td><p><strong>Observer</strong></p></td><td><p>É a espinha dorsal de qualquer EDA (Event-Driven Architecture). Kafka, SNS, EventBridge são implementações distribuídas deste padrão.</p></td></tr><tr><td><p><strong>2</strong></p></td><td><p><strong>Facade</strong></p></td><td><p>Todo API Gateway, BFF e orquestrador de serviços é um Facade. Fundamental para simplificação de interfaces em microsserviços.</p></td></tr><tr><td><p><strong>3</strong></p></td><td><p><strong>Strategy</strong></p></td><td><p>Permite que regras de negócio sejam trocadas sem modificar código. Essencial em sistemas financeiros com múltiplos algoritmos de precificação e scoring.</p></td></tr><tr><td><p><strong>4</strong></p></td><td><p><strong>Adapter</strong></p></td><td><p>Integração de sistemas legados é um dos maiores desafios corporativos. O Adapter é a ferramenta central de qualquer modernização ou Anti-Corruption Layer.</p></td></tr><tr><td><p><strong>5</strong></p></td><td><p><strong>Decorator</strong></p></td><td><p>Middleware chains em APIs, pipelines de processamento e aspectos transversais (logging, segurança) são todos Decorators.</p></td></tr><tr><td><p><strong>6</strong></p></td><td><p><strong>Command</strong></p></td><td><p>Event Sourcing e CQRS — arquiteturas cada vez mais adotadas em sistemas financeiros — são fundamentados no Command.</p></td></tr><tr><td><p><strong>7</strong></p></td><td><p><strong>Template Method</strong></p></td><td><p>Qualquer framework de processamento batch, ETL ou workflow de onboarding usa Template Method para garantir estrutura com flexibilidade.</p></td></tr></tbody></table></div>
+<h3 id="54-gof-e-arquiteturas-modernas">5.4 GoF e Arquiteturas Modernas</h3>
+<p>Os padrões GoF, criados para OOP, se refletem diretamente em padrões arquiteturais modernos:</p>
+<ul><li>
+<strong>Microsserviços: </strong>Facade (API Gateway), Observer (Event Bus), Mediator (Service Mesh), Proxy (Sidecar)
+</li><li>
+<strong>Cloud-Native: </strong>Abstract Factory (multi-cloud resources), Singleton (managed connections), Decorator (middleware layers)
+</li><li>
+<strong>Event-Driven: </strong>Observer (pub/sub), Command (event sourcing), Chain of Responsibility (event processing pipelines)
+</li><li>
+<strong>Domain-Driven Design: </strong>Adapter (Anti-Corruption Layer), Facade (Application Services), Factory Method (Domain Factories)
+</li><li>
+<strong>Sistemas Legados/Modernização: </strong>Adapter (conversão de protocolos), Proxy (virtual services), Facade (simplificação de APIs legadas)
+</li></ul>
+<div class="callout note"><p><strong>Conclusão do Arquiteto</strong></p>
+<p><em>Os 23 padrões GoF não são apenas código — são uma linguagem compartilhada. Quando um arquiteto diz 'vamos usar um Observer aqui', toda a equipe entende imediatamente a intenção, a estrutura e as implicações. Em sistemas corporativos de larga escala — como os encontrados em instituições financeiras, sistemas de compliance e plataformas de integração — o domínio desses padrões é o diferencial entre soluções que evoluem com o negócio e soluções que geram dívida técnica.</em></p></div>
+  </article>
+</main>
+</div>
+<a class="fab" href="../../index.html" aria-label="Voltar ao hub">◂ HUB</a>
+<button class="totop" type="button" aria-label="Voltar ao topo">▲</button>
+<script>
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  /* tema */
+  var TK='hub-theme', modes=['auto','light','dark'];
+  function applyTheme(m){ if(m==='auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme',m); var b=$('#theme'); if(b) b.textContent='tema: '+m; }
+  var tm='auto'; try{tm=localStorage.getItem(TK)||'auto'}catch(e){}
+  applyTheme(tm);
+  $('#theme').addEventListener('click',function(){ tm=modes[(modes.indexOf(tm)+1)%3]; try{localStorage.setItem(TK,tm)}catch(e){} applyTheme(tm); });
+  /* menu mobile */
+  var side=$('aside'), scrim=$('.scrim');
+  function menu(o){ side.classList.toggle('open',o); scrim.classList.toggle('open',o); }
+  $('#menu').addEventListener('click',function(){menu(true)}); scrim.addEventListener('click',function(){menu(false)});
+  $$('nav.toc a').forEach(function(a){a.addEventListener('click',function(){menu(false)})});
+  /* filtro do sumário */
+  $('#filter').addEventListener('input',function(e){ var q=e.target.value.trim().toLowerCase(); $$('nav.toc a').forEach(function(a){ a.hidden = q && a.textContent.toLowerCase().indexOf(q)<0; }); });
+  document.addEventListener('keydown',function(e){ if(e.key==='/' && document.activeElement.tagName!=='INPUT'){ e.preventDefault(); if(innerWidth<=980) menu(true); $('#filter').focus(); } });
+  /* progresso + topo */
+  var bar=$('#progress'), top=$('.totop');
+  function onScroll(){ var h=document.documentElement; var p=h.scrollTop/(h.scrollHeight-h.clientHeight||1); bar.style.width=(p*100)+'%'; top.classList.toggle('show',h.scrollTop>900); }
+  addEventListener('scroll',onScroll,{passive:true}); onScroll();
+  top.addEventListener('click',function(){scrollTo({top:0,behavior:'smooth'})});
+  /* scroll spy */
+  var links=$$('nav.toc a'), map={}; links.forEach(function(a){ map[a.getAttribute('href').slice(1)]=a; });
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){ es.forEach(function(en){ if(en.isIntersecting){ links.forEach(function(l){l.classList.remove('on')}); var a=map[en.target.id]; if(a){ a.classList.add('on'); a.scrollIntoView({block:'nearest'}); } } }); },{rootMargin:'-10% 0px -80% 0px'});
+    Object.keys(map).forEach(function(id){ var el=document.getElementById(id); if(el) io.observe(el); });
+  }
+  /* tabelas largas */
+  $$('.tbl-wrap table').forEach(function(t){ var n=t.rows[0]?t.rows[0].cells.length:0; if(n>=5) t.classList.add('wide'); });
+  /* autoavaliação */
+  var tables=$$('table.assess'); if(!tables.length) return;
+  var KEY='hub-assess:'+document.body.dataset.doc, st={};
+  try{ st=JSON.parse(localStorage.getItem(KEY)||'{}') }catch(e){}
+  var OPTS=[['d','Domino','k-d'],['r','Reviso','k-r'],['e','Estudo','k-e']];
+  var cells=[];
+  tables.forEach(function(t,ti){
+    var heads=$$('thead th',t).map(function(th){return th.textContent.trim()});
+    $$('tbody tr',t).forEach(function(tr,ri){
+      $$('td',tr).forEach(function(td,ci){ if(heads[ci]) td.setAttribute('data-l',heads[ci]); });
+      var td=$('td.mark',tr); if(!td) return;
+      var id=ti+'-'+ri; cells.push(id);
+      td.innerHTML='<span class="mk" role="group" aria-label="Autoavaliação">'+OPTS.map(function(o){return '<button type="button" class="'+o[2]+'" data-id="'+id+'" data-v="'+o[0]+'" aria-pressed="'+(st[id]===o[0])+'">'+o[1]+'</button>'}).join('')+'</span>';
+    });
+  });
+  var barEl=document.createElement('div'); barEl.className='assess-bar';
+  var anchor=$('.doc h2'); anchor.parentNode.insertBefore(barEl,anchor);
+  function render(){
+    var c={d:0,r:0,e:0}; cells.forEach(function(id){ if(st[id]) c[st[id]]++; });
+    var n=cells.length, done=c.d+c.r+c.e, w=function(v){return (v/n*100).toFixed(2)+'%'};
+    barEl.innerHTML='<span>Autoavaliação · '+done+'/'+n+'</span><span class="meter"><i style="width:'+w(c.d)+';background:var(--tip)"></i><i style="width:'+w(c.r)+';background:var(--warn)"></i><i style="width:'+w(c.e)+';background:#E5484D"></i></span><span class="k-d"><b>'+c.d+'</b> domino</span><span class="k-r"><b>'+c.r+'</b> reviso</span><span class="k-e"><b>'+c.e+'</b> estudo</span><button class="theme" type="button" id="aclear">limpar</button>';
+  }
+  render();
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('.mk button');
+    if(b){ var id=b.dataset.id, v=b.dataset.v; st[id]=st[id]===v?undefined:v; if(!st[id]) delete st[id];
+      try{localStorage.setItem(KEY,JSON.stringify(st))}catch(_){}
+      $$('button[data-id="'+id+'"]').forEach(function(x){x.setAttribute('aria-pressed',String(x.dataset.v===st[id]))}); render(); return; }
+    if(e.target.id==='aclear'){ if(e.target.dataset.confirm){ st={}; try{localStorage.removeItem(KEY)}catch(_){} $$('.mk button').forEach(function(x){x.setAttribute('aria-pressed','false')}); render(); } else { e.target.dataset.confirm='1'; e.target.textContent='confirmar?'; } }
+  });
+})();
+</script>
+</body>
+</html>

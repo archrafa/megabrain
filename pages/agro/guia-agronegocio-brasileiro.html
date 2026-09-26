@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Guia do Agronegócio Brasileiro</title>
+
+<meta name="description" content="Referência completa para produtos financeiros e arquitetura de sistemas no agro">
+<script>try{var m=localStorage.getItem('hub-theme');if(m&&m!=='auto')document.documentElement.setAttribute('data-theme',m)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F4F6FA; --surface:#FFFFFF; --sunk:#EBEFF5; --ink:#141B2B; --ink-2:#44506A; --ink-3:#6B7790;
+  --line:#D8DFEA; --line-2:#C5CEDD; --accent:#3C7A19; --accent-soft:color-mix(in srgb,var(--accent) 12%,var(--surface));
+  --warn:#B4531A; --warn-soft:#FCEEE3; --tip:#1E7C4B; --tip-soft:#E4F4EA;
+  --code-bg:#0E1628; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(20,27,43,.05),0 10px 30px -18px rgba(20,27,43,.25);
+  --f-disp:"Chakra Petch","Space Grotesk",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --side:300px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#070B14; --surface:#0E1628; --sunk:#0A1120; --ink:#E6EEFB; --ink-2:#A9B7D0; --ink-3:#7485A3;
+  --line:#1D2A42; --line-2:#2A3A58; --accent:#9BF26B; --accent-soft:color-mix(in srgb,var(--accent) 14%,var(--surface));
+  --warn:#FFB547; --warn-soft:#2A1F10; --tip:#7EE2A8; --tip-soft:#10261B; --code-bg:#050910; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 36px -20px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#070B14; --surface:#0E1628; --sunk:#0A1120; --ink:#E6EEFB; --ink-2:#A9B7D0; --ink-3:#7485A3;
+  --line:#1D2A42; --line-2:#2A3A58; --accent:#9BF26B; --accent-soft:color-mix(in srgb,var(--accent) 14%,var(--surface));
+  --warn:#FFB547; --warn-soft:#2A1F10; --tip:#7EE2A8; --tip-soft:#10261B; --code-bg:#050910; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 36px -20px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+::selection{background:var(--accent);color:var(--bg)}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;box-shadow:0 0 12px var(--accent)}
+
+.shell{display:grid;grid-template-columns:var(--side) minmax(0,1fr);min-height:100vh}
+aside{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;border-right:1px solid var(--line);background:var(--surface)}
+.side-top{padding:18px 18px 12px;border-bottom:1px solid var(--line)}
+.hub{display:inline-flex;align-items:center;gap:8px;font:600 11.5px var(--f-mono);letter-spacing:.16em;color:var(--ink-2);text-decoration:none;margin-bottom:14px}
+.hub b{color:var(--accent)}
+.hub:hover{color:var(--accent)}
+.side-title{font:700 15px/1.25 var(--f-disp);letter-spacing:.01em;margin:0 0 12px;text-transform:uppercase}
+.filter{width:100%;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:500 13px var(--f-body);color:var(--ink)}
+.filter:focus{outline:none;border-color:var(--accent)}
+nav.toc{flex:1;overflow:auto;padding:10px 0 20px}
+nav.toc a{display:block;padding:5px 18px 5px 16px;border-left:2px solid transparent;color:var(--ink-2);text-decoration:none;font-size:13.5px;line-height:1.35}
+nav.toc a.l3{padding-left:30px;font-size:12.8px;color:var(--ink-3)}
+nav.toc a:hover{color:var(--ink);background:var(--sunk)}
+nav.toc a.on{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft);font-weight:600}
+nav.toc a[hidden]{display:none}
+.side-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 18px;border-top:1px solid var(--line);font:500 11px var(--f-mono);color:var(--ink-3)}
+.theme{background:none;border:1px solid var(--line);border-radius:6px;padding:5px 9px;font:500 11px var(--f-mono);color:var(--ink-2);cursor:pointer}
+.theme:hover{border-color:var(--accent);color:var(--accent)}
+
+main{min-width:0;padding:0 clamp(16px,5vw,64px) 120px;overflow-x:clip}
+.doc{max-width:900px;margin:0 auto}
+.hero{padding:56px 0 30px;border-bottom:1px solid var(--line);margin-bottom:12px;position:relative}
+.hero::before{content:"";position:absolute;inset:0 -40px auto;height:220px;background:radial-gradient(600px 200px at 10% 0%,var(--accent-soft),transparent 70%);z-index:-1}
+.kicker{font:600 11.5px var(--f-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px}
+.kicker::before{content:"";width:24px;height:1px;background:var(--accent)}
+.hero h1{font:700 clamp(32px,5.2vw,54px)/1.02 var(--f-disp);letter-spacing:-.005em;margin:14px 0 12px;text-transform:uppercase;text-wrap:balance}
+.hero .sub{font-size:18px;color:var(--ink-2);max-width:62ch;margin:0 0 16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+.chip{font:500 11.5px var(--f-mono);color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:4px 10px;background:var(--surface)}
+.hero-extra{margin-top:20px;color:var(--ink-2);font-size:15px}
+.hero-extra p{margin:0 0 8px;max-width:70ch}
+
+.doc h2{font:700 clamp(22px,2.6vw,28px)/1.15 var(--f-disp);margin:56px 0 14px;padding-top:14px;border-top:1px solid var(--line);letter-spacing:.005em;text-wrap:balance}
+.doc h3{font:600 19px/1.3 var(--f-disp);margin:34px 0 10px;color:var(--ink)}
+.doc h4{font:600 16px/1.35 var(--f-body);margin:26px 0 8px;color:var(--accent)}
+.doc h5{font:600 14px var(--f-mono);margin:20px 0 6px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.hero + h2,.hero + .assess-bar + h2{border-top:0;margin-top:30px;padding-top:0}
+.doc h2.banner{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.doc h2.banner .code{font:700 14px var(--f-mono);color:var(--bg);background:var(--accent);padding:4px 9px;border-radius:6px}
+.doc h2.banner .tag{font:600 11px var(--f-mono);letter-spacing:.1em;color:var(--warn);border:1px solid currentColor;border-radius:999px;padding:3px 10px}
+.doc p{margin:0 0 14px;max-width:74ch}
+.doc p.lead-in{font:600 14.5px var(--f-body);color:var(--ink);margin:20px 0 8px}
+.doc ul,.doc ol{margin:0 0 16px;padding-left:22px;max-width:74ch}
+.doc li{margin:4px 0}
+.doc li>ul,.doc li>ol{margin:4px 0}
+.doc li::marker{color:var(--accent)}
+.doc strong{font-weight:600;color:var(--ink)}
+.doc code{font:500 .86em var(--f-mono);background:var(--sunk);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.doc pre{background:var(--code-bg);color:var(--code-ink);border-radius:10px;padding:14px 16px;overflow:auto;font:13px/1.55 var(--f-mono);margin:0 0 18px;border:1px solid var(--line)}
+.doc pre code{background:none;border:0;padding:0;color:inherit;font-size:inherit}
+.doc blockquote{margin:0 0 16px;padding:10px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 8px 8px 0}
+.doc blockquote p{margin:0}
+.callout{border:1px solid var(--line);border-left:3px solid var(--accent);background:var(--surface);border-radius:10px;padding:14px 18px;margin:18px 0 20px;box-shadow:var(--shadow)}
+.callout>*:last-child{margin-bottom:0}
+.callout p{max-width:none}
+.callout.warn{border-left-color:var(--warn);background:var(--warn-soft)}
+.callout.tip{border-left-color:var(--tip);background:var(--tip-soft)}
+.tbl-wrap{overflow-x:auto;margin:0 0 20px;border:1px solid var(--line);border-radius:10px;background:var(--surface);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+thead th{position:sticky;top:0;background:var(--sunk);font:600 11.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);border-bottom:1px solid var(--line-2);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:color-mix(in srgb,var(--accent) 4%,transparent)}
+td p{margin:0 0 6px;max-width:none}
+td p:last-child{margin:0}
+td ul,td ol{margin:0;padding-left:18px}
+.tbl-wrap table.wide{min-width:760px}
+
+/* autoavaliação */
+.assess-bar{position:sticky;top:0;z-index:20;margin:18px 0 0;padding:10px 14px;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:10px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font:500 12.5px var(--f-mono);color:var(--ink-2)}
+.assess-bar .meter{flex:1 1 180px;height:8px;border-radius:4px;background:var(--sunk);overflow:hidden;display:flex}
+.assess-bar .meter i{display:block;height:100%}
+.k-d{--k:var(--tip)} .k-r{--k:var(--warn)} .k-e{--k:#E5484D}
+.assess-bar b{color:var(--k,var(--ink))}
+.assess-bar button{margin-left:auto}
+table.assess td:nth-child(1){font-weight:600;min-width:160px}
+table.assess td:nth-child(5){white-space:nowrap;font:500 12px var(--f-mono);color:var(--ink-3)}
+td.mark{white-space:nowrap}
+.mk{display:inline-flex;gap:4px}
+.mk button{border:1px solid var(--line-2);background:transparent;color:var(--ink-3);border-radius:6px;padding:3px 7px;font:600 11px var(--f-mono);cursor:pointer}
+.mk button:hover{border-color:var(--k);color:var(--k)}
+.mk button[aria-pressed="true"]{background:var(--k);border-color:var(--k);color:var(--bg)}
+.sec-count{font:500 12px var(--f-mono);color:var(--ink-3);margin:-6px 0 12px}
+
+
+/* componentes extras */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:18px 0 22px}
+.stats div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow)}
+.stats b{display:block;font:700 30px/1 var(--f-disp);color:var(--accent)}
+.stats span{font:500 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin:0 0 20px}
+.cols>div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.cols h5{margin:0 0 6px;color:var(--accent)}
+.cols ul{margin:0;padding-left:18px;font-size:14px}
+.res{list-style:none;padding:0!important;margin:0 0 20px;display:grid;gap:6px}
+.res li{display:flex;gap:10px;align-items:baseline;font-size:14px;margin:0}
+.res li::marker{content:none}
+.badge{flex:none;font:600 10px var(--f-mono);letter-spacing:.08em;padding:2px 7px;border-radius:5px;border:1px solid currentColor}
+.badge.free{color:var(--tip)} .badge.paid{color:var(--warn)}
+.phase{margin:64px 0 0;padding:22px 22px 6px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,var(--accent-soft),transparent 60%)}
+.phase .kicker{margin-bottom:4px}
+.doc .phase h2{border-top:0;margin-top:6px;padding-top:0}
+.mod-k{font:600 11px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:34px 0 0}
+.doc .mod-k + h3{margin-top:4px}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:0 0 18px}
+.split div{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.split b{font:700 24px var(--f-disp);color:var(--accent);display:block}
+
+.mobile-bar{display:none}
+.fab{position:fixed;left:16px;bottom:16px;z-index:50;font:600 12px/1 var(--f-mono);letter-spacing:.12em;color:#35E0FF!important;background:rgba(6,10,18,.9)!important;border:1px solid rgba(53,224,255,.45);padding:9px 13px;border-radius:999px;text-decoration:none;box-shadow:0 0 18px rgba(53,224,255,.25);display:none}
+.totop{position:fixed;right:18px;bottom:18px;z-index:50;width:40px;height:40px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:var(--shadow)}
+.totop.show{opacity:1;pointer-events:auto}
+@media (max-width:980px){
+  .shell{grid-template-columns:1fr}
+  aside{position:fixed;inset:0 auto 0 0;width:min(86vw,320px);z-index:70;transform:translateX(-102%);transition:transform .25s ease;box-shadow:var(--shadow)}
+  aside.open{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(5,8,15,.5);z-index:65;display:none}
+  .scrim.open{display:block}
+  .mobile-bar{display:flex;position:sticky;top:0;z-index:40;align-items:center;gap:10px;padding:10px 16px;margin:0 calc(-1 * clamp(16px,5vw,64px));background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .mobile-bar button{border:1px solid var(--line-2);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 10px;font:600 12px var(--f-mono);cursor:pointer}
+  .mobile-bar span{font:700 13px var(--f-disp);text-transform:uppercase;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .fab{display:inline-block}
+  .hero{padding-top:28px}
+  table.assess thead{display:none}
+  .tbl-wrap table.assess{min-width:0}
+  .assess-bar{top:54px}
+  .mobile-bar button{white-space:nowrap}
+  table.assess,table.assess tbody,table.assess tr,table.assess td{display:block;width:100%}
+  table.assess tr{border-bottom:1px solid var(--line);padding:10px 12px}
+  table.assess td{border:0;padding:3px 0}
+  table.assess td[data-l]::before{content:attr(data-l);display:block;font:600 10.5px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+  table.assess td:nth-child(1){font-size:16px}
+}
+@media print{
+  aside,.mobile-bar,.fab,.totop,#progress,.assess-bar button{display:none!important}
+  .shell{display:block} main{padding:0} body{background:#fff;color:#000}
+  .tbl-wrap,.callout{box-shadow:none}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body data-doc="agro-guia-agronegocio-brasileiro">
+<div id="progress"></div>
+<div class="scrim"></div>
+<div class="shell">
+<aside aria-label="Sumário">
+  <div class="side-top">
+    <a class="hub" href="../../index.html">◂ RAFAEL<b>//</b>HUB</a>
+    <p class="side-title">Guia do Agronegócio Brasileiro</p>
+    <input class="filter" id="filter" type="search" placeholder="Filtrar seções…  ( / )" aria-label="Filtrar seções">
+  </div>
+  <nav class="toc"><a href="#introdução-e-sumário" class="l2">INTRODUÇÃO E SUMÁRIO</a>
+<a href="#estrutura-deste-guia" class="l3">Estrutura deste Guia</a>
+<a href="#1-panorama-geral-do-agronegócio-brasileiro" class="l2">1. PANORAMA GERAL DO AGRONEGÓCIO BRASILEIRO</a>
+<a href="#11-o-agronegócio-como-motor-da-economia" class="l3">1.1 O Agronegócio como Motor da Economia</a>
+<a href="#12-posicionamento-global" class="l3">1.2 Posicionamento Global</a>
+<a href="#13-as-regiões-produtoras-e-o-matopiba" class="l3">1.3 As Regiões Produtoras e o MATOPIBA</a>
+<a href="#14-cadeias-produtivas-e-os-4-elos-do-agronegócio" class="l3">1.4 Cadeias Produtivas e os 4 Elos do Agronegócio</a>
+<a href="#2-principais-culturas-agrícolas-e-calendário-de-safras" class="l2">2. PRINCIPAIS CULTURAS AGRÍCOLAS E CALENDÁRIO DE SAFRAS</a>
+<a href="#21-as-culturas-estratégicas-do-brasil" class="l3">2.1 As Culturas Estratégicas do Brasil</a>
+<a href="#22-calendário-agrícola-consolidado-por-região" class="l3">2.2 Calendário Agrícola Consolidado por Região</a>
+<a href="#3-pecuária-brasileira" class="l2">3. PECUÁRIA BRASILEIRA</a>
+<a href="#31-o-rebanho-nacional" class="l3">3.1 O Rebanho Nacional</a>
+<a href="#32-bovinocultura-de-corte" class="l3">3.2 Bovinocultura de Corte</a>
+<a href="#33-bovinocultura-de-leite" class="l3">3.3 Bovinocultura de Leite</a>
+<a href="#34-suinocultura" class="l3">3.4 Suinocultura</a>
+<a href="#35-avicultura" class="l3">3.5 Avicultura</a>
+<a href="#36-outras-criações" class="l3">3.6 Outras Criações</a>
+<a href="#37-rastreabilidade-pecuária-um-marco-em-andamento" class="l3">3.7 Rastreabilidade Pecuária — Um Marco em Andamento</a>
+<a href="#4-desafios-dos-produtores-rurais-e-pecuaristas" class="l2">4. DESAFIOS DOS PRODUTORES RURAIS E PECUARISTAS</a>
+<a href="#41-desafios-climáticos" class="l3">4.1 Desafios Climáticos</a>
+<a href="#42-desafios-econômicos-e-de-mercado" class="l3">4.2 Desafios Econômicos e de Mercado</a>
+<a href="#43-desafios-operacionais-e-logísticos" class="l3">4.3 Desafios Operacionais e Logísticos</a>
+<a href="#44-desafios-regulatórios-e-ambientais" class="l3">4.4 Desafios Regulatórios e Ambientais</a>
+<a href="#45-desafios-sanitários" class="l3">4.5 Desafios Sanitários</a>
+<a href="#46-desafios-tecnológicos" class="l3">4.6 Desafios Tecnológicos</a>
+<a href="#5-principais-regulamentações-brasileiras-no-agro" class="l2">5. PRINCIPAIS REGULAMENTAÇÕES BRASILEIRAS NO AGRO</a>
+<a href="#51-lei-48291965-lei-do-crédito-rural" class="l3">5.1 Lei 4.829/1965 — Lei do Crédito Rural</a>
+<a href="#52-decreto-lei-1671967-títulos-de-crédito-rural" class="l3">5.2 Decreto-Lei 167/1967 — Títulos de Crédito Rural</a>
+<a href="#53-lei-126512012-código-florestal" class="l3">5.3 Lei 12.651/2012 — Código Florestal</a>
+<a href="#54-lei-113262006-lei-da-agricultura-familiar" class="l3">5.4 Lei 11.326/2006 — Lei da Agricultura Familiar</a>
+<a href="#55-lei-152232025-lei-do-pronaf-e-do-plano-safra" class="l3">5.5 Lei 15.223/2025 — Lei do Pronaf e do Plano Safra</a>
+<a href="#56-decreto-98412019-programa-nacional-de-zarc" class="l3">5.6 Decreto 9.841/2019 — Programa Nacional de ZARC</a>
+<a href="#57-plano-safra-20252026-r-5162-bilhões" class="l3">5.7 Plano Safra 2025/2026 — R$ 516,2 bilhões</a>
+<a href="#58-resolução-cmn-52672026-monitoramento-de-crédito-rural" class="l3">5.8 Resolução CMN 5.267/2026 — Monitoramento de Crédito Rural</a>
+<a href="#59-outras-regulamentações-relevantes" class="l3">5.9 Outras Regulamentações Relevantes</a>
+<a href="#6-manual-do-crédito-rural-mcr" class="l2">6. MANUAL DO CRÉDITO RURAL (MCR)</a>
+<a href="#61-estrutura-e-funcionamento" class="l3">6.1 Estrutura e Funcionamento</a>
+<a href="#62-beneficiários-do-crédito-rural" class="l3">6.2 Beneficiários do Crédito Rural</a>
+<a href="#63-modalidades-de-crédito-rural" class="l3">6.3 Modalidades de Crédito Rural</a>
+<a href="#64-fontes-de-recursos" class="l3">6.4 Fontes de Recursos</a>
+<a href="#65-documentação-exigida-pelo-mcr" class="l3">6.5 Documentação Exigida pelo MCR</a>
+<a href="#66-proagro-mcr-capítulo-8" class="l3">6.6 Proagro — MCR Capítulo 8</a>
+<a href="#7-zarc-zoneamento-agrícola-de-risco-climático" class="l2">7. ZARC — ZONEAMENTO AGRÍCOLA DE RISCO CLIMÁTICO</a>
+<a href="#71-o-que-é-o-zarc" class="l3">7.1 O Que é o ZARC</a>
+<a href="#72-como-o-zarc-funciona" class="l3">7.2 Como o ZARC Funciona</a>
+<a href="#73-impacto-do-zarc-no-crédito-rural" class="l3">7.3 Impacto do ZARC no Crédito Rural</a>
+<a href="#74-como-consultar-o-zarc" class="l3">7.4 Como Consultar o ZARC</a>
+<a href="#75-zarc-pecuária" class="l3">7.5 ZARC Pecuária</a>
+<a href="#8-órgãos-reguladores-e-sistemas-da-cadeia-produtiva" class="l2">8. ÓRGÃOS REGULADORES E SISTEMAS DA CADEIA PRODUTIVA</a>
+<a href="#81-órgãos-reguladores-principais" class="l3">8.1 Órgãos Reguladores Principais</a>
+<a href="#82-sistemas-de-informação-da-cadeia-produtiva" class="l3">8.2 Sistemas de Informação da Cadeia Produtiva</a>
+<a href="#9-tecnologias-aplicadas-ao-agronegócio" class="l2">9. TECNOLOGIAS APLICADAS AO AGRONEGÓCIO</a>
+<a href="#91-georreferenciamento-e-sig" class="l3">9.1 Georreferenciamento e SIG</a>
+<a href="#92-sensoriamento-remoto-e-monitoramento-por-satélite" class="l3">9.2 Sensoriamento Remoto e Monitoramento por Satélite</a>
+<a href="#93-drones-vants-na-agricultura" class="l3">9.3 Drones (VANTs) na Agricultura</a>
+<a href="#94-agricultura-de-precisão-ap" class="l3">9.4 Agricultura de Precisão (AP)</a>
+<a href="#95-internet-das-coisas-iot-no-campo" class="l3">9.5 Internet das Coisas (IoT) no Campo</a>
+<a href="#96-inteligência-artificial-e-big-data-no-agro" class="l3">9.6 Inteligência Artificial e Big Data no Agro</a>
+<a href="#97-fintechs-e-plataformas-digitais-agro" class="l3">9.7 Fintechs e Plataformas Digitais Agro</a>
+<a href="#10-dicionário-do-agronegócio-glossário-completo" class="l2">10. DICIONÁRIO DO AGRONEGÓCIO — GLOSSÁRIO COMPLETO</a>
+<a href="#11-as-maiores-dores-e-necessidades-dos-produtores-rurais" class="l2">11. AS MAIORES DORES E NECESSIDADES DOS PRODUTORES RURAIS</a>
+<a href="#111-dores-do-pequeno-produtor-pronaf" class="l3">11.1 Dores do Pequeno Produtor (Pronaf)</a>
+<a href="#112-dores-do-médio-produtor-pronamp-e-recursos-livres" class="l3">11.2 Dores do Médio Produtor (Pronamp e Recursos Livres)</a>
+<a href="#113-dores-do-grande-produtor-e-das-cooperativas" class="l3">11.3 Dores do Grande Produtor e das Cooperativas</a>
+<a href="#114-dores-transversais-a-todos-os-perfis" class="l3">11.4 Dores Transversais a Todos os Perfis</a>
+<a href="#115-necessidades-que-geram-oportunidades-de-produto" class="l3">11.5 Necessidades que Geram Oportunidades de Produto</a>
+<a href="#links-e-referências-essenciais" class="l2">LINKS E REFERÊNCIAS ESSENCIAIS</a>
+<a href="#legislação-e-normas" class="l3">Legislação e Normas</a>
+<a href="#dados-e-sistemas" class="l3">Dados e Sistemas</a>
+<a href="#publicações-e-referências-técnicas" class="l3">Publicações e Referências Técnicas</a></nav>
+  <div class="side-foot"><span>convertido de .docx</span><button class="theme" id="theme" type="button">tema: auto</button></div>
+</aside>
+<main>
+  <div class="mobile-bar"><button id="menu" type="button" aria-label="Abrir sumário">☰ Sumário</button><span>Guia do Agronegócio Brasileiro</span></div>
+  <article class="doc">
+    <header class="hero">
+      <div class="kicker">BANK.DOMAIN · Referência</div>
+      <h1>Guia do Agronegócio Brasileiro</h1>
+      <p class="sub">Referência completa para produtos financeiros e arquitetura de sistemas no agro</p>
+      <div class="chips"><span class="chip">11 capítulos</span><span class="chip">MCR · ZARC · glossário</span><span class="chip">maio/2026</span><span class="chip">convertido de .docx</span></div>
+      
+    </header>
+<h2 id="introdução-e-sumário">INTRODUÇÃO E SUMÁRIO</h2>
+<p>Este guia foi criado como material de referência técnica e contextual para o trabalho com produtos financeiros destinados ao agronegócio brasileiro. Seu objetivo é fornecer uma base sólida — do contexto macro ao micro — que suporte decisões arquitetônicas em sistemas financeiros para o setor agropecuário.</p>
+<h3 id="estrutura-deste-guia">Estrutura deste Guia</h3>
+<ol><li>
+Panorama Geral do Agronegócio Brasileiro
+</li><li>
+Principais Culturas Agrícolas e Calendário de Safras
+</li><li>
+Pecuária Brasileira — Raças, Sistemas e Números
+</li><li>
+Desafios dos Produtores Rurais e Pecuaristas
+</li><li>
+Regulamentações Brasileiras no Agro
+</li><li>
+Manual do Crédito Rural (MCR)
+</li><li>
+ZARC — Zoneamento Agrícola de Risco Climático
+</li><li>
+Órgãos Reguladores e Sistemas da Cadeia Produtiva
+</li><li>
+Tecnologias Aplicadas ao Agronegócio
+</li><li>
+Dicionário do Agronegócio — Glossário Completo
+</li><li>
+As Maiores Dores e Necessidades dos Produtores Rurais
+</li></ol>
+<p class="lead-in">💡 Nota para o Arquiteto</p>
+<p>Ao longo do guia, você encontrará destaques específicos sobre como cada elemento — regulamentação, sistema, processo — impacta decisões de arquitetura para sistemas financeiros do agro. Fique atento às seções marcadas com o ícone de arquitetura.</p>
+<h2 id="1-panorama-geral-do-agronegócio-brasileiro">1. PANORAMA GERAL DO AGRONEGÓCIO BRASILEIRO</h2>
+<h3 id="11-o-agronegócio-como-motor-da-economia">1.1 O Agronegócio como Motor da Economia</h3>
+<p>O agronegócio brasileiro é um dos pilares mais sólidos da economia nacional e um dos maiores do mundo. Em 2025, o PIB da agropecuária cresceu 11,7% — o segundo maior resultado histórico, ficando atrás apenas de 2023 (15,1%) — impulsionando o PIB brasileiro total de 2,3%. Sem o agro, o crescimento teria sido de apenas 1,5%, o que significa que o setor respondeu por um terço da expansão econômica do país no ano.</p>
+<div class="tbl-wrap"><table><thead><tr><th><strong>PIB Agronegócio 2025 (projeção)</strong></th><th><strong>Participação no PIB</strong></th><th><strong>Exportações 2024</strong></th><th><strong>Empregos no Setor</strong></th></tr></thead><tbody><tr><td><p><strong>R$ 3,79 trilhões</strong></p></td><td><p><strong>~29,4% do PIB BR</strong></p></td><td><p><strong>+ US$ 153 bilhões</strong></p></td><td><p><strong>28,6 milhões</strong></p></td></tr></tbody></table></div>
+<p>Em 2024, o PIB do setor atingiu R$ 2,72 trilhões, sendo R$ 1,9 trilhão no ramo agrícola e R$ 819 bilhões no ramo pecuário. As projeções para 2025 indicam alcance de R$ 3,79 trilhões, com participação de 29,4% no PIB total — um número que reflete a importância estratégica do setor.</p>
+<h3 id="12-posicionamento-global">1.2 Posicionamento Global</h3>
+<p>O Brasil é um dos maiores produtores e exportadores agrícolas do mundo, ocupando posições de destaque em diversas commodities:</p>
+<ul><li>
+1º produtor e exportador mundial de soja, café, açúcar, etanol de cana, suco de laranja e carne bovina
+</li><li>
+2º maior produtor de carne de frango, milho, celulose e algodão
+</li><li>
+3º maior produtor de soja no mundo (junto com EUA e Argentina domina o mercado global)
+</li><li>
+Maior rebanho bovino comercial do mundo, com 238,2 milhões de cabeças (IBGE, 2024)
+</li><li>
+Responsável por aproximadamente 25% de todas as exportações mundiais de proteína animal
+</li></ul>
+<h3 id="13-as-regiões-produtoras-e-o-matopiba">1.3 As Regiões Produtoras e o MATOPIBA</h3>
+<p>O agronegócio brasileiro não se concentra em uma única região. As principais fronteiras agrícolas incluem:</p>
+<ul><li>
+Centro-Oeste: Mato Grosso, Goiás, Mato Grosso do Sul — maior concentração de soja e milho. Mato Grosso é o maior estado produtor do Brasil.
+</li><li>
+Sul: Rio Grande do Sul, Paraná, Santa Catarina — soja, milho, trigo, arroz, suinocultura e avicultura.
+</li><li>
+Sudeste: São Paulo (cana-de-açúcar, laranja, café), Minas Gerais (café, leite, horticultura).
+</li><li>
+Nordeste: Bahia, Piauí, Maranhão — expansão do algodão e soja. O semiárido é foco do Pronaf e de programas de irrigação.
+</li><li>
+MATOPIBA: nova fronteira agrícola que abrange partes do Maranhão, Tocantins, Piauí e Bahia, com acelerada expansão de lavouras de grãos.
+</li><li>
+Norte: Pará e Rondônia têm expansão significativa, mas com fortes restrições ambientais e pressões de desmatamento.
+</li></ul>
+<h3 id="14-cadeias-produtivas-e-os-4-elos-do-agronegócio">1.4 Cadeias Produtivas e os 4 Elos do Agronegócio</h3>
+<p>O agronegócio abrange muito além da porteira da fazenda. Os quatro elos da cadeia são:</p>
+<ul><li>
+Insumos: fertilizantes, sementes, defensivos, máquinas e equipamentos — representam a indústria que abastece o campo.
+</li><li>
+Produção Primária (Agropecuária): a atividade dentro da propriedade — lavoura e criação de animais.
+</li><li>
+Agroindústria: processamento dos produtos agropecuários (frigoríficos, usinas de açúcar, cooperativas de beneficiamento, torrefações de café etc.).
+</li><li>
+Agrosserviços: logística, comércio, exportação, serviços financeiros, seguros, consultorias e varejo.
+</li></ul>
+<p class="lead-in">🏗️ Relevância para Arquitetura</p>
+<p>Sistemas financeiros para o agro precisam dialogar com todos os 4 elos. Um contrato de crédito rural não é apenas uma operação bancária — ele envolve dados de produção, zoneamento climático, rastreabilidade, garantias sobre culturas futuras e compliance ambiental. A arquitetura deve considerar integrações com sistemas externos como SICOR, CAR, ZARC e MAPA.</p>
+<h2 id="2-principais-culturas-agrícolas-e-calendário-de-safras">2. PRINCIPAIS CULTURAS AGRÍCOLAS E CALENDÁRIO DE SAFRAS</h2>
+<h3 id="21-as-culturas-estratégicas-do-brasil">2.1 As Culturas Estratégicas do Brasil</h3>
+<p>O Brasil monitora oficialmente as safras de 16 grãos (CONAB), além de culturas permanentes como café, cana-de-açúcar, frutas e silvicultura. As culturas abaixo são as de maior impacto econômico e relevância para o crédito rural:</p>
+<h4 id="211-soja">2.1.1 Soja</h4>
+<p>Rainha do agronegócio brasileiro, a soja domina o cenário de exportação e financiamento agrícola.</p>
+<ul><li>
+Área estimada 2025/26: 49,1 milhões de hectares (+3,6% sobre a safra anterior)
+</li><li>
+Produção 2024/25: 167,4 milhões de toneladas (+13,3% sobre ciclo anterior)
+</li><li>
+Principais estados: Mato Grosso, Paraná, Rio Grande do Sul, Goiás, Mato Grosso do Sul
+</li><li>
+Uso: óleo de soja, farelo (alimentação animal), exportação in natura
+</li><li>
+Principal destino de exportação: China (mais de 70% do volume exportado)
+</li><li>
+Safra única anual — plantio em setembro-novembro, colheita em janeiro-abril
+</li></ul>
+<h4 id="212-milho">2.1.2 Milho</h4>
+<p>Segunda cultura mais importante do país, cultivada em duas safras anuais (é o caso único de duas colheitas relevantes no Brasil).</p>
+<ul><li>
+Produção projetada 2025/26: 138,6 milhões de toneladas (soma das três colheitas)
+</li><li>
+Área 2025/26: 22,7 milhões de hectares
+</li><li>
+Principais estados: Mato Grosso, Paraná, Goiás, Mato Grosso do Sul
+</li><li>
+1ª safra: plantio ago-out, colheita dez-abr
+</li><li>
+2ª safra (safrinha): plantio jan-fev, colheita jun-ago — representa mais de 70% da produção nacional
+</li><li>
+Uso: alimentação humana, ração animal, etanol, amido, xarope de milho
+</li></ul>
+<h4 id="213-cana-de-açúcar">2.1.3 Cana-de-Açúcar</h4>
+<p>Cultura perene, com colheita distribuída ao longo do ano, especialmente relevante para São Paulo e estados do Centro-Sul.</p>
+<ul><li>
+Produção SP 2024/25: 390,9 milhões de toneladas (queda de 4,6% por seca)
+</li><li>
+Ciclo de corte: de 5 a 6 cortes antes do replantio, cada um produzindo por 12-18 meses
+</li><li>
+Plantio: outubro a março; Colheita: abril a dezembro (entressafra jan-mar no Centro-Sul)
+</li><li>
+Uso: açúcar, etanol (combustível e industrial), energia elétrica (bagaço), ração animal
+</li><li>
+Principal programa de financiamento: RENOVAGRO (renovação de canaviais)
+</li></ul>
+<h4 id="214-café">2.1.4 Café</h4>
+<p>Cultura permanente de grande valor e tradição histórica no Brasil.</p>
+<ul><li>
+Produção 2024/25: 55,2 milhões de sacas beneficiadas (~3,31 milhões de toneladas)
+</li><li>
+Principais estados: Minas Gerais, Espírito Santo, São Paulo, Rondônia, Bahia
+</li><li>
+Tipos: Arábica (alta qualidade, regiões serranas) e Conilon/Robusta (Espírito Santo, Rondônia)
+</li><li>
+Bienalidade: O arábica tem comportamento bienal (alternância entre safras de alta e baixa produtividade)
+</li><li>
+Colheita: maio a setembro, dependendo da região e altitude
+</li><li>
+Financiamento: FUNCAFÉ — Fundo de Defesa da Economia Cafeeira (exclusivo para cafeicultura)
+</li></ul>
+<h4 id="215-algodão">2.1.5 Algodão</h4>
+<p>Cultura de médio e grande produtor, fortemente mecanizada.</p>
+<ul><li>
+Principais estados: Mato Grosso, Bahia, Goiás
+</li><li>
+Plantio: novembro a dezembro; Colheita: abril a julho
+</li><li>
+Uso: fibra têxtil, óleo, torta (ração)
+</li><li>
+Altamente dependente de defensivos agrícolas e tecnologia de precisão
+</li></ul>
+<h4 id="216-arroz">2.1.6 Arroz</h4>
+<p>Cultura alimentar básica, com dois sistemas de cultivo.</p>
+<ul><li>
+Arroz irrigado (Rio Grande do Sul): principal produtor nacional; plantio out-nov, colheita fev-abr
+</li><li>
+Arroz de sequeiro (Centro-Oeste, Norte): plantio out-nov, colheita jan-abr
+</li><li>
+Principal fonte de carboidrato da dieta brasileira
+</li></ul>
+<h4 id="217-feijão">2.1.7 Feijão</h4>
+<p>Única leguminosa cultivada em três safras por ano no Brasil, pulverizando o risco ao longo do calendário.</p>
+<ul><li>
+1ª safra (das águas): plantio out-nov, colheita jan-mar (Sudeste, Centro-Oeste)
+</li><li>
+2ª safra (da seca): plantio jan-fev, colheita abr-jun (todos os estados)
+</li><li>
+3ª safra (de inverno): plantio mai-jun, colheita ago-out (irrigado em Goiás, São Paulo)
+</li></ul>
+<h4 id="218-trigo">2.1.8 Trigo</h4>
+<p>Cultura de inverno, principalmente no Sul do país.</p>
+<ul><li>
+Principais estados: Paraná, Rio Grande do Sul
+</li><li>
+Plantio: abril a julho; Colheita: setembro a dezembro
+</li><li>
+Brasil ainda é importador líquido de trigo (Argentina e Paraguai são fornecedores principais)
+</li></ul>
+<h3 id="22-calendário-agrícola-consolidado-por-região">2.2 Calendário Agrícola Consolidado por Região</h3>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Cultura</strong></th><th><strong>Plantio</strong></th><th><strong>Colheita</strong></th><th><strong>Principais Estados</strong></th></tr></thead><tbody><tr><td><p><strong>Soja (1ª safra)</strong></p></td><td><p>Set – Nov</p></td><td><p>Jan – Abr</p></td><td><p>MT, PR, RS, GO, MS</p></td></tr><tr><td><p><strong>Milho 1ª safra</strong></p></td><td><p>Ago – Out</p></td><td><p>Dez – Abr</p></td><td><p>MT, PR, GO, MS</p></td></tr><tr><td><p><strong>Milho 2ª safra (safrinha)</strong></p></td><td><p>Jan – Fev</p></td><td><p>Jun – Ago</p></td><td><p>MT, MS, GO, PR</p></td></tr><tr><td><p><strong>Cana-de-açúcar</strong></p></td><td><p>Out – Mar</p></td><td><p>Abr – Dez</p></td><td><p>SP, GO, MG, MS</p></td></tr><tr><td><p><strong>Café (colheita)</strong></p></td><td><p>—</p></td><td><p>Mai – Set</p></td><td><p>MG, ES, SP, RO</p></td></tr><tr><td><p><strong>Algodão</strong></p></td><td><p>Nov – Dez</p></td><td><p>Abr – Jul</p></td><td><p>MT, BA, GO</p></td></tr><tr><td><p><strong>Arroz irrigado</strong></p></td><td><p>Out – Nov</p></td><td><p>Fev – Abr</p></td><td><p>RS, SC</p></td></tr><tr><td><p><strong>Arroz de sequeiro</strong></p></td><td><p>Out – Nov</p></td><td><p>Jan – Abr</p></td><td><p>TO, PA, MT, MA</p></td></tr><tr><td><p><strong>Feijão 1ª safra</strong></p></td><td><p>Out – Nov</p></td><td><p>Jan – Mar</p></td><td><p>SP, MG, GO, PR</p></td></tr><tr><td><p><strong>Feijão 2ª safra</strong></p></td><td><p>Jan – Fev</p></td><td><p>Abr – Jun</p></td><td><p>Todo Brasil</p></td></tr><tr><td><p><strong>Feijão 3ª safra</strong></p></td><td><p>Mai – Jun</p></td><td><p>Ago – Out</p></td><td><p>GO, SP (irrigado)</p></td></tr><tr><td><p><strong>Trigo</strong></p></td><td><p>Abr – Jul</p></td><td><p>Set – Dez</p></td><td><p>PR, RS</p></td></tr><tr><td><p><strong>Mandioca</strong></p></td><td><p>Set – Nov</p></td><td><p>Mar – Ago</p></td><td><p>PR, PA, BA, SP</p></td></tr><tr><td><p><strong>Sorgo</strong></p></td><td><p>Jan – Mar</p></td><td><p>Mai – Jul</p></td><td><p>MG, GO, MT, BA</p></td></tr></tbody></table></div>
+<p class="lead-in">🏗️ Sazonalidade e Sistemas Financeiros</p>
+<p>A sazonalidade das safras é um dos elementos mais críticos para sistemas de crédito rural. Os picos de demanda por crédito de custeio ocorrem 60-90 dias antes do plantio. Os volumes de liquidação se concentram 30-60 dias após a colheita. Sistemas de originação e análise de crédito precisam ser dimensionados para aguentar essa variação de carga sazonal — um banco pode contratar 40% de toda sua carteira de custeio em apenas 6-8 semanas.</p>
+<h2 id="3-pecuária-brasileira">3. PECUÁRIA BRASILEIRA</h2>
+<h3 id="31-o-rebanho-nacional">3.1 O Rebanho Nacional</h3>
+<p>O Brasil possui o maior rebanho bovino comercial do mundo, com 238,2 milhões de cabeças registradas pelo IBGE em 2024. O ramo pecuário cresceu 10,71% no 4º trimestre de 2024, o maior crescimento entre todos os segmentos do agronegócio.</p>
+<h3 id="32-bovinocultura-de-corte">3.2 Bovinocultura de Corte</h3>
+<ul><li>
+Maior exportador mundial de carne bovina (fresca, resfriada e congelada)
+</li><li>
+Principais raças comerciais: Nelore (dominante; mais de 80% do rebanho), Angus, Brahman, Senepol, Brangus e cruzamentos industriais
+</li><li>
+Sistema de produção: cria (nascimento ao desmame), recria (desmame ao abate pré-terminar), engorda/confinamento (terminação para abate)
+</li><li>
+Principais estados: Mato Grosso, Minas Gerais, Pará, Goiás, Mato Grosso do Sul, Rondônia
+</li><li>
+Confinamento: crescente adoção para ganho de velocidade e qualidade; safra de confinamento: abr-out
+</li><li>
+Ciclo produtivo: nascimento ao abate leva de 24 a 36 meses em sistemas extensivos; 18-24 meses em confinados
+</li></ul>
+<h3 id="33-bovinocultura-de-leite">3.3 Bovinocultura de Leite</h3>
+<ul><li>
+Brasil é o 3º maior produtor mundial de leite
+</li><li>
+Principais estados: Minas Gerais, Rio Grande do Sul, Paraná, Goiás, Santa Catarina
+</li><li>
+Raças: Girolando (dominante — cruzamento Gir x Holandês), Holandesa (alta produção), Jersey
+</li><li>
+Pequena propriedade familiar responde por mais de 70% da produção nacional
+</li><li>
+Produção tem baixa sazonalidade, mas com pico na primavera-verão (maior disponibilidade de pasto)
+</li><li>
+Linhas de crédito específicas: PRONAF Leite, ABC (financiamento de resfriadores e ordenhadeiras)
+</li></ul>
+<h3 id="34-suinocultura">3.4 Suinocultura</h3>
+<ul><li>
+Brasil é 4º maior produtor e exportador mundial de carne suína
+</li><li>
+Concentrada no Sul: Santa Catarina, Rio Grande do Sul, Paraná
+</li><li>
+Sistema integrado predominante (integração entre cooperativas/frigorifico e produtores)
+</li><li>
+Ciclo de produção: 150-170 dias do nascimento ao abate
+</li><li>
+Altamente dependente da disponibilidade e custo de milho e farelo de soja (ração)
+</li></ul>
+<h3 id="35-avicultura">3.5 Avicultura</h3>
+<ul><li>
+Brasil é 2º maior produtor e maior exportador mundial de carne de frango
+</li><li>
+Principais estados: Paraná, Santa Catarina, Rio Grande do Sul, São Paulo
+</li><li>
+Sistema integrado é predominante — produtores alojam frangos pertencentes às empresas integradoras
+</li><li>
+Ciclo de produção muito curto: 42-47 dias do pintinho ao abate (frangos de corte)
+</li><li>
+Postura de ovos: ciclo de 52-72 semanas por lote
+</li><li>
+Impacto direto do preço de milho e soja nos custos de produção
+</li></ul>
+<h3 id="36-outras-criações">3.6 Outras Criações</h3>
+<ul><li>
+Piscicultura: crescimento acelerado; Paraná, Mato Grosso e Rondônia como líderes. Tilápias e tambaquis dominam.
+</li><li>
+Ovinocultura e Caprinocultura: Nordeste e Sul; crescimento em sistemas de leite caprino no semiárido.
+</li><li>
+Apicultura: em expansão, especialmente orgânica para exportação; Nordeste e Sul.
+</li><li>
+Equideocultura: cavalos de trabalho, esporte e abate — com regulamentação específica do MAPA.
+</li></ul>
+<h3 id="37-rastreabilidade-pecuária-um-marco-em-andamento">3.7 Rastreabilidade Pecuária — Um Marco em Andamento</h3>
+<p>O Plano Nacional de Identificação Individual de Bovinos e Búfalos (PNIB), lançado pelo MAPA em dezembro de 2024, é o maior programa de rastreabilidade pecuária da história do Brasil. O objetivo é que 100% do rebanho bovino nacional esteja identificado individualmente até 2032.</p>
+<ul><li>
+2024-2026: Construção da Base Central de Dados nacional
+</li><li>
+2027-2029: Início da identificação individual com brincos eletrônicos e chips RFID
+</li><li>
+2030-2032: Expansão para 100% do rebanho
+</li><li>
+Tecnologias em uso: brincos eletrônicos, leitores de radiofrequência (RFID), softwares de manejo, sensores de satélite
+</li><li>
+São Paulo lançou o SIRBOV-SP em 2024; Pará lançou o SRBIPA com meta de identificação completa em 2026
+</li></ul>
+<p class="lead-in">🏗️ Rastreabilidade como Dado para Crédito</p>
+<p>A rastreabilidade individual dos bovinos é transformadora para o crédito rural pecuário. Com dados de identificação individual, um banco pode: (1) verificar com precisão o estoque de animais dado como garantia em penhor rural; (2) monitorar automaticamente o ciclo produtivo e estimar prazo de liquidez; (3) cruzar com dados sanitários para análise de risco. Sistemas que já se preparam para integrar com o PNIB terão vantagem competitiva relevante a partir de 2027.</p>
+<h2 id="4-desafios-dos-produtores-rurais-e-pecuaristas">4. DESAFIOS DOS PRODUTORES RURAIS E PECUARISTAS</h2>
+<h3 id="41-desafios-climáticos">4.1 Desafios Climáticos</h3>
+<ul><li>
+Mudanças climáticas com eventos extremos mais frequentes: secas, geadas, chuvas torrenciais e granizo
+</li><li>
+El Niño e La Niña: fenômenos que impactam de forma assimétrica diferentes regiões, criando excesso de chuvas no Sul e seca no Norte/Nordeste
+</li><li>
+Expansão da fronteira agrícola para áreas de maior risco climático (MATOPIBA e Cerrado)
+</li><li>
+Impacto das mudanças climáticas na viabilidade de determinadas janelas de plantio e nas produtividades históricas
+</li></ul>
+<h3 id="42-desafios-econômicos-e-de-mercado">4.2 Desafios Econômicos e de Mercado</h3>
+<ul><li>
+Volatilidade de preços: commodities agrícolas têm cotações em bolsas internacionais (CBOT, BMF&amp;Bovespa), criando incerteza de receita
+</li><li>
+Câmbio: o real desvalorizado beneficia exportadores, mas encarece insumos importados (fertilizantes, defensivos, máquinas)
+</li><li>
+Custo de produção crescente: especialmente fertilizantes (grande dependência de importação da Rússia, Bielorrússia e Marrocos)
+</li><li>
+Acesso ao crédito: produtores de pequeno e médio porte têm dificuldade de comprovar renda e formalizar garantias
+</li><li>
+Ciclo de caixa longo: em culturas perenes como café e cana, o retorno pode levar anos
+</li><li>
+Juros elevados: mesmo com equalização de taxas pelo governo, os spreads bancários e o custo do crédito livre são altos
+</li></ul>
+<h3 id="43-desafios-operacionais-e-logísticos">4.3 Desafios Operacionais e Logísticos</h3>
+<ul><li>
+Infraestrutura precária: rodovias em mau estado encarecem o escoamento da produção; o Brasil perde US$ 5-8 bilhões/ano em perdas logísticas estimadas
+</li><li>
+Silos e armazéns: déficit de armazenagem próxima às lavouras força o produtor a vender na colheita, quando os preços são menores
+</li><li>
+Conectividade rural: internet e sinal de celular precários dificultam o uso de ferramentas digitais no campo
+</li><li>
+Mão de obra qualificada: escassez de operadores de máquinas, técnicos agrícolas e veterinários em regiões remotas
+</li></ul>
+<h3 id="44-desafios-regulatórios-e-ambientais">4.4 Desafios Regulatórios e Ambientais</h3>
+<ul><li>
+CAR — Cadastro Ambiental Rural: produtores com CAR irregular ou pendente têm restrição ao crédito rural
+</li><li>
+Código Florestal: exigências de Reserva Legal (mínimo 20% a 80% da propriedade, conforme bioma) e APPs (Áreas de Preservação Permanente)
+</li><li>
+Embargos ambientais: propriedades com embargos do IBAMA ou órgãos estaduais estão bloqueadas para crédito
+</li><li>
+Pressões de mercado por certificações de sustentabilidade: protocolos exigidos por exportadores e redes varejistas europeias e americanas
+</li><li>
+Licenciamento ambiental: processos lentos e burocráticos para expansão e novos empreendimentos
+</li></ul>
+<h3 id="45-desafios-sanitários">4.5 Desafios Sanitários</h3>
+<ul><li>
+Pragas e doenças: ferrugem da soja, cigarrinha-dos-canaviais, bicheira, febre aftosa (erradicada, mas vigilância necessária), Influenza aviária
+</li><li>
+Manejo fitossanitário: crescimento da resistência de pragas aos defensivos
+</li><li>
+Bem-estar animal: pressão crescente para melhores condições de criação
+</li><li>
+Vacinação obrigatória: para febre aftosa (bovinos), brucelose e tuberculose
+</li></ul>
+<h3 id="46-desafios-tecnológicos">4.6 Desafios Tecnológicos</h3>
+<ul><li>
+Custo de adoção de novas tecnologias: pequenos produtores têm dificuldade de acesso a precision farming
+</li><li>
+Digitalização dos processos agrícolas: a maioria dos pequenos produtores ainda usa papel para anotações
+</li><li>
+Acesso a dados de solo e clima de qualidade para tomada de decisão
+</li></ul>
+<h2 id="5-principais-regulamentações-brasileiras-no-agro">5. PRINCIPAIS REGULAMENTAÇÕES BRASILEIRAS NO AGRO</h2>
+<p>O agronegócio brasileiro é um dos setores mais regulados do país. As normas impactam desde a forma como o crédito é concedido até as práticas ambientais e sanitárias exigidas para a produção. Abaixo, as principais regulamentações que um arquiteto de sistemas financeiros agro deve conhecer.</p>
+<h3 id="51-lei-48291965-lei-do-crédito-rural">5.1 Lei 4.829/1965 — Lei do Crédito Rural</h3>
+<p>A lei fundadora do Sistema Nacional de Crédito Rural (SNCR). Define os objetivos do crédito rural, os beneficiários, as instituições autorizadas a operar e as condições gerais de financiamento. Toda a regulamentação posterior parte desta lei.</p>
+<p><strong>Referência: </strong><a href="https://www.planalto.gov.br/ccivil_03/leis/l4829.htm" target="_blank" rel="noopener">https://www.planalto.gov.br/ccivil_03/leis/l4829.htm</a></p>
+<h3 id="52-decreto-lei-1671967-títulos-de-crédito-rural">5.2 Decreto-Lei 167/1967 — Títulos de Crédito Rural</h3>
+<p>Regulamenta as Cédulas de Crédito Rural (CCR), os principais títulos utilizados para formalizar operações de crédito rural. Define os tipos de cédulas (CRA, CDCA, CPR, LCA, CCI), os ativos passíveis de penhor rural e as condições de negociação.</p>
+<ul><li>
+Cédula de Produto Rural (CPR): título que permite ao produtor vender antecipadamente sua produção futura
+</li><li>
+LCA — Letra de Crédito do Agronegócio: título emitido por bancos captando recursos para o setor
+</li><li>
+CRA — Certificado de Recebíveis do Agronegócio: securitização de recebíveis do agronegócio
+</li><li>
+CDCA — Certificado de Direitos Creditórios do Agronegócio: emitido por cooperativas e empresas agropecuárias
+</li></ul>
+<p><strong>Referência: </strong><a href="https://www.planalto.gov.br/ccivil_03/decreto-lei/del0167.htm" target="_blank" rel="noopener">https://www.planalto.gov.br/ccivil_03/decreto-lei/del0167.htm</a></p>
+<h3 id="53-lei-126512012-código-florestal">5.3 Lei 12.651/2012 — Código Florestal</h3>
+<p>Define as obrigações ambientais dos proprietários rurais. É central para o crédito rural pois a regularidade ambiental é pré-requisito para concessão de financiamentos.</p>
+<ul><li>
+Reserva Legal (RL): obrigação de manter área com vegetação nativa. Mínimo de 20% em propriedades do Cerrado, Pantanal e Caatinga; 80% na Amazônia legal
+</li><li>
+Área de Preservação Permanente (APP): margens de rios, topos de morro, encostas — não podem ser suprimidas
+</li><li>
+CAR — Cadastro Ambiental Rural: registro obrigatório de toda propriedade rural, com georeferenciamento das áreas
+</li><li>
+PRA — Programa de Regularização Ambiental: instrumento para regularizar passivos ambientais
+</li></ul>
+<p><strong>Referência: </strong><a href="https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2012/lei/l12651.htm" target="_blank" rel="noopener">https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2012/lei/l12651.htm</a></p>
+<h3 id="54-lei-113262006-lei-da-agricultura-familiar">5.4 Lei 11.326/2006 — Lei da Agricultura Familiar</h3>
+<p>Define os critérios para enquadramento como agricultor familiar, o que dá acesso a condições especiais do PRONAF. O enquadramento é feito pela DAP (Declaração de Aptidão ao PRONAF) ou CAF (Cadastro Nacional da Agricultura Familiar).</p>
+<ul><li>
+Critérios: área até 4 módulos fiscais, uso predominante de mão de obra familiar, renda familiar majoritariamente do campo
+</li><li>
+DAP/CAF: documentos essenciais para acesso ao Pronaf — qualquer sistema de crédito agro precisa validar esses documentos
+</li></ul>
+<p><strong>Referência: </strong><a href="https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11326.htm" target="_blank" rel="noopener">https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11326.htm</a></p>
+<h3 id="55-lei-152232025-lei-do-pronaf-e-do-plano-safra">5.5 Lei 15.223/2025 — Lei do Pronaf e do Plano Safra</h3>
+<p>Sancionada em 1º de outubro de 2025, esta lei transforma o Pronaf e o Plano Safra da Agricultura Familiar em políticas permanentes de Estado (até então eram regulamentados por decretos presidenciais, sujeitos a descontinuidade). Garante continuidade independentemente do governo de plantão e recria o CONDRAF (Conselho Nacional de Desenvolvimento Rural Sustentável).</p>
+<p><strong>Referência: </strong><a href="https://www.planalto.gov.br" target="_blank" rel="noopener">https://www.planalto.gov.br</a></p>
+<h3 id="56-decreto-98412019-programa-nacional-de-zarc">5.6 Decreto 9.841/2019 — Programa Nacional de ZARC</h3>
+<p>Institucionaliza o Programa Nacional de Zoneamento Agrícola de Risco Climático (ZARC) no âmbito do Ministério da Agricultura. Define responsabilidades, metodologias e o processo de publicação de portarias anuais com janelas de plantio. A partir do Plano Safra 2025/26, o ZARC passou a ser obrigatório para contratos de custeio agrícola em geral (não apenas Pronaf/Proagro).</p>
+<p><strong>Referência ZARC MAPA: </strong><a href="https://www.gov.br/agricultura/pt-br/assuntos/riscos-seguro/programa-nacional-de-zoneamento-agricola-de-risco-climatico" target="_blank" rel="noopener">https://www.gov.br/agricultura/pt-br/assuntos/riscos-seguro/programa-nacional-de-zoneamento-agricola-de-risco-climatico</a></p>
+<h3 id="57-plano-safra-20252026-r-5162-bilhões">5.7 Plano Safra 2025/2026 — R$ 516,2 bilhões</h3>
+<p>O Plano Safra anual define as condições de crédito rural para a safra corrente. Para 2025/2026, foram disponibilizados R$ 516,2 bilhões, sendo R$ 427,2 bilhões para agricultura empresarial e R$ 89 bilhões para agricultura familiar (Pronaf). Destaques:</p>
+<ul><li>
+R$ 78,2 bilhões no Pronaf — crescimento de 47,5%
+</li><li>
+Pronamp: limite de renda ampliado de R$ 3M para R$ 3,5M/ano
+</li><li>
+Juros de apenas 3% para produção de alimentos básicos (2% em orgânicos)
+</li><li>
+ZARC obrigatório para contratos de custeio agrícola
+</li><li>
+Desconto de 0,5 p.p. na taxa para práticas sustentáveis
+</li></ul>
+<p><strong>Referência Plano Safra: </strong><a href="https://www.gov.br/agricultura/pt-br/assuntos/noticias/governo-federal-lanca-plano-safra-2025-2026" target="_blank" rel="noopener">https://www.gov.br/agricultura/pt-br/assuntos/noticias/governo-federal-lanca-plano-safra-2025-2026</a></p>
+<h3 id="58-resolução-cmn-52672026-monitoramento-de-crédito-rural">5.8 Resolução CMN 5.267/2026 — Monitoramento de Crédito Rural</h3>
+<p>Entrou em vigor em março de 2026, estabelecendo novas regras para o monitoramento das operações de crédito rural pelas instituições financeiras. Amplia as obrigações de acompanhamento da destinação do crédito, uso correto nas glebas declaradas e conformidade ambiental. A Resolução exige que os bancos comprovem o monitoramento de garantias e uso do crédito, o que está impulsionando o uso de tecnologias como imagens de satélite e ferramentas como o Crop Monitor.</p>
+<h3 id="59-outras-regulamentações-relevantes">5.9 Outras Regulamentações Relevantes</h3>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Norma</strong></th><th><strong>Descrição</strong></th></tr></thead><tbody><tr><td><p>Lei 8.171/1991</p></td><td><p>Lei da Política Agrícola — bases do seguro rural, assistência técnica, comercialização e abastecimento</p></td></tr><tr><td><p>Lei 10.820/2003</p></td><td><p>Consignação em folha de pagamento — base para crédito consignado rural (crédito a trabalhadores do campo)</p></td></tr><tr><td><p>Lei 13.576/2017 (RenovaBio)</p></td><td><p>Política Nacional de Biocombustíveis — créditos de descarbonização (CBIOs), relevante para usinas de cana e produtores de soja para biodiesel</p></td></tr><tr><td><p>Instrução Normativa MAPA 44/2015</p></td><td><p>Regulamenta o registro de propriedades no CAR — essencial para concessão de crédito</p></td></tr><tr><td><p>Res. CMN 4.855/2020</p></td><td><p>Regulamentação do Proagro — critérios de cobertura, enquadramento e indenização</p></td></tr><tr><td><p>Decreto 9.064/2017</p></td><td><p>Unidade Familiar de Produção Agrária (UFPA) — critérios para enquadramento em programas da agricultura familiar</p></td></tr></tbody></table></div>
+<h2 id="6-manual-do-crédito-rural-mcr">6. MANUAL DO CRÉDITO RURAL (MCR)</h2>
+<p class="lead-in">Definição</p>
+<p>O Manual de Crédito Rural (MCR) é o documento oficial codificado pelo Banco Central do Brasil que consolida todas as normas aprovadas pelo Conselho Monetário Nacional (CMN) referentes ao crédito rural. É a 'constituição' do crédito agropecuário brasileiro. Todo banco que opera com crédito rural é obrigado a segui-lo.</p>
+<h3 id="61-estrutura-e-funcionamento">6.1 Estrutura e Funcionamento</h3>
+<p>O MCR está disponível publicamente no site do Banco Central (https://www3.bcb.gov.br/mcr) e é organizado em capítulos temáticos:</p>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Capítulo MCR</strong></th><th><strong>Conteúdo Principal</strong></th></tr></thead><tbody><tr><td><p>MCR 1</p></td><td><p>Disposições Gerais — órgãos do SNCR, beneficiários, finalidades</p></td></tr><tr><td><p>MCR 2</p></td><td><p>Condições gerais — garantias, fiscalização, documentação exigida</p></td></tr><tr><td><p>MCR 3</p></td><td><p>Recursos — fontes de recursos obrigatórios e equalizados</p></td></tr><tr><td><p>MCR 4</p></td><td><p>Custeio Agrícola — regras para financiamento do custo de plantio e colheita</p></td></tr><tr><td><p>MCR 5</p></td><td><p>Custeio Pecuário — regras para financiamento de manutenção do rebanho</p></td></tr><tr><td><p>MCR 6</p></td><td><p>Investimento Agrícola e Pecuário — máquinas, equipamentos, benfeitorias</p></td></tr><tr><td><p>MCR 7</p></td><td><p>Comercialização — financiamento do escoamento e estocagem da produção</p></td></tr><tr><td><p>MCR 8</p></td><td><p>Proagro — Programa de Garantia da Atividade Agropecuária</p></td></tr><tr><td><p>MCR 9</p></td><td><p>Crédito Fundiário — financiamento para aquisição de terras</p></td></tr><tr><td><p>MCR 10</p></td><td><p>Pronaf — normas específicas da agricultura familiar</p></td></tr><tr><td><p>MCR 11</p></td><td><p>Pronamp — normas do médio produtor</p></td></tr><tr><td><p>MCR 12</p></td><td><p>Demais Programas — ABC, Inovagro, PCA, Renovagro etc.</p></td></tr></tbody></table></div>
+<h3 id="62-beneficiários-do-crédito-rural">6.2 Beneficiários do Crédito Rural</h3>
+<p>O MCR classifica os produtores em categorias com diferentes limites e condições:</p>
+<ul><li>
+Agricultor familiar (Pronaf): renda bruta até R$ 500 mil/ano, área máxima de 4 módulos fiscais — taxas de 3% a 6% a.a.
+</li><li>
+Médio Produtor (Pronamp): renda bruta até R$ 3,5 milhões/ano — taxas de 8% a.a.
+</li><li>
+Demais produtores: renda acima de R$ 3,5 milhões/ano — sujeitos a taxas livres ou de recursos obrigatórios
+</li><li>
+Cooperativas de produtores: acessam o crédito em nome de seus associados
+</li><li>
+Empresas rurais: podem acessar linhas específicas dependendo de sua atividade
+</li></ul>
+<h3 id="63-modalidades-de-crédito-rural">6.3 Modalidades de Crédito Rural</h3>
+<p>O MCR define quatro finalidades de crédito rural:</p>
+<ul><li>
+Custeio: destina-se a cobrir despesas normais dos ciclos produtivos (compra de sementes, fertilizantes, defensivos, mão de obra). É o mais relevante em volume e em sazonalidade para sistemas bancários.
+</li><li>
+Investimento: para aquisição de bens duráveis — máquinas agrícolas, tratores, silos, irrigação, reforma de pastagens, implantação de pomares. Prazos longos (5 a 15 anos).
+</li><li>
+Comercialização: para financiar a fase de escoamento da produção após a colheita — armazenagem, transporte, monetização de CPR.
+</li><li>
+Industrialização: para cooperativas ou produtores que beneficiam seus produtos na propriedade.
+</li></ul>
+<h3 id="64-fontes-de-recursos">6.4 Fontes de Recursos</h3>
+<p>O crédito rural é lastreado em fontes distintas, com regras e taxas diferentes:</p>
+<ul><li>
+Recursos Obrigatórios (MCR 6): depósitos à vista que os bancos são obrigados a aplicar em crédito rural — taxas controladas pelo CMN
+</li><li>
+Fundos Constitucionais: FCO (Centro-Oeste), FNE (Nordeste), FNO (Norte) — geridos pelo BB, BNB e BASA respectivamente
+</li><li>
+BNDES/FINEP: repasses para investimentos de longo prazo
+</li><li>
+Pronaf/Pronamp: recursos do OGU (Orçamento Geral da União) com equalização de taxas pelo Tesouro
+</li><li>
+Recursos Livres: mercado — sem limite de taxa, para grandes produtores
+</li><li>
+LCA, CRA, CDCA: captação privada no mercado de capitais
+</li></ul>
+<h3 id="65-documentação-exigida-pelo-mcr">6.5 Documentação Exigida pelo MCR</h3>
+<p>Para enquadramento em crédito rural controlado, o MCR exige:</p>
+<ul><li>
+Orçamento da operação (OE): documento técnico detalhando a finalidade e o custo da atividade
+</li><li>
+CAR (Cadastro Ambiental Rural): obrigatório para concessão de crédito rural
+</li><li>
+DAP/CAF: para agricultura familiar (Pronaf)
+</li><li>
+SNCR — comprovação do imóvel (CCIR — Certificado de Cadastro de Imóvel Rural)
+</li><li>
+Regularidade fiscal e previdenciária
+</li><li>
+Conformidade ZARC: a partir do Plano Safra 2025/26, comprovação de que o plantio está dentro das janelas indicadas pelo ZARC
+</li></ul>
+<h3 id="66-proagro-mcr-capítulo-8">6.6 Proagro — MCR Capítulo 8</h3>
+<p>O Proagro (Programa de Garantia da Atividade Agropecuária) é o seguro público obrigatório vinculado ao crédito rural. Garante cobertura ao produtor e ao banco em caso de perda de safra por eventos climáticos.</p>
+<ul><li>
+Cobertura: paga obrigações financeiras do contrato em caso de perda acima de 30% da produção esperada
+</li><li>
+Alíquota (prêmio): definida anualmente pelo CMN, varia de 1% a 7% conforme o risco da cultura e região
+</li><li>
+Proagro Mais: modalidade específica para agricultores familiares do Pronaf
+</li><li>
+Limite de cobertura: R$ 300 mil por produtor em recursos controlados (obrigatório o enquadramento no Proagro ou seguro privado)
+</li><li>
+Vinculação ao ZARC: plantio fora das janelas ZARC invalida a cobertura do Proagro
+</li></ul>
+<p><strong>MCR completo — Banco Central: </strong><a href="https://www3.bcb.gov.br/mcr" target="_blank" rel="noopener">https://www3.bcb.gov.br/mcr</a></p>
+<p class="lead-in">🏗️ MCR e Arquitetura de Sistemas</p>
+<p>O MCR é a fonte normativa de verdade para qualquer sistema de crédito rural. Pontos críticos para arquitetura: (1) O MCR é atualizado periodicamente (Atualização 751/dez 2025, e CMN 5.267/mar 2026 em vigor) — sistemas precisam versionar as regras de negócio conforme a versão do MCR vigente na data da contratação. (2) A classificação do produtor (Pronaf/Pronamp/demais) define todo o fluxo de produto: taxa, prazo, fonte de recurso e documentação. (3) O Proagro é inseparável do contrato de custeio para recursos controlados — o sistema deve ser capaz de registrar, acompanhar e processar sinistros do Proagro integrado com o SICOR.</p>
+<h2 id="7-zarc-zoneamento-agrícola-de-risco-climático">7. ZARC — ZONEAMENTO AGRÍCOLA DE RISCO CLIMÁTICO</h2>
+<h3 id="71-o-que-é-o-zarc">7.1 O Que é o ZARC</h3>
+<p>O Zoneamento Agrícola de Risco Climático (ZARC) é um instrumento de política agrícola e gestão de riscos desenvolvido pelo Ministério da Agricultura e Pecuária (MAPA) com apoio técnico-científico da Embrapa. Seu objetivo é identificar as regiões e épocas de menor risco climático para o plantio e semeadura de cada cultura, em cada município, com base em análise de clima, solo e ciclo de cultivares.</p>
+<p>O ZARC foi publicado pela primeira vez para a safra de 1996 (cultura do trigo) e hoje abrange mais de 40 culturas e todas as unidades da federação. É publicado anualmente por meio de Portarias da Secretaria de Política Agrícola do MAPA.</p>
+<h3 id="72-como-o-zarc-funciona">7.2 Como o ZARC Funciona</h3>
+<p>Os estudos do ZARC analisam três parâmetros principais:</p>
+<ul><li>
+Clima: precipitação, temperatura, déficit hídrico histórico — dividido em decêndios (períodos de 10 dias)
+</li><li>
+Solo: tipo e capacidade de armazenamento de água disponível (AD). Três classes de solo são usadas: textura argilosa, média e arenosa
+</li><li>
+Cultivar: cada grupo de cultivar tem diferentes exigências de temperatura e ciclo (precoce, médio, tardio)
+</li></ul>
+<p>A análise resulta em uma 'tábua de risco' por município, que indica o risco percentual de perda para cada decêndio do ano. O ZARC indica os períodos com risco de até 20% de perda (baixo risco, indicado para plantio).</p>
+<h3 id="73-impacto-do-zarc-no-crédito-rural">7.3 Impacto do ZARC no Crédito Rural</h3>
+<p>O ZARC tem papel central no crédito rural por duas razões:</p>
+<ul><li>
+Pré-condição para Proagro: o produtor que planta fora da janela ZARC perde o direito à cobertura do Proagro. Sem Proagro, o banco fica exposto ao risco de default por perda de safra.
+</li><li>
+Obrigatório no Plano Safra 2025/26: a partir deste ciclo, o ZARC passou a ser requisito para TODOS os contratos de custeio agrícola (não apenas os de até R$ 200 mil no Pronaf). Isso significa que o banco só pode liberar o crédito se o plantio estiver dentro das datas e condições indicadas pelo ZARC.
+</li></ul>
+<h3 id="74-como-consultar-o-zarc">7.4 Como Consultar o ZARC</h3>
+<ul><li>
+Portal MAPA — Painel de Indicação de Riscos: filtros por UF, município, safra, cultura, tipo de solo e grupo de cultivar
+</li><li>
+App Plantio Certo: aplicativo oficial do MAPA para consulta móvel (Android e iOS)
+</li><li>
+Portarias estaduais: publicadas por UF e cultura, disponíveis no site do MAPA
+</li></ul>
+<p><strong>ZARC — Portal MAPA: </strong><a href="https://www.gov.br/agricultura/pt-br/assuntos/riscos-seguro/programa-nacional-de-zoneamento-agricola-de-risco-climatico" target="_blank" rel="noopener">https://www.gov.br/agricultura/pt-br/assuntos/riscos-seguro/programa-nacional-de-zoneamento-agricola-de-risco-climatico</a></p>
+<p><strong>Painel de Indicação de Riscos: </strong><a href="https://mapa-indicadores.agricultura.gov.br/publico/extensions/Zarc/Zarc.html" target="_blank" rel="noopener">https://mapa-indicadores.agricultura.gov.br/publico/extensions/Zarc/Zarc.html</a></p>
+<p><strong>Embrapa — Rede ZARC: </strong><a href="https://www.embrapa.br/en/rede-zarc-embrapa" target="_blank" rel="noopener">https://www.embrapa.br/en/rede-zarc-embrapa</a></p>
+<h3 id="75-zarc-pecuária">7.5 ZARC Pecuária</h3>
+<p>O MAPA também publica o ZARC Pecuário, que avalia o risco de disponibilidade de pastagem ao longo do ano. Indica períodos e condições com maior chance de escassez de alimento para os animais, conforme a taxa de lotação e características de cada município. É utilizado como referência para crédito rural pecuário e seguros de pastagem.</p>
+<p class="lead-in">🏗️ ZARC em Sistemas de Crédito</p>
+<p>O ZARC é um dado geoespacial de consulta obrigatória no workflow de contratação de crédito de custeio. Para a arquitetura: (1) O sistema precisa consumir a API/portaria do ZARC para validar se a data de plantio declarada pelo produtor está dentro da janela permitida para aquela cultura/município/tipo de solo. (2) O resultado da validação deve ser armazenado na operação (snap da portaria vigente na data de contratação). (3) Mudanças no ZARC não retroagem — o que vale é a portaria da safra contratada. (4) Integração com localização georreferenciada da gleba (SICOR) é necessária para cruzar com o ZARC de forma automatizada.</p>
+<h2 id="8-órgãos-reguladores-e-sistemas-da-cadeia-produtiva">8. ÓRGÃOS REGULADORES E SISTEMAS DA CADEIA PRODUTIVA</h2>
+<h3 id="81-órgãos-reguladores-principais">8.1 Órgãos Reguladores Principais</h3>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Órgão</strong></th><th><strong>Papel e Relevância</strong></th></tr></thead><tbody><tr><td><p>Banco Central do Brasil (BACEN / BCB)</p></td><td><p>Regulador máximo do SNCR. Publica e atualiza o MCR. Opera o SICOR. Fiscaliza as instituições financeiras quanto ao cumprimento das exigibilidades de crédito rural. Controla o Proagro.</p></td></tr><tr><td><p>Conselho Monetário Nacional (CMN)</p></td><td><p>Define as políticas de crédito rural. Aprova as normas que o BACEN codifica no MCR. Define limites de taxa, prazos e fontes de recursos.</p></td></tr><tr><td><p>Ministério da Agricultura e Pecuária (MAPA)</p></td><td><p>Regulação agrícola, sanitária e fitossanitária. Publica as portarias do ZARC. Executa o PAP (Plano Agrícola e Pecuário). Órgão central de política agropecuária.</p></td></tr><tr><td><p>EMBRAPA</p></td><td><p>Pesquisa e inovação agropecuária. Desenvolve a metodologia científica do ZARC. Produz variedades de sementes, tecnologias e recomendações técnicas.</p></td></tr><tr><td><p>CONAB — Companhia Nacional de Abastecimento</p></td><td><p>Levantamentos mensais de produção agrícola. Gerencia estoques reguladores. Opera a Política de Garantia de Preços Mínimos (PGPM). Paga subvenção a produtores que vendem abaixo do preço mínimo.</p></td></tr><tr><td><p>INCRA — Instituto Nacional de Colonização e Reforma Agrária</p></td><td><p>Cadastra imóveis rurais (SNCR — Sistema Nacional de Cadastro Rural). Emite o CCIR. Conduz reforma agrária e regularização fundiária.</p></td></tr><tr><td><p>IBAMA e ICMBio</p></td><td><p>Fiscalização ambiental, gestão de áreas protegidas. Emite embargos por infrações ambientais. Dados de embargo impactam elegibilidade ao crédito rural.</p></td></tr><tr><td><p>Receita Federal (SRF)</p></td><td><p>Cadastro de produtores rurais. Emissão do NIRF (Número de Inscrição no Registro de Imóveis/Rurais). Controle tributário (ITR — Imposto Territorial Rural).</p></td></tr><tr><td><p>MAPA / SFA (Superintendências Federais de Agricultura)</p></td><td><p>Execução estadual das políticas do MAPA. Emite documentos de trânsito animal (GTA). Supervisão sanitária.</p></td></tr><tr><td><p>Agências Estaduais de Defesa Agropecuária</p></td><td><p>Defesa sanitária vegetal e animal estadual (ex: ADEPARA no Pará, IMA em MG, ADAPAR no PR)</p></td></tr></tbody></table></div>
+<h3 id="82-sistemas-de-informação-da-cadeia-produtiva">8.2 Sistemas de Informação da Cadeia Produtiva</h3>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Sistema</strong></th><th><strong>Descrição e Função</strong></th></tr></thead><tbody><tr><td><p>SICOR — Sistema de Operações do Crédito Rural e do Proagro (BACEN)</p></td><td><p>Principal sistema de controle do crédito rural no Brasil. Substituiu o RECOR em jan/2013. Registra TODAS as operações de crédito rural contratadas por produtores em instituições financeiras a partir de 02/01/2013. Contém: dados de operação, saldo, liberações, glebas georreferenciadas e beneficiários. Atualizado mensalmente pelas IFs. Dados abertos disponíveis via API.</p></td></tr><tr><td><p>SNCR — Sistema Nacional de Cadastro Rural (INCRA)</p></td><td><p>Cadastro de todos os imóveis rurais do Brasil. Emite o CCIR (Certificado de Cadastro de Imóvel Rural), documento obrigatório para contratação de crédito rural. Contém dados de área, localização, proprietários e módulos fiscais.</p></td></tr><tr><td><p>SICAR — Sistema Nacional de Cadastro Ambiental Rural (MAPA/MMA)</p></td><td><p>Plataforma federal do CAR. Registra os imóveis com georreferenciamento das áreas de uso e de preservação. Consulta de regularidade ambiental obrigatória antes da concessão de crédito.</p></td></tr><tr><td><p>PRONAF Digital / CAF — Cadastro Nacional da Agricultura Familiar (MDA)</p></td><td><p>Substituto digital da DAP. Contém o cadastro de agricultores familiares elegíveis ao Pronaf. IFs devem consultar este sistema para validar enquadramento.</p></td></tr><tr><td><p>ZARC — Portal de Indicação de Riscos (MAPA/Embrapa)</p></td><td><p>Sistema que disponibiliza as tábuas de risco climático e janelas de plantio para mais de 40 culturas em todos os municípios brasileiros. Obrigatória a consulta para contratos de custeio.</p></td></tr><tr><td><p>Sisbov / SIGSIF (MAPA)</p></td><td><p>Sistemas de rastreabilidade animal (Sisbov para bovinos, SIGSIF para estabelecimentos frigoríficos). Relevantes para crédito pecuário com garantia de animais.</p></td></tr><tr><td><p>SIRAE — Sistema de Informação da Regularidade Ambiental Estadual</p></td><td><p>Sistemas estaduais que complementam o SICAR. Informações sobre APPs, RLs e status de PRA por propriedade.</p></td></tr><tr><td><p>SEAGRI / AGROLINK e plataformas estaduais</p></td><td><p>Sistemas estaduais de secretarias de agricultura que complementam os dados federais</p></td></tr><tr><td><p>SIMédio / SIGEF — INCRA</p></td><td><p>SIGEF: Sistema de Gestão Fundiária — georreferenciamento de imóveis rurais certificados pelo INCRA. Fornece os polígonos das propriedades rurais.</p></td></tr><tr><td><p>IBGE — SIDRA e LSPA</p></td><td><p>SIDRA: banco de dados estatísticos do IBGE. LSPA: Levantamento Sistemático da Produção Agrícola (atualização mensal de estimativas de produção de grãos).</p></td></tr></tbody></table></div>
+<p><strong>SICOR — Dados Abertos BACEN: </strong><a href="https://dadosabertos.bcb.gov.br/dataset/matrizdadoscreditorural" target="_blank" rel="noopener">https://dadosabertos.bcb.gov.br/dataset/matrizdadoscreditorural</a></p>
+<p><strong>MCR — Banco Central: </strong><a href="https://www3.bcb.gov.br/mcr" target="_blank" rel="noopener">https://www3.bcb.gov.br/mcr</a></p>
+<p><strong>SICAR — CAR: </strong><a href="https://www.car.gov.br" target="_blank" rel="noopener">https://www.car.gov.br</a></p>
+<p><strong>CONAB — Levantamentos de Safra: </strong><a href="https://www.conab.gov.br" target="_blank" rel="noopener">https://www.conab.gov.br</a></p>
+<p><strong>IBGE — SIDRA Agropecuária: </strong><a href="https://sidra.ibge.gov.br" target="_blank" rel="noopener">https://sidra.ibge.gov.br</a></p>
+<p class="lead-in">🏗️ Ecossistema de Integração para Sistemas Financeiros Agro</p>
+<p>Um sistema de crédito rural robusto precisa integrar-se com, no mínimo: SICOR (registro obrigatório de operações), SICAR/CAR (verificação de regularidade ambiental), INCRA/SNCR (validação de imóvel e CCIR), CAF/DAP (validação de beneficiário Pronaf), ZARC (validação de datas de plantio) e BACEN (envio de informações regulatórias). A latência e disponibilidade desses serviços externos deve ser mapeada desde o início — todos são serviços governamentais com SLAs não garantidos comercialmente. O padrão arquitetônico recomendado é Circuit Breaker + cache local com TTL adequado para cada tipo de dado.</p>
+<h2 id="9-tecnologias-aplicadas-ao-agronegócio">9. TECNOLOGIAS APLICADAS AO AGRONEGÓCIO</h2>
+<p>O agronegócio brasileiro está na vanguarda da adoção tecnológica entre os países em desenvolvimento. O conceito de Agro 4.0 — uso integrado de IoT, Big Data, IA, robótica e geotecnologias — está em plena expansão no campo brasileiro.</p>
+<h3 id="91-georreferenciamento-e-sig">9.1 Georreferenciamento e SIG</h3>
+<p>O georreferenciamento é a base tecnológica do agronegócio moderno. Toda propriedade rural certificada tem seus limites georeferenciados pelo INCRA (SIGEF), e o CAR exige o mapeamento detalhado de uso do solo.</p>
+<ul><li>
+GPS de alta precisão (RTK): posicionamento centimétrico para mapeamento de talhões, aplicação variável e guiamento de máquinas
+</li><li>
+SIG (Sistemas de Informação Geográfica): plataformas como QGIS, ArcGIS e Google Earth Engine usadas para análise espacial das propriedades
+</li><li>
+SIGEF — Sistema de Gestão Fundiária do INCRA: certificação e registro de imóveis rurais georreferenciados
+</li><li>
+Mapas de solo georreferenciados: análises de fertilidade por zona de manejo, integradas com aplicação variável de insumos
+</li></ul>
+<h3 id="92-sensoriamento-remoto-e-monitoramento-por-satélite">9.2 Sensoriamento Remoto e Monitoramento por Satélite</h3>
+<ul><li>
+Imagens de satélite: Sentinel (ESA, gratuito), Landsat (USGS, gratuito), Planet, Maxar — resolução de 10m a 50cm por pixel
+</li><li>
+NDVI (Índice de Vegetação por Diferença Normalizada): índice calculado a partir de imagens de satélite que indica o vigor vegetativo da lavoura
+</li><li>
+Detecção de desmatamento: PRODES e DETER do INPE monitoram corte de vegetação nativa em tempo quase-real
+</li><li>
+Monitoramento de garantias: soluções como Crop Monitor (Serasa Experian) e AgriHub (Rabobank) usam imagens de satélite para verificar se o plantio financiado foi de fato realizado, em conformidade com o MCR 2.7
+</li><li>
+INPE: Instituto Nacional de Pesquisas Espaciais — maior repositório de dados de sensoriamento remoto do Brasil
+</li></ul>
+<h3 id="93-drones-vants-na-agricultura">9.3 Drones (VANTs) na Agricultura</h3>
+<ul><li>
+Pulverização aérea: drones agrícolas como DJI Agras substituem tratores e aviões em áreas acidentadas ou úmidas — precisão de aplicação, redução de defensivos
+</li><li>
+Mapeamento topográfico e de culturas: câmeras RGB, multispectrais (NDVI/NDRE) e LIDAR embarcadas em drones
+</li><li>
+Monitoramento de pragas e doenças: inspeção de área grande em horas, com identificação precoce de focos
+</li><li>
+Fiscalização: o MAPA usa drones para fiscalização agropecuária desde 2023, com capacitação de cerca de 850 servidores treinados em 2025
+</li><li>
+Regulamentação: Instrução Normativa ANAC 28/2022 regulamenta operações de drones no Brasil
+</li></ul>
+<h3 id="94-agricultura-de-precisão-ap">9.4 Agricultura de Precisão (AP)</h3>
+<p>A Agricultura de Precisão reconhece que as lavouras não são uniformes — existe variabilidade espacial de solo, topografia, umidade e nutrição que, se bem gerenciada, otimiza o uso de insumos e a produtividade.</p>
+<ul><li>
+Mapeamento de solo: amostras georreferenciadas definem zonas de manejo com diferentes necessidades de calagem e adubação
+</li><li>
+Aplicação a taxa variável (VRA): máquinas com GPS e controladores de seção aplicam doses diferentes de fertilizante, semente e defensivo em cada ponto da lavoura
+</li><li>
+Guiamento automático e autoguia: tratores e colheitadeiras com piloto automático por GPS reduzem overlapping e aumentam a eficiência
+</li><li>
+Monitores de colheita: medem em tempo real a produtividade ponto a ponto, gerando mapas de rendimento
+</li><li>
+Plataformas de gestão agrícola: John Deere Operations Center, CNH AFS, Stara, Aegro, Agrimanager — integram dados de campo em nuvem
+</li></ul>
+<h3 id="95-internet-das-coisas-iot-no-campo">9.5 Internet das Coisas (IoT) no Campo</h3>
+<ul><li>
+Estações meteorológicas automatizadas: redes como Somar, Clima Tempo e Weather Co. fornecem dados localizados de chuva, temperatura e umidade
+</li><li>
+Sensores de solo: umidade, temperatura e condutividade elétrica em tempo real
+</li><li>
+Sensores de máquinas: telemetria de colheitadeiras, tratores e pulverizadores
+</li><li>
+Balanças eletrônicas e cochos inteligentes: monitoramento de consumo e ganho de peso em pecuária
+</li><li>
+Brincos eletrônicos RFID: rastreabilidade individual de bovinos (componente central do PNIB)
+</li></ul>
+<h3 id="96-inteligência-artificial-e-big-data-no-agro">9.6 Inteligência Artificial e Big Data no Agro</h3>
+<ul><li>
+Modelos preditivos de safra: IA treinada com dados históricos de clima, solo e produção para estimar safras com meses de antecedência
+</li><li>
+Identificação de pragas por imagem: apps como Cropin, Plantix e Agriconnect usam visão computacional para diagnóstico fitossanitário
+</li><li>
+Credit scoring agrícola: modelos de risco que integram dados de safra, clima, mercado, comportamento histórico e dados do SICOR
+</li><li>
+Análise de desmatamento e conformidade ambiental: IA sobre imagens de satélite para verificação automática de CAR
+</li><li>
+Precificação de commodities: modelos de ML sobre preços de bolsa, previsão de tempo, dados de oferta/demanda
+</li></ul>
+<h3 id="97-fintechs-e-plataformas-digitais-agro">9.7 Fintechs e Plataformas Digitais Agro</h3>
+<ul><li>
+Agrofintechs: empresas como Traive, Agrolend, BrasilAgro Finance, Zé Delivery (para insumos) e cooperativas digitais oferecem crédito alternativo ao banco tradicional
+</li><li>
+Plataformas de CPR digital: digitalização das Cédulas de Produto Rural em blockchain (ex: B3 Agro)
+</li><li>
+Marketplaces de insumos: Agrofy, Farmsapp — digitalização da compra de defensivos, sementes e fertilizantes
+</li><li>
+Seguro agrícola digital: plataformas que integram ZARC, dados de satélite e weather APIs para precificação e liquidação automática de seguros paramétricos
+</li></ul>
+<p class="lead-in">🏗️ Tecnologias com Impacto Direto em Arquitetura de Sistemas Financeiros</p>
+<p>Para um arquiteto de soluções em crédito rural, as tecnologias com maior impacto imediato são: (1) Imagens de satélite para monitoramento de garantias — integração via APIs (Sentinel Hub, Planet) ou soluções como Crop Monitor; (2) RFID/PNIB para verificação de penhor de animais; (3) Georreferenciamento de glebas via SICOR — o sistema deve armazenar e processar polígonos geoespaciais (PostGIS ou serviços GIS em nuvem); (4) IA para scoring de risco de safra, cruzando dados do ZARC, clima e histórico produtivo do tomador. O dado geoespacial é o 'novo CPF' do agronegócio — toda operação de crédito deve ter sua localização associada a uma gleba.</p>
+<h2 id="10-dicionário-do-agronegócio-glossário-completo">10. DICIONÁRIO DO AGRONEGÓCIO — GLOSSÁRIO COMPLETO</h2>
+<p>Termos técnicos, operacionais e regulatórios do agronegócio brasileiro ordenados alfabeticamente. Este glossário cobre desde termos básicos de campo até conceitos financeiros, ambientais e tecnológicos.</p>
+<p><strong>Agrossilvipastoril: </strong>Sistema de produção que integra lavoura, floresta e pecuária no mesmo espaço (ILP — Integração Lavoura-Pecuária-Floresta)</p>
+<p><strong>APP (Área de Preservação Permanente): </strong>Área protegida pelo Código Florestal que não pode ser suprimida — margens de rios, topos de morro, encostas íngremes</p>
+<p><strong>Arrendamento Rural: </strong>Contrato pelo qual o proprietário cede o uso da terra ao arrendatário, mediante pagamento de aluguel (em dinheiro, sacas de grão ou percentual da produção)</p>
+<p><strong>Bienalidade (Café): </strong>Comportamento alternado do cafeeiro arábica entre safra de alta produção (ano de safra cheia) e safra de baixa produção (ano de bienalidade)</p>
+<p><strong>Borderô: </strong>Documento que detalha os insumos financiados em operações de custeio — serve como orçamento da operação junto ao banco</p>
+<p><strong>CAF (Cadastro Nacional da Agricultura Familiar): </strong>Cadastro digital que substituiu a DAP como documento de comprovação de agricultor familiar para acesso ao Pronaf</p>
+<p><strong>CAR (Cadastro Ambiental Rural): </strong>Registro eletrônico obrigatório para imóveis rurais, com mapeamento das áreas de uso consolidado, APP e Reserva Legal. Obrigatório para acesso ao crédito rural</p>
+<p><strong>Cédula de Produto Rural (CPR): </strong>Título pelo qual o produtor se compromete a entregar produto agropecuário (ou seu equivalente financeiro) em data futura, podendo receber antecipadamente pelo valor</p>
+<p><strong>CCIR (Certificado de Cadastro de Imóvel Rural): </strong>Documento emitido pelo INCRA que certifica o cadastro do imóvel rural — obrigatório para financiamentos, partilhas e transmissão de imóveis rurais</p>
+<p><strong>Confinamento: </strong>Sistema de produção de bovinos de corte em área restrita com alimentação no cocho — maximiza ganho de peso e reduz o ciclo de terminação para 90-120 dias</p>
+<p><strong>Cota-Parte: </strong>Participação de produtor cooperado no capital social de uma cooperativa — pode ser utilizada como garantia em linhas de crédito</p>
+<p><strong>Custeio Agrícola: </strong>Modalidade de crédito rural para cobrir as despesas diretas do ciclo produtivo: sementes, fertilizantes, defensivos, mão de obra e operações mecanizadas</p>
+<p><strong>DAP (Declaração de Aptidão ao Pronaf): </strong>Antigo documento que habilitava o agricultor familiar para acesso ao Pronaf. Foi substituído pelo CAF</p>
+<p><strong>Decêndio: </strong>Período de 10 dias usado pelo ZARC para classificar o risco climático ao longo do ano (36 decêndios por ano)</p>
+<p><strong>Deságio: </strong>Desconto aplicado sobre títulos rurais (CPR, LCA, CRA) quando negociados antes do vencimento no mercado secundário</p>
+<p><strong>Equivalência Produto: </strong>Modalidade em que o valor do financiamento é expresso em sacas de grão (soja, milho, arroz) em vez de reais, protegendo o produtor de descasamento entre renda e dívida</p>
+<p><strong>Exigibilidade: </strong>Percentual mínimo dos recursos captados (depósitos à vista) que os bancos são obrigados a aplicar em crédito rural com taxas controladas</p>
+<p><strong>Georreferenciamento: </strong>Processo de associar dados a posições geográficas precisas (latitude e longitude), usando GPS. Obrigatório para certificação de imóveis pelo INCRA</p>
+<p><strong>Gleba: </strong>Porção específica de terra dentro de uma propriedade rural onde uma determinada atividade é desenvolvida — unidade mínima de registro no SICOR</p>
+<p><strong>GTA (Guia de Trânsito Animal): </strong>Documento emitido pelas Secretarias de Agricultura estaduais que autoriza o transporte de animais — registra movimentação do rebanho</p>
+<p><strong>Hectare (ha): </strong>Unidade de medida de área equivalente a 10.000 m² (100m x 100m). Um alqueire paulista = 2,42 ha; um alqueire mineiro = 4,84 ha</p>
+<p><strong>ILP (Integração Lavoura-Pecuária): </strong>Sistema que usa a mesma área alternando lavoura e pastagem, melhorando a fertilidade do solo e a lucratividade da propriedade</p>
+<p><strong>Inspeção de Destino: </strong>Visita técnica obrigatória realizada pelo banco após a concessão do crédito para verificar a correta aplicação dos recursos na atividade financiada</p>
+<p><strong>ITR (Imposto sobre a Propriedade Territorial Rural): </strong>Imposto federal sobre a posse de imóvel rural — obrigatório e vinculado ao CCIR. Regularidade no ITR é pré-requisito para crédito rural</p>
+<p><strong>LCA (Letra de Crédito do Agronegócio): </strong>Título de renda fixa emitido por instituições financeiras para captação de recursos destinados ao financiamento do agronegócio — isento de IR para pessoa física</p>
+<p><strong>Módulo Fiscal: </strong>Unidade de medida definida pelo INCRA para cada município, que representa a área mínima para uma propriedade ser economicamente viável. Varia de 5 a 110 ha dependendo do município</p>
+<p><strong>NIRF (Número do Imóvel na Receita Federal): </strong>Número de cadastro do imóvel rural junto à Receita Federal — necessário para pagamento do ITR</p>
+<p><strong>NDVI (Índice de Vegetação por Diferença Normalizada): </strong>Índice calculado a partir de imagens de satélite (bandas vermelho e infravermelho próximo) que indica o vigor e a saúde da vegetação — varia de -1 a +1</p>
+<p><strong>Orçamento da Operação (OE): </strong>Documento técnico que detalha as necessidades do custeio ou investimento a ser financiado — base para o enquadramento da operação no MCR</p>
+<p><strong>Penhora Rural / Penhor Rural: </strong>Garantia real sobre bens móveis agropecuários (animais, máquinas, colheita pendente) que pode ser constituída sem transmissão da posse ao credor</p>
+<p><strong>Proagro: </strong>Programa de Garantia da Atividade Agropecuária — seguro público obrigatório vinculado ao crédito rural de custeio. Garante cobertura em caso de perda de safra por eventos climáticos</p>
+<p><strong>Pronaf: </strong>Programa Nacional de Fortalecimento da Agricultura Familiar — principal linha de crédito para pequenos produtores familiares, com taxas subsidiadas. Tornada política de Estado pela Lei 15.223/2025</p>
+<p><strong>Pronamp: </strong>Programa Nacional de Apoio ao Médio Produtor Rural — linha de crédito para produtores com renda bruta de até R$ 3,5 milhões/ano</p>
+<p><strong>PSR (Programa de Subvenção ao Prêmio do Seguro Rural): </strong>Programa do MAPA que subsidia entre 35% e 45% do prêmio do seguro rural privado, tornando-o acessível a mais produtores</p>
+<p><strong>Rebanho: </strong>O conjunto total de animais de uma espécie em uma propriedade</p>
+<p><strong>Reserva Legal (RL): </strong>Área dentro da propriedade rural que deve ser mantida com vegetação nativa, conforme o Código Florestal: 20% no Cerrado, 80% na Amazônia</p>
+<p><strong>Rotação de Cultura: </strong>Prática agronômica de alternar diferentes culturas no mesmo talhão entre safras para melhorar fertilidade do solo e reduzir pragas</p>
+<p><strong>Safrinha: </strong>Nome popular dado à 2ª safra de milho no Brasil — plantada após a colheita da soja (jan-fev), com risco climático maior por iniciar fora da melhor janela de chuvas</p>
+<p><strong>SNCR (Sistema Nacional de Crédito Rural): </strong>Conjunto de instituições financeiras que operam crédito rural no Brasil, regulado pelo BACEN sob as normas do MCR</p>
+<p><strong>Talhão: </strong>Subdivisão de uma propriedade rural destinada ao cultivo de uma determinada cultura — unidade básica de gestão agronômica e de registro de operações de crédito</p>
+<p><strong>Unidade Animal (UA): </strong>Unidade equivalente de bovino adulto (450 kg de peso vivo). Usada para calcular a taxa de lotação de pastagens (número de UAs por hectare)</p>
+<p><strong>Variedade / Cultivar: </strong>Uma variedade específica de planta com características definidas (ciclo, resistência a pragas, produtividade). O MCR e o ZARC referenciam grupos de cultivares para definir janelas de plantio</p>
+<p><strong>Vencimento de Parcelas: </strong>Data em que cada parcela do financiamento rural vence — normalmente alinhada com o ciclo de colheita e comercialização da cultura financiada</p>
+<p><strong>Zoneamento Ambiental: </strong>Mapeamento do território em zonas de uso (preservação, produção, amortecimento) — instrumento de planejamento do uso do solo</p>
+<h2 id="11-as-maiores-dores-e-necessidades-dos-produtores-rurais">11. AS MAIORES DORES E NECESSIDADES DOS PRODUTORES RURAIS</h2>
+<p>Compreender as dores reais dos produtores é essencial para conceber produtos financeiros e sistemas que de fato gerem valor. Esta seção consolida os principais pontos de fricção relatados por produtores rurais brasileiros de diferentes perfis.</p>
+<h3 id="111-dores-do-pequeno-produtor-pronaf">11.1 Dores do Pequeno Produtor (Pronaf)</h3>
+<ul><li>
+Burocracia excessiva: o processo de obter crédito exige DAP/CAF, CCIR, CAR, certidões negativas — muitas vezes o produtor gasta dias e recursos para reunir documentação
+</li><li>
+Distância das agências bancárias: em regiões remotas, o deslocamento até o banco mais próximo pode ser de horas
+</li><li>
+Desconhecimento das linhas disponíveis: a maioria dos agricultores familiares não sabe que existem linhas a 3% a.a. com carência adequada ao ciclo
+</li><li>
+Assistência técnica insuficiente: sem orientação técnica, o produtor aplica mal o crédito e enfrenta mais risco de default
+</li><li>
+Prazo x ciclo produtivo: em sistemas de fruticultura e horticultura, os prazos de custeio muitas vezes não se encaixam nos ciclos múltiplos
+</li><li>
+Renegociação difícil: em caso de perda parcial de safra abaixo do gatilho do Proagro, o produtor não tem cobertura e enfrenta dificuldade de renegociar com o banco
+</li></ul>
+<h3 id="112-dores-do-médio-produtor-pronamp-e-recursos-livres">11.2 Dores do Médio Produtor (Pronamp e Recursos Livres)</h3>
+<ul><li>
+Garantias insuficientes: o produtor tem ativo (terra e equipamentos), mas formalizar garantias é caro e lento (registro de hipoteca, penhor)
+</li><li>
+Descasamento de preço: vende a commodity por preço de colheita (baixo), mas paga insumos a preço de safra seguinte (alto)
+</li><li>
+Custo de trava de câmbio e hedge: muitos não têm acesso a instrumentos financeiros sofisticados para se proteger da volatilidade
+</li><li>
+Cobertura de seguro agrícola inadequada: Proagro tem limites e o seguro privado é caro; muitos ficam descobertos
+</li><li>
+Gestão financeira primitiva: falta de controle sobre fluxo de caixa, custos por talhão e rentabilidade por cultura
+</li><li>
+Relacionamento bancário transacional: o banco só aparece para cobrar, não para apoiar nos momentos de volatilidade
+</li></ul>
+<h3 id="113-dores-do-grande-produtor-e-das-cooperativas">11.3 Dores do Grande Produtor e das Cooperativas</h3>
+<ul><li>
+Custo de compliance ambiental: adequação ao Código Florestal, CAR, licenças ambientais — custos crescentes
+</li><li>
+Barreiras de acesso a mercados externos: certificações exigidas por importadores (Rainforest Alliance, UTZ, RSPO) são caras e demoradas de obter
+</li><li>
+Volatilidade cambial: receita em dólar x dívidas em reais com correções diversas criam complexidade de gestão financeira
+</li><li>
+Gestão de múltiplos contratos e safras simultâneas: grandes produtores gerenciam dezenas de contratos de custeio, investimento e CPR ao mesmo tempo
+</li><li>
+Rastreabilidade e ESG: crescente pressão de credores, exportadores e consumidores por dados de sustentabilidade, carbono e conformidade
+</li><li>
+Acesso a crédito de carbono e RenovaBio: processo burocrático e pouca familiaridade com os mecanismos
+</li></ul>
+<h3 id="114-dores-transversais-a-todos-os-perfis">11.4 Dores Transversais a Todos os Perfis</h3>
+<div class="tbl-wrap"><table><thead><tr><th><strong>Dor</strong></th><th><strong>Impacto / O que o produtor precisa</strong></th></tr></thead><tbody><tr><td><p>Acesso a informação de qualidade</p></td><td><p>Previsão do tempo localizada, ZARC, cotações em tempo real, análise de mercado — o produtor decide com informação incompleta</p></td></tr><tr><td><p>Processo de crédito lento</p></td><td><p>O plantio tem janela de 30-60 dias — atraso no crédito significa perda de safra. Necessidade de aprovação em 24-48h para custeio</p></td></tr><tr><td><p>Sinistros demorados (Proagro)</p></td><td><p>Após uma perda de safra, o produtor aguarda meses para receber a indenização do Proagro, sem caixa para a safra seguinte</p></td></tr><tr><td><p>Liquidez pós-colheita</p></td><td><p>A produção fica armazenada mas o produtor precisa de caixa. Falta de CPR digital acessível e rápida</p></td></tr><tr><td><p>Integração de dados dispersos</p></td><td><p>O produtor tem dados em diversas plataformas (máquinas, clima, ERP, banco) — não consegue ter uma visão integrada</p></td></tr><tr><td><p>Seguro pecuário</p></td><td><p>Poucos produtos de seguro para rebanho fora do formato tradicional — grande lacuna para pecuaristas</p></td></tr><tr><td><p>Crédito para irrigação</p></td><td><p>Infraestrutura de irrigação é cara e os prazos de investimento para amortização são longos — poucos bancos oferecem linhas adequadas</p></td></tr><tr><td><p>Assistência pós-venda no crédito</p></td><td><p>Após a contratação, o produtor fica sem apoio do banco — qualquer dúvida exige deslocamento ou ligação para SAC</p></td></tr></tbody></table></div>
+<h3 id="115-necessidades-que-geram-oportunidades-de-produto">11.5 Necessidades que Geram Oportunidades de Produto</h3>
+<ul><li>
+Originação digital de crédito: plataforma mobile onde o produtor inicia o pedido de crédito no campo, com georreferenciamento automático da gleba
+</li><li>
+Score de risco dinâmico: atualização contínua do risco da operação com base em dados de satélite e clima, permitindo reação proativa
+</li><li>
+Crédito vinculado ao ZARC automático: sistema que verifica automaticamente a janela ZARC e embute a validação no workflow de aprovação
+</li><li>
+CPR digital: emissão e custódia de CPR em plataforma digital, com liquidação automática
+</li><li>
+Seguro paramétrico: produto que paga automaticamente baseado em índices climáticos mensuráveis (precipitação abaixo de X mm), sem necessidade de vistoria física
+</li><li>
+Plataforma de gestão financeira integrada ao crédito: dashboard que ajuda o produtor a entender sua exposição, vencimentos e rentabilidade
+</li><li>
+Atendimento via WhatsApp / app no campo: canais que funcionem com conexão precária e interfaces simples
+</li></ul>
+<p class="lead-in">🏗️ Conclusão para o Arquiteto de Soluções</p>
+<p>As dores dos produtores mapeadas aqui são o ponto de partida para o desenho de soluções. Para o arquiteto de sistemas financeiros do agro, os padrões que emergem são: mobile-first (o campo é o ponto de uso), offline-first (conectividade precária), integração com dados externos governamentais (SICOR, ZARC, CAR), processamento sazonal de alta carga (pico de contratação concentrado), geoespacialidade nativa (talhões e glebas são entidades de primeira classe), e ciclo de vida de operação longo (custeio de 12 meses a investimentos de 15 anos). Cada um desses padrões tem implicações diretas nas escolhas de stack, modelagem de dados e topologia de serviços.</p>
+<h2 id="links-e-referências-essenciais">LINKS E REFERÊNCIAS ESSENCIAIS</h2>
+<h3 id="legislação-e-normas">Legislação e Normas</h3>
+<p><strong>Manual de Crédito Rural (MCR) — Banco Central: </strong><a href="https://www3.bcb.gov.br/mcr" target="_blank" rel="noopener">https://www3.bcb.gov.br/mcr</a></p>
+<p><strong>Lei 4.829/1965 — Lei do Crédito Rural: </strong><a href="https://www.planalto.gov.br/ccivil_03/leis/l4829.htm" target="_blank" rel="noopener">https://www.planalto.gov.br/ccivil_03/leis/l4829.htm</a></p>
+<p><strong>Decreto-Lei 167/1967 — Títulos de Crédito Rural: </strong><a href="https://www.planalto.gov.br/ccivil_03/decreto-lei/del0167.htm" target="_blank" rel="noopener">https://www.planalto.gov.br/ccivil_03/decreto-lei/del0167.htm</a></p>
+<p><strong>Lei 12.651/2012 — Código Florestal: </strong><a href="https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2012/lei/l12651.htm" target="_blank" rel="noopener">https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2012/lei/l12651.htm</a></p>
+<p><strong>Lei 11.326/2006 — Lei da Agricultura Familiar: </strong><a href="https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11326.htm" target="_blank" rel="noopener">https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11326.htm</a></p>
+<h3 id="dados-e-sistemas">Dados e Sistemas</h3>
+<p><strong>SICOR — Dados Abertos do Crédito Rural (BACEN): </strong><a href="https://dadosabertos.bcb.gov.br/dataset/matrizdadoscreditorural" target="_blank" rel="noopener">https://dadosabertos.bcb.gov.br/dataset/matrizdadoscreditorural</a></p>
+<p><strong>SICAR — Sistema CAR: </strong><a href="https://www.car.gov.br" target="_blank" rel="noopener">https://www.car.gov.br</a></p>
+<p><strong>ZARC — Painel de Indicação de Riscos (MAPA): </strong><a href="https://mapa-indicadores.agricultura.gov.br/publico/extensions/Zarc/Zarc.html" target="_blank" rel="noopener">https://mapa-indicadores.agricultura.gov.br/publico/extensions/Zarc/Zarc.html</a></p>
+<p><strong>ZARC — Portal Oficial MAPA: </strong><a href="https://www.gov.br/agricultura/pt-br/assuntos/riscos-seguro/programa-nacional-de-zoneamento-agricola-de-risco-climatico" target="_blank" rel="noopener">https://www.gov.br/agricultura/pt-br/assuntos/riscos-seguro/programa-nacional-de-zoneamento-agricola-de-risco-climatico</a></p>
+<p><strong>CONAB — Levantamentos de Safra: </strong><a href="https://www.conab.gov.br" target="_blank" rel="noopener">https://www.conab.gov.br</a></p>
+<p><strong>IBGE — SIDRA Agropecuária: </strong><a href="https://sidra.ibge.gov.br" target="_blank" rel="noopener">https://sidra.ibge.gov.br</a></p>
+<p><strong>Embrapa — Rede ZARC: </strong><a href="https://www.embrapa.br/en/rede-zarc-embrapa" target="_blank" rel="noopener">https://www.embrapa.br/en/rede-zarc-embrapa</a></p>
+<p><strong>SIGEF — INCRA Georreferenciamento: </strong><a href="https://sigef.incra.gov.br" target="_blank" rel="noopener">https://sigef.incra.gov.br</a></p>
+<h3 id="publicações-e-referências-técnicas">Publicações e Referências Técnicas</h3>
+<p><strong>CNA Brasil — PIB do Agronegócio: </strong><a href="https://www.cnabrasil.org.br" target="_blank" rel="noopener">https://www.cnabrasil.org.br</a></p>
+<p><strong>CEPEA/ESALQ — Indicadores e Análises: </strong><a href="https://www.cepea.esalq.usp.br" target="_blank" rel="noopener">https://www.cepea.esalq.usp.br</a></p>
+<p><strong>Guia do Crédito Rural — CNA: </strong><a href="https://www.cnabrasil.org.br/assets/arquivos/bibliotecas/guia_do_credito_rural_versaoonline.pdf" target="_blank" rel="noopener">https://www.cnabrasil.org.br/assets/arquivos/bibliotecas/guia_do_credito_rural_versaoonline.pdf</a></p>
+<p><strong>Plano Safra 2025/2026 — MAPA: </strong><a href="https://www.gov.br/agricultura/pt-br/assuntos/noticias/governo-federal-lanca-plano-safra-2025-2026" target="_blank" rel="noopener">https://www.gov.br/agricultura/pt-br/assuntos/noticias/governo-federal-lanca-plano-safra-2025-2026</a></p>
+<p><em>Este guia foi elaborado em maio de 2026 com dados das fontes oficiais mais recentes. O setor agropecuário está em constante evolução — recomenda-se acompanhar o Diário Oficial da União (DOU) e o site do BACEN para novas atualizações do MCR, e o portal do MAPA para novas portarias do ZARC e do Plano Safra.</em></p>
+  </article>
+</main>
+</div>
+<a class="fab" href="../../index.html" aria-label="Voltar ao hub">◂ HUB</a>
+<button class="totop" type="button" aria-label="Voltar ao topo">▲</button>
+<script>
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  /* tema */
+  var TK='hub-theme', modes=['auto','light','dark'];
+  function applyTheme(m){ if(m==='auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme',m); var b=$('#theme'); if(b) b.textContent='tema: '+m; }
+  var tm='auto'; try{tm=localStorage.getItem(TK)||'auto'}catch(e){}
+  applyTheme(tm);
+  $('#theme').addEventListener('click',function(){ tm=modes[(modes.indexOf(tm)+1)%3]; try{localStorage.setItem(TK,tm)}catch(e){} applyTheme(tm); });
+  /* menu mobile */
+  var side=$('aside'), scrim=$('.scrim');
+  function menu(o){ side.classList.toggle('open',o); scrim.classList.toggle('open',o); }
+  $('#menu').addEventListener('click',function(){menu(true)}); scrim.addEventListener('click',function(){menu(false)});
+  $$('nav.toc a').forEach(function(a){a.addEventListener('click',function(){menu(false)})});
+  /* filtro do sumário */
+  $('#filter').addEventListener('input',function(e){ var q=e.target.value.trim().toLowerCase(); $$('nav.toc a').forEach(function(a){ a.hidden = q && a.textContent.toLowerCase().indexOf(q)<0; }); });
+  document.addEventListener('keydown',function(e){ if(e.key==='/' && document.activeElement.tagName!=='INPUT'){ e.preventDefault(); if(innerWidth<=980) menu(true); $('#filter').focus(); } });
+  /* progresso + topo */
+  var bar=$('#progress'), top=$('.totop');
+  function onScroll(){ var h=document.documentElement; var p=h.scrollTop/(h.scrollHeight-h.clientHeight||1); bar.style.width=(p*100)+'%'; top.classList.toggle('show',h.scrollTop>900); }
+  addEventListener('scroll',onScroll,{passive:true}); onScroll();
+  top.addEventListener('click',function(){scrollTo({top:0,behavior:'smooth'})});
+  /* scroll spy */
+  var links=$$('nav.toc a'), map={}; links.forEach(function(a){ map[a.getAttribute('href').slice(1)]=a; });
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){ es.forEach(function(en){ if(en.isIntersecting){ links.forEach(function(l){l.classList.remove('on')}); var a=map[en.target.id]; if(a){ a.classList.add('on'); a.scrollIntoView({block:'nearest'}); } } }); },{rootMargin:'-10% 0px -80% 0px'});
+    Object.keys(map).forEach(function(id){ var el=document.getElementById(id); if(el) io.observe(el); });
+  }
+  /* tabelas largas */
+  $$('.tbl-wrap table').forEach(function(t){ var n=t.rows[0]?t.rows[0].cells.length:0; if(n>=5) t.classList.add('wide'); });
+  /* autoavaliação */
+  var tables=$$('table.assess'); if(!tables.length) return;
+  var KEY='hub-assess:'+document.body.dataset.doc, st={};
+  try{ st=JSON.parse(localStorage.getItem(KEY)||'{}') }catch(e){}
+  var OPTS=[['d','Domino','k-d'],['r','Reviso','k-r'],['e','Estudo','k-e']];
+  var cells=[];
+  tables.forEach(function(t,ti){
+    var heads=$$('thead th',t).map(function(th){return th.textContent.trim()});
+    $$('tbody tr',t).forEach(function(tr,ri){
+      $$('td',tr).forEach(function(td,ci){ if(heads[ci]) td.setAttribute('data-l',heads[ci]); });
+      var td=$('td.mark',tr); if(!td) return;
+      var id=ti+'-'+ri; cells.push(id);
+      td.innerHTML='<span class="mk" role="group" aria-label="Autoavaliação">'+OPTS.map(function(o){return '<button type="button" class="'+o[2]+'" data-id="'+id+'" data-v="'+o[0]+'" aria-pressed="'+(st[id]===o[0])+'">'+o[1]+'</button>'}).join('')+'</span>';
+    });
+  });
+  var barEl=document.createElement('div'); barEl.className='assess-bar';
+  var anchor=$('.doc h2'); anchor.parentNode.insertBefore(barEl,anchor);
+  function render(){
+    var c={d:0,r:0,e:0}; cells.forEach(function(id){ if(st[id]) c[st[id]]++; });
+    var n=cells.length, done=c.d+c.r+c.e, w=function(v){return (v/n*100).toFixed(2)+'%'};
+    barEl.innerHTML='<span>Autoavaliação · '+done+'/'+n+'</span><span class="meter"><i style="width:'+w(c.d)+';background:var(--tip)"></i><i style="width:'+w(c.r)+';background:var(--warn)"></i><i style="width:'+w(c.e)+';background:#E5484D"></i></span><span class="k-d"><b>'+c.d+'</b> domino</span><span class="k-r"><b>'+c.r+'</b> reviso</span><span class="k-e"><b>'+c.e+'</b> estudo</span><button class="theme" type="button" id="aclear">limpar</button>';
+  }
+  render();
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('.mk button');
+    if(b){ var id=b.dataset.id, v=b.dataset.v; st[id]=st[id]===v?undefined:v; if(!st[id]) delete st[id];
+      try{localStorage.setItem(KEY,JSON.stringify(st))}catch(_){}
+      $$('button[data-id="'+id+'"]').forEach(function(x){x.setAttribute('aria-pressed',String(x.dataset.v===st[id]))}); render(); return; }
+    if(e.target.id==='aclear'){ if(e.target.dataset.confirm){ st={}; try{localStorage.removeItem(KEY)}catch(_){} $$('.mk button').forEach(function(x){x.setAttribute('aria-pressed','false')}); render(); } else { e.target.dataset.confirm='1'; e.target.textContent='confirmar?'; } }
+  });
+})();
+</script>
+</body>
+</html>

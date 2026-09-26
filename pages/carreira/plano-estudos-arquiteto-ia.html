@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Plano de Estudos — Arquiteto de Soluções no Contexto da IA</title>
+
+<meta name="description" content="Da fundação técnica à liderança estratégica de IA em ambientes regulados">
+<script>try{var m=localStorage.getItem('hub-theme');if(m&&m!=='auto')document.documentElement.setAttribute('data-theme',m)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F4F6FA; --surface:#FFFFFF; --sunk:#EBEFF5; --ink:#141B2B; --ink-2:#44506A; --ink-3:#6B7790;
+  --line:#D8DFEA; --line-2:#C5CEDD; --accent:#B8336F; --accent-soft:color-mix(in srgb,var(--accent) 12%,var(--surface));
+  --warn:#B4531A; --warn-soft:#FCEEE3; --tip:#1E7C4B; --tip-soft:#E4F4EA;
+  --code-bg:#0E1628; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(20,27,43,.05),0 10px 30px -18px rgba(20,27,43,.25);
+  --f-disp:"Chakra Petch","Space Grotesk",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --side:300px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#070B14; --surface:#0E1628; --sunk:#0A1120; --ink:#E6EEFB; --ink-2:#A9B7D0; --ink-3:#7485A3;
+  --line:#1D2A42; --line-2:#2A3A58; --accent:#FF7AB6; --accent-soft:color-mix(in srgb,var(--accent) 14%,var(--surface));
+  --warn:#FFB547; --warn-soft:#2A1F10; --tip:#7EE2A8; --tip-soft:#10261B; --code-bg:#050910; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 36px -20px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#070B14; --surface:#0E1628; --sunk:#0A1120; --ink:#E6EEFB; --ink-2:#A9B7D0; --ink-3:#7485A3;
+  --line:#1D2A42; --line-2:#2A3A58; --accent:#FF7AB6; --accent-soft:color-mix(in srgb,var(--accent) 14%,var(--surface));
+  --warn:#FFB547; --warn-soft:#2A1F10; --tip:#7EE2A8; --tip-soft:#10261B; --code-bg:#050910; --code-ink:#D6E2F5;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 36px -20px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+::selection{background:var(--accent);color:var(--bg)}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;box-shadow:0 0 12px var(--accent)}
+
+.shell{display:grid;grid-template-columns:var(--side) minmax(0,1fr);min-height:100vh}
+aside{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;border-right:1px solid var(--line);background:var(--surface)}
+.side-top{padding:18px 18px 12px;border-bottom:1px solid var(--line)}
+.hub{display:inline-flex;align-items:center;gap:8px;font:600 11.5px var(--f-mono);letter-spacing:.16em;color:var(--ink-2);text-decoration:none;margin-bottom:14px}
+.hub b{color:var(--accent)}
+.hub:hover{color:var(--accent)}
+.side-title{font:700 15px/1.25 var(--f-disp);letter-spacing:.01em;margin:0 0 12px;text-transform:uppercase}
+.filter{width:100%;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:500 13px var(--f-body);color:var(--ink)}
+.filter:focus{outline:none;border-color:var(--accent)}
+nav.toc{flex:1;overflow:auto;padding:10px 0 20px}
+nav.toc a{display:block;padding:5px 18px 5px 16px;border-left:2px solid transparent;color:var(--ink-2);text-decoration:none;font-size:13.5px;line-height:1.35}
+nav.toc a.l3{padding-left:30px;font-size:12.8px;color:var(--ink-3)}
+nav.toc a:hover{color:var(--ink);background:var(--sunk)}
+nav.toc a.on{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft);font-weight:600}
+nav.toc a[hidden]{display:none}
+.side-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 18px;border-top:1px solid var(--line);font:500 11px var(--f-mono);color:var(--ink-3)}
+.theme{background:none;border:1px solid var(--line);border-radius:6px;padding:5px 9px;font:500 11px var(--f-mono);color:var(--ink-2);cursor:pointer}
+.theme:hover{border-color:var(--accent);color:var(--accent)}
+
+main{min-width:0;padding:0 clamp(16px,5vw,64px) 120px;overflow-x:clip}
+.doc{max-width:900px;margin:0 auto}
+.hero{padding:56px 0 30px;border-bottom:1px solid var(--line);margin-bottom:12px;position:relative}
+.hero::before{content:"";position:absolute;inset:0 -40px auto;height:220px;background:radial-gradient(600px 200px at 10% 0%,var(--accent-soft),transparent 70%);z-index:-1}
+.kicker{font:600 11.5px var(--f-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px}
+.kicker::before{content:"";width:24px;height:1px;background:var(--accent)}
+.hero h1{font:700 clamp(32px,5.2vw,54px)/1.02 var(--f-disp);letter-spacing:-.005em;margin:14px 0 12px;text-transform:uppercase;text-wrap:balance}
+.hero .sub{font-size:18px;color:var(--ink-2);max-width:62ch;margin:0 0 16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+.chip{font:500 11.5px var(--f-mono);color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:4px 10px;background:var(--surface)}
+.hero-extra{margin-top:20px;color:var(--ink-2);font-size:15px}
+.hero-extra p{margin:0 0 8px;max-width:70ch}
+
+.doc h2{font:700 clamp(22px,2.6vw,28px)/1.15 var(--f-disp);margin:56px 0 14px;padding-top:14px;border-top:1px solid var(--line);letter-spacing:.005em;text-wrap:balance}
+.doc h3{font:600 19px/1.3 var(--f-disp);margin:34px 0 10px;color:var(--ink)}
+.doc h4{font:600 16px/1.35 var(--f-body);margin:26px 0 8px;color:var(--accent)}
+.doc h5{font:600 14px var(--f-mono);margin:20px 0 6px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.hero + h2,.hero + .assess-bar + h2{border-top:0;margin-top:30px;padding-top:0}
+.doc h2.banner{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.doc h2.banner .code{font:700 14px var(--f-mono);color:var(--bg);background:var(--accent);padding:4px 9px;border-radius:6px}
+.doc h2.banner .tag{font:600 11px var(--f-mono);letter-spacing:.1em;color:var(--warn);border:1px solid currentColor;border-radius:999px;padding:3px 10px}
+.doc p{margin:0 0 14px;max-width:74ch}
+.doc p.lead-in{font:600 14.5px var(--f-body);color:var(--ink);margin:20px 0 8px}
+.doc ul,.doc ol{margin:0 0 16px;padding-left:22px;max-width:74ch}
+.doc li{margin:4px 0}
+.doc li>ul,.doc li>ol{margin:4px 0}
+.doc li::marker{color:var(--accent)}
+.doc strong{font-weight:600;color:var(--ink)}
+.doc code{font:500 .86em var(--f-mono);background:var(--sunk);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.doc pre{background:var(--code-bg);color:var(--code-ink);border-radius:10px;padding:14px 16px;overflow:auto;font:13px/1.55 var(--f-mono);margin:0 0 18px;border:1px solid var(--line)}
+.doc pre code{background:none;border:0;padding:0;color:inherit;font-size:inherit}
+.doc blockquote{margin:0 0 16px;padding:10px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 8px 8px 0}
+.doc blockquote p{margin:0}
+.callout{border:1px solid var(--line);border-left:3px solid var(--accent);background:var(--surface);border-radius:10px;padding:14px 18px;margin:18px 0 20px;box-shadow:var(--shadow)}
+.callout>*:last-child{margin-bottom:0}
+.callout p{max-width:none}
+.callout.warn{border-left-color:var(--warn);background:var(--warn-soft)}
+.callout.tip{border-left-color:var(--tip);background:var(--tip-soft)}
+.tbl-wrap{overflow-x:auto;margin:0 0 20px;border:1px solid var(--line);border-radius:10px;background:var(--surface);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+thead th{position:sticky;top:0;background:var(--sunk);font:600 11.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);border-bottom:1px solid var(--line-2);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:color-mix(in srgb,var(--accent) 4%,transparent)}
+td p{margin:0 0 6px;max-width:none}
+td p:last-child{margin:0}
+td ul,td ol{margin:0;padding-left:18px}
+.tbl-wrap table.wide{min-width:760px}
+
+/* autoavaliação */
+.assess-bar{position:sticky;top:0;z-index:20;margin:18px 0 0;padding:10px 14px;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:10px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font:500 12.5px var(--f-mono);color:var(--ink-2)}
+.assess-bar .meter{flex:1 1 180px;height:8px;border-radius:4px;background:var(--sunk);overflow:hidden;display:flex}
+.assess-bar .meter i{display:block;height:100%}
+.k-d{--k:var(--tip)} .k-r{--k:var(--warn)} .k-e{--k:#E5484D}
+.assess-bar b{color:var(--k,var(--ink))}
+.assess-bar button{margin-left:auto}
+table.assess td:nth-child(1){font-weight:600;min-width:160px}
+table.assess td:nth-child(5){white-space:nowrap;font:500 12px var(--f-mono);color:var(--ink-3)}
+td.mark{white-space:nowrap}
+.mk{display:inline-flex;gap:4px}
+.mk button{border:1px solid var(--line-2);background:transparent;color:var(--ink-3);border-radius:6px;padding:3px 7px;font:600 11px var(--f-mono);cursor:pointer}
+.mk button:hover{border-color:var(--k);color:var(--k)}
+.mk button[aria-pressed="true"]{background:var(--k);border-color:var(--k);color:var(--bg)}
+.sec-count{font:500 12px var(--f-mono);color:var(--ink-3);margin:-6px 0 12px}
+
+
+/* componentes extras */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:18px 0 22px}
+.stats div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow)}
+.stats b{display:block;font:700 30px/1 var(--f-disp);color:var(--accent)}
+.stats span{font:500 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin:0 0 20px}
+.cols>div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.cols h5{margin:0 0 6px;color:var(--accent)}
+.cols ul{margin:0;padding-left:18px;font-size:14px}
+.res{list-style:none;padding:0!important;margin:0 0 20px;display:grid;gap:6px}
+.res li{display:flex;gap:10px;align-items:baseline;font-size:14px;margin:0}
+.res li::marker{content:none}
+.badge{flex:none;font:600 10px var(--f-mono);letter-spacing:.08em;padding:2px 7px;border-radius:5px;border:1px solid currentColor}
+.badge.free{color:var(--tip)} .badge.paid{color:var(--warn)}
+.phase{margin:64px 0 0;padding:22px 22px 6px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,var(--accent-soft),transparent 60%)}
+.phase .kicker{margin-bottom:4px}
+.doc .phase h2{border-top:0;margin-top:6px;padding-top:0}
+.mod-k{font:600 11px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:34px 0 0}
+.doc .mod-k + h3{margin-top:4px}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:0 0 18px}
+.split div{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.split b{font:700 24px var(--f-disp);color:var(--accent);display:block}
+
+.mobile-bar{display:none}
+.fab{position:fixed;left:16px;bottom:16px;z-index:50;font:600 12px/1 var(--f-mono);letter-spacing:.12em;color:#35E0FF!important;background:rgba(6,10,18,.9)!important;border:1px solid rgba(53,224,255,.45);padding:9px 13px;border-radius:999px;text-decoration:none;box-shadow:0 0 18px rgba(53,224,255,.25);display:none}
+.totop{position:fixed;right:18px;bottom:18px;z-index:50;width:40px;height:40px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:var(--shadow)}
+.totop.show{opacity:1;pointer-events:auto}
+@media (max-width:980px){
+  .shell{grid-template-columns:1fr}
+  aside{position:fixed;inset:0 auto 0 0;width:min(86vw,320px);z-index:70;transform:translateX(-102%);transition:transform .25s ease;box-shadow:var(--shadow)}
+  aside.open{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(5,8,15,.5);z-index:65;display:none}
+  .scrim.open{display:block}
+  .mobile-bar{display:flex;position:sticky;top:0;z-index:40;align-items:center;gap:10px;padding:10px 16px;margin:0 calc(-1 * clamp(16px,5vw,64px));background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .mobile-bar button{border:1px solid var(--line-2);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 10px;font:600 12px var(--f-mono);cursor:pointer}
+  .mobile-bar span{font:700 13px var(--f-disp);text-transform:uppercase;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .fab{display:inline-block}
+  .hero{padding-top:28px}
+  table.assess thead{display:none}
+  .tbl-wrap table.assess{min-width:0}
+  .assess-bar{top:54px}
+  .mobile-bar button{white-space:nowrap}
+  table.assess,table.assess tbody,table.assess tr,table.assess td{display:block;width:100%}
+  table.assess tr{border-bottom:1px solid var(--line);padding:10px 12px}
+  table.assess td{border:0;padding:3px 0}
+  table.assess td[data-l]::before{content:attr(data-l);display:block;font:600 10.5px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+  table.assess td:nth-child(1){font-size:16px}
+}
+@media print{
+  aside,.mobile-bar,.fab,.totop,#progress,.assess-bar button{display:none!important}
+  .shell{display:block} main{padding:0} body{background:#fff;color:#000}
+  .tbl-wrap,.callout{box-shadow:none}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body data-doc="carreira-plano-estudos-arquiteto-ia">
+<div id="progress"></div>
+<div class="scrim"></div>
+<div class="shell">
+<aside aria-label="Sumário">
+  <div class="side-top">
+    <a class="hub" href="../../index.html">◂ RAFAEL<b>//</b>HUB</a>
+    <p class="side-title">Plano de Estudos — Arquiteto de Soluções no Contexto da IA</p>
+    <input class="filter" id="filter" type="search" placeholder="Filtrar seções…  ( / )" aria-label="Filtrar seções">
+  </div>
+  <nav class="toc"><a href="#visao-geral" class="l2">Visão geral</a>
+<a href="#fase-1" class="l2">Fase 1 — Fundações de IA para Arquitetos</a>
+<a href="#f1-m1" class="l3">Como LLMs realmente funcionam</a>
+<a href="#f1-m2" class="l3">Prompt engineering sólido</a>
+<a href="#f1-m3" class="l3">Padrões de integração com LLMs</a>
+<a href="#f1-m4" class="l3">RAG, fine-tuning e quando usar cada um</a>
+<a href="#f1-m5" class="l3">Consolidação e entregável final da Fase 1</a>
+<a href="#fase-2" class="l2">Fase 2 — Construindo Soluções com IA</a>
+<a href="#f2-m1" class="l3">Arquiteturas de RAG</a>
+<a href="#f2-m2" class="l3">AI security &amp; compliance</a>
+<a href="#f2-m3" class="l3">MLOps &amp; LLMOps</a>
+<a href="#fase-3" class="l2">Fase 3 — Agentes e Sistemas Multi-Agente</a>
+<a href="#f3-m1" class="l3">Arquitetura de AI agents</a>
+<a href="#f3-m2" class="l3">Sistemas multi-agente</a>
+<a href="#f3-m3" class="l3">Qualidade e confiabilidade de agentes</a>
+<a href="#fase-4" class="l2">Fase 4 — Liderança de IA em Escala</a>
+<a href="#f4-m1" class="l3">AI strategy &amp; roadmap</a>
+<a href="#f4-m2" class="l3">AI governance &amp; risk</a>
+<a href="#f4-m3" class="l3">Certificações de mercado</a>
+<a href="#referencias" class="l2">Referências e fontes</a>
+<a href="#ref-cursos" class="l3">Plataformas de cursos</a>
+<a href="#ref-docs" class="l3">Documentação técnica oficial</a>
+<a href="#ref-seg" class="l3">Segurança e governança</a>
+<a href="#ref-tools" class="l3">Ferramentas e plataformas</a>
+<a href="#ref-estrat" class="l3">Referências estratégicas</a></nav>
+  <div class="side-foot"><span>convertido de .pdf</span><button class="theme" id="theme" type="button">tema: auto</button></div>
+</aside>
+<main>
+  <div class="mobile-bar"><button id="menu" type="button" aria-label="Abrir sumário">☰ Sumário</button><span>Plano de Estudos — Arquiteto de Soluções no Contexto da IA</span></div>
+  <article class="doc">
+    <header class="hero">
+      <div class="kicker">LIFE.PATH · Plano</div>
+      <h1>Plano de Estudos — Arquiteto de Soluções no Contexto da IA</h1>
+      <p class="sub">Da fundação técnica à liderança estratégica de IA em ambientes regulados</p>
+      <div class="chips"><span class="chip">14 meses</span><span class="chip">4 fases</span><span class="chip">convertido de .pdf</span></div>
+      
+    </header>
+<h2 id="visao-geral">Visão geral</h2>
+<div class="stats"><div><b>14</b><span>meses</span></div><div><b>4</b><span>fases</span></div><div><b>5+</b><span>entregáveis</span></div><div><b>20+</b><span>recursos</span></div></div>
+<p>Este plano foi elaborado para arquitetos de soluções com experiência sólida em TI que desejam construir domínio aplicado em Inteligência Artificial — não como cientistas de dados, mas como profissionais capazes de projetar, governar e liderar soluções baseadas em IA em ambientes corporativos complexos, especialmente no setor financeiro regulado.</p>
+<div class="tbl-wrap"><table><thead><tr><th>Fase</th><th>Período</th><th>Foco principal</th><th>Carga semanal</th></tr></thead><tbody><tr><td><strong>1 — Fundações</strong></td><td>Meses 1–3</td><td>LLMs, prompting, integração de APIs</td><td>6–8h</td></tr><tr><td><strong>2 — Construção</strong></td><td>Meses 4–6</td><td>RAG, segurança, MLOps</td><td>8–10h</td></tr><tr><td><strong>3 — Especialização</strong></td><td>Meses 7–10</td><td>AI Agents, multi-agente, avaliação</td><td>8–10h</td></tr><tr><td><strong>4 — Liderança</strong></td><td>Meses 11–14</td><td>Estratégia, governança, certificações</td><td>6–8h</td></tr></tbody></table></div>
+<div class="callout"><p><strong>Como usar este plano:</strong> cada fase tem semanas estruturadas com conceitos, recursos e exercícios práticos. Os entregáveis de cada fase são artefatos reais — documentos, protótipos ou apresentações — que constroem o seu portfólio de IA. A ordem das fases é progressiva: não pule etapas.</p></div>
+<section class="phase"><div class="kicker">Fase 1 · Meses 1–3 · 12 semanas</div><h2 id="fase-1">Fase 1 — Fundações de IA para Arquitetos</h2><p>O objetivo da Fase 1 é construir os modelos mentais corretos sobre a tecnologia de IA — sem precisar se tornar cientista de dados. Você aprenderá a entender como os modelos de linguagem funcionam, como instruí-los com precisão e como integrá-los a sistemas de produção com resiliência e controle de custos.</p></section>
+<div class="callout"><p><strong>Resumo da fase — Fase 1 — Fundações</strong></p><p>Ao concluir esta fase, você será capaz de: explicar como LLMs funcionam a nível arquitetural; escrever e avaliar prompts de produção com técnicas avançadas (chain-of-thought, structured output, versionamento); projetar a camada de integração com APIs de LLM (resiliência, custo, segurança); decidir entre RAG, fine-tuning e prompt-only com justificativa técnica e de negócio; e produzir um documento de arquitetura completo com ADRs, estimativa de custo e análise de risco regulatório (LGPD/BACEN).</p></div>
+<p class="mod-k">Semanas 1–2 · Módulo 1</p><h3 id="f1-m1">Como LLMs realmente funcionam</h3><p>Construir o modelo mental correto sobre a tecnologia — sem precisar virar cientista de dados. Você entende o suficiente para tomar decisões arquiteturais fundamentadas.</p>
+<h5>Conceitos-chave</h5>
+<div class="cols"><div><h5>Tokens &amp; vocabulário</h5><ul><li>O que é tokenização e por que importa</li><li>Por que 1 token não é igual a 1 palavra</li><li>Impacto de tokens no custo e latência</li><li>Context window: limite e consequências</li></ul></div><div><h5>Embeddings</h5><ul><li>Representação vetorial de significado</li><li>Similaridade semântica na prática</li><li>Por que isso é a base do RAG</li><li>Diferentes modelos de embedding</li></ul></div><div><h5>Parâmetros de geração</h5><ul><li>Temperatura: criatividade vs precisão</li><li>Top-p e top-k: diversidade controlada</li><li>Max tokens e stop sequences</li><li>Quando cada parâmetro importa</li></ul></div></div>
+<h5>Recursos</h5><ul class="res"><li><span class="badge free">GRATUITO</span><span>3Blue1Brown — Neural Networks (YouTube)</span></li><li><span class="badge free">GRATUITO</span><span>Anthropic Glossary — docs.anthropic.com</span></li><li><span class="badge free">GRATUITO</span><span>LLM Visualization — bbycroft.net</span></li><li><span class="badge paid">PAGO</span><span>deeplearning.ai — How Diffusion Models Work (opcional)</span></li></ul>
+<div class="callout tip"><p><strong>Exercício prático · Entregável — Tokenizador</strong></p><p>Acesse platform.openai.com/tokenizer ou o tokenizador da Anthropic. Pegue um trecho de normativo interno (ex: política de compliance) e analise: quantos tokens tem? Qual o custo estimado de processar 1.000 documentos iguais na API da Anthropic vs OpenAI vs Azure OpenAI? Monte uma planilha com a comparação.</p></div>
+<div class="callout"><p><strong>Foco do arquiteto</strong></p><p>Você não precisa entender backpropagation. Precisa entender: context window define o tamanho do &#x27;problema&#x27; que o modelo resolve de uma vez — isso afeta diretamente a arquitetura de RAG, o custo por request e o design de agentes.</p></div>
+<p class="mod-k">Semanas 3–4 · Módulo 2</p><h3 id="f1-m2">Prompt engineering sólido</h3><p>Dominar a arte de instruir modelos com precisão. O prompt é a camada de controle do arquiteto — quem domina isso define a qualidade e o custo de toda a solução.</p>
+<h5>Técnicas progressivas</h5>
+<div class="cols"><div><h5>Nível 1 — Básico</h5><ul><li>Zero-shot vs few-shot prompting</li><li>Estrutura: role + context + task + format</li><li>System prompt vs user prompt</li><li>XML tags para estruturar inputs</li></ul></div><div><h5>Nível 2 — Avançado</h5><ul><li>Chain-of-thought (CoT)</li><li>Self-consistency e voting</li><li>Structured output (JSON mode)</li><li>Negação e anti-padrões</li></ul></div><div><h5>Nível 3 — Avaliação</h5><ul><li>Como medir qualidade de resposta</li><li>LLM-as-a-judge pattern</li><li>Criar test cases representativos</li><li>Versionamento de prompts</li></ul></div></div>
+<h5>Recursos</h5><ul class="res"><li><span class="badge free">GRATUITO</span><span>Anthropic Prompt Engineering Guide — docs.anthropic.com/prompt-engineering</span></li><li><span class="badge free">GRATUITO</span><span>OpenAI Prompt Engineering Guide — platform.openai.com/docs</span></li><li><span class="badge paid">PAGO</span><span>deeplearning.ai — ChatGPT Prompt Engineering for Developers</span></li><li><span class="badge free">GRATUITO</span><span>Anthropic Prompt Library — anthropic.com/prompts</span></li></ul>
+<div class="callout tip"><p><strong>Exercício prático · Entregável — Prompt de classificação</strong></p><p>Construa um prompt que classifique demandas jurídicas em categorias (trabalhista, regulatório, cível, tributário) com nível de urgência. Itere 5 versões, documente o que mudou em cada uma e por quê. Compare zero-shot vs few-shot. Meça a consistência com 20 exemplos.</p></div>
+<div class="callout"><p><strong>Foco do arquiteto</strong></p><p>Prompt não é só UX do modelo — é contrato entre o sistema e o LLM. Em ambientes financeiros regulados, o prompt precisa ser auditável, versionado e testável como qualquer outro componente de software.</p></div>
+<p class="mod-k">Semanas 5–7 · Módulo 3</p><h3 id="f1-m3">Padrões de integração com LLMs</h3><p>Projetar a camada de integração com APIs de LLM como um arquiteto — não como dev. Você define padrões de resiliência, custo, observabilidade e segurança antes de qualquer linha de código.</p>
+<h5>Tópicos</h5>
+<div class="cols"><div><h5>APIs de produção</h5><ul><li>Anthropic, OpenAI, Azure OpenAI, AWS Bedrock</li><li>Streaming vs batch responses</li><li>Rate limits e quotas por tier</li><li>Multimodal: texto, imagem, documento</li></ul></div><div><h5>Resiliência</h5><ul><li>Retry com exponential backoff</li><li>Circuit breaker para APIs de LLM</li><li>Fallback entre modelos</li><li>Timeout e SLA de resposta</li></ul></div><div><h5>Custo &amp; observabilidade</h5><ul><li>Custo por token: input vs output</li><li>Caching de prompts (Anthropic, OpenAI)</li><li>Logging estruturado de chamadas</li><li>Dashboards de uso e custo</li></ul></div></div>
+<h5>Recursos</h5><ul class="res"><li><span class="badge free">GRATUITO</span><span>Anthropic API Reference — docs.anthropic.com/api-reference</span></li><li><span class="badge free">GRATUITO</span><span>Azure OpenAI Architecture Patterns — Microsoft Learn</span></li><li><span class="badge free">GRATUITO</span><span>AWS Bedrock Getting Started — docs.aws.amazon.com/bedrock</span></li><li><span class="badge paid">PAGO</span><span>deeplearning.ai — Building Systems with the ChatGPT API</span></li></ul>
+<div class="callout tip"><p><strong>Exercício prático · Entregável — Diagrama de arquitetura real</strong></p><p>Projete a arquitetura de um serviço de resposta automática de perguntas frequentes para a área de Auditoria. Defina: qual API/modelo usar e por quê, como tratar falhas, onde fica o logging, como calcular o custo mensal para 10.000 chamadas/dia. Documente as decisões como ADR (Architecture Decision Record).</p></div>
+<div class="callout"><p><strong>Foco do arquiteto</strong></p><p>No ambiente financeiro, toda chamada para API externa precisa passar pelo crivo de segurança da informação: dados sensíveis não saem sem mascaramento, todo request é logado, e o contrato com o fornecedor precisa ter cláusula de dados (DPA). Isso é decisão de arquitetura, não detalhe de implementação.</p></div>
+<p class="mod-k">Semanas 8–10 · Módulo 4</p><h3 id="f1-m4">RAG, fine-tuning e quando usar cada um</h3><p>Tomar decisões corretas sobre como especializar um modelo. Essa é uma das perguntas mais frequentes que um arquiteto de IA vai responder — e a resposta errada custa caro.</p>
+<div class="tbl-wrap"><table><thead><tr><th>Abordagem</th><th>Quando usar</th><th>Custo</th><th>Atualização</th><th>Risco</th><th>Ideal para</th></tr></thead><tbody><tr><td><strong>RAG</strong></td><td>Dados dinâmicos, auditáveis</td><td>Baixo</td><td>Imediata</td><td>Qualidade da recuperação</td><td>Normativos, FAQ, documentos</td></tr><tr><td><strong>Fine-tuning</strong></td><td>Estilo/formato específico</td><td>Alto</td><td>Lenta (novo ciclo)</td><td>Overfitting, custo oculto</td><td>Classificação, extração</td></tr><tr><td><strong>Prompt-only</strong></td><td>Tarefas gerais, prototipagem</td><td>Mínimo</td><td>Instantânea</td><td>Context window limitado</td><td>80% dos casos de uso</td></tr></tbody></table></div>
+<h5>Recursos</h5><ul class="res"><li><span class="badge free">GRATUITO</span><span>Anthropic — When to Fine-tune (docs.anthropic.com)</span></li><li><span class="badge free">GRATUITO</span><span>OpenAI Fine-tuning Guide — platform.openai.com/docs/guides/fine-tuning</span></li><li><span class="badge paid">PAGO</span><span>deeplearning.ai — Building and Evaluating Advanced RAG</span></li><li><span class="badge free">GRATUITO</span><span>Pinecone Learning Center — pinecone.io/learn</span></li></ul>
+<div class="callout tip"><p><strong>Exercício prático · Entregável — Decision framework</strong></p><p>Para cada caso, decida qual abordagem usar e justifique: (1) Responder perguntas sobre normativos do BACEN que mudam a cada trimestre. (2) Extrair campos estruturados de contratos jurídicos. (3) Gerar rascunhos de pareceres de risco no estilo da área de Riscos. Monte uma matriz de decisão com critérios: custo, velocidade de atualização, auditabilidade e risco regulatório.</p></div>
+<p class="mod-k">Semanas 11–12 · Módulo 5</p><h3 id="f1-m5">Consolidação e entregável final da Fase 1</h3><p>Transformar o aprendizado das 10 semanas anteriores em um artefato concreto — um design de solução completo para apresentar, publicar e usar como portfólio.</p>
+<div class="split"><div><b>40%</b>Construção do entregável</div><div><b>30%</b>Revisão dos módulos</div><div><b>20%</b>Feedback e iteração</div><div><b>10%</b>Documentação e publicação</div></div>
+<div class="callout tip"><p><strong>Entregável final da Fase 1 — Design completo de solução LLM</strong></p><p>Produza um documento de arquitetura para uma solução de IA real. Deve conter: (1) Problema de negócio e hipótese de solução. (2) Escolha de modelo com justificativa (RAG vs prompt-only vs fine-tune). (3) Diagrama de arquitetura com todos os componentes. (4) Estimativa de custo mensal (tokens, hospedagem, infra). (5) Análise de risco: LGPD, BACEN, segurança da informação. (6) Métricas de sucesso e como medir. (7) ADRs das principais decisões.</p></div>
+<section class="phase"><div class="kicker">Fase 2 · Meses 4–6 · 12 semanas</div><h2 id="fase-2">Fase 2 — Construindo Soluções com IA</h2><p>A Fase 2 é onde você sai do conceito e entra na construção. Você aprende a projetar sistemas reais com IA no centro — incluindo pipelines de dados, segurança em profundidade e observabilidade operacional. O foco é em soluções que funcionam em produção, em ambientes regulados.</p></section>
+<div class="callout"><p><strong>Resumo da fase — Fase 2 — Construção</strong></p><p>Ao concluir esta fase, você será capaz de: projetar arquiteturas de RAG de produção com vector databases, hybrid search e reranking; implementar guardrails de segurança para dados sensíveis (PII redaction, prompt injection defense); aplicar o framework de governança de IA alinhado a LGPD, BACEN e regulação setorial; monitorar soluções de IA com observabilidade (LangSmith, Arize) e controle de custo (FinOps de IA); e entregar um protótipo funcional de RAG com avaliação de qualidade documentada.</p></div>
+<p class="mod-k">Módulo 1</p><h3 id="f2-m1">Arquiteturas de RAG</h3>
+<div class="cols"><div><h5>Vector databases</h5><ul><li>Pinecone, Weaviate, pgvector, Chroma</li><li>Indexação e busca por similaridade</li><li>Escalabilidade e custo por vetor</li><li>Managed vs self-hosted</li></ul></div><div><h5>Estratégias de chunking</h5><ul><li>Fixed-size vs semantic chunking</li><li>Overlap e sliding window</li><li>Metadata enrichment</li><li>Parent-child document strategy</li></ul></div><div><h5>Retrieval avançado</h5><ul><li>Hybrid search (semântico + BM25)</li><li>Reranking (Cohere, cross-encoders)</li><li>Query expansion e HyDE</li><li>Avaliação: precision, recall, RAGAS</li></ul></div></div>
+<h5>Recursos</h5><ul class="res"><li><span class="badge free">GRATUITO</span><span>LangChain Academy — academy.langchain.com</span></li><li><span class="badge free">GRATUITO</span><span>Pinecone Learning Center — pinecone.io/learn</span></li><li><span class="badge paid">PAGO</span><span>deeplearning.ai — Building and Evaluating Advanced RAG</span></li><li><span class="badge free">GRATUITO</span><span>RAGAS Documentation — docs.ragas.io</span></li></ul>
+<p class="mod-k">Módulo 2</p><h3 id="f2-m2">AI security &amp; compliance</h3>
+<div class="cols"><div><h5>Ataques e defesas</h5><ul><li>Prompt injection: direto e indireto</li><li>Jailbreak patterns e mitigações</li><li>Input/output guardrails</li><li>Constitutional AI principles</li></ul></div><div><h5>Privacidade e dados</h5><ul><li>PII detection e redaction</li><li>Anonimização antes do LLM</li><li>Data residency e soberania</li><li>LGPD aplicada a sistemas de IA</li></ul></div><div><h5>Governança regulatória</h5><ul><li>Circular BACEN e uso de IA</li><li>Auditabilidade de decisões</li><li>Explicabilidade de modelos</li><li>Documentação para reguladores</li></ul></div></div>
+<h5>Recursos</h5><ul class="res"><li><span class="badge free">GRATUITO</span><span>OWASP LLM Top 10 — owasp.org/www-project-top-10-for-large-language-model-applications</span></li><li><span class="badge free">GRATUITO</span><span>NIST AI Risk Management Framework (AI RMF 1.0) — nist.gov</span></li><li><span class="badge free">GRATUITO</span><span>Anthropic — Responsible AI — anthropic.com/responsible-development</span></li><li><span class="badge free">GRATUITO</span><span>Microsoft AI Security — learn.microsoft.com/ai-security</span></li></ul>
+<p class="mod-k">Módulo 3</p><h3 id="f2-m3">MLOps &amp; LLMOps</h3>
+<div class="cols"><div><h5>Operação de modelos</h5><ul><li>Versionamento de modelos e prompts</li><li>Monitoramento de drift e qualidade</li><li>Rollback e canary deployment</li><li>SLAs com LLMs na cadeia crítica</li></ul></div><div><h5>Observabilidade</h5><ul><li>Tracing com LangSmith e Arize</li><li>Métricas: latência, custo, qualidade</li><li>Alertas e anomaly detection</li><li>Dashboards para gestão</li></ul></div><div><h5>FinOps de IA</h5><ul><li>Custo por sessão e por usuário</li><li>Caching inteligente de respostas</li><li>Modelo de chargeback por área</li><li>Previsão de gastos com tokens</li></ul></div></div>
+<h5>Recursos</h5><ul class="res"><li><span class="badge free">GRATUITO</span><span>LangSmith — smith.langchain.com</span></li><li><span class="badge paid">PAGO</span><span>Arize AI — arize.com/docs</span></li><li><span class="badge free">GRATUITO</span><span>AWS Bedrock Model Evaluation — docs.aws.amazon.com/bedrock</span></li><li><span class="badge paid">PAGO</span><span>Azure AI Studio — ai.azure.com</span></li></ul>
+<div class="callout tip"><p><strong>Entregável da Fase 2 — Protótipo RAG</strong></p><p>Protótipo funcional de RAG sobre base documental (ex: normativos internos) com: pipeline de ingestão, vector database configurado, API de consulta, avaliação de qualidade (RAGAS ou similar), custo estimado mensal e análise de risco LGPD documentada.</p></div>
+<section class="phase"><div class="kicker">Fase 3 · Meses 7–10 · 16 semanas</div><h2 id="fase-3">Fase 3 — Agentes e Sistemas Multi-Agente</h2><p>A Fase 3 é o diferencial do arquiteto sênior de IA. Você aprende a projetar sistemas autônomos com orquestração de agentes, uso de ferramentas externas e tolerância a falhas — indo muito além do chatbot simples ou do RAG isolado.</p></section>
+<div class="callout"><p><strong>Resumo da fase — Fase 3 — Especialização em agentes</strong></p><p>Ao concluir esta fase, você será capaz de: projetar arquiteturas de AI agents com padrões ReAct, Plan-and-Execute e human-in-the-loop; orquestrar sistemas multi-agente com LangGraph e CrewAI; integrar ferramentas externas via function calling e Model Context Protocol (MCP); avaliar e monitorar agentes em produção com tracing, benchmarks e SLAs; e entregar um agente funcional aplicado a um caso de uso real, com diagrama de arquitetura publicado.</p></div>
+<p class="mod-k">Módulo 1</p><h3 id="f3-m1">Arquitetura de AI agents</h3>
+<div class="cols"><div><h5>Padrões de agentes</h5><ul><li>ReAct: Reason + Act</li><li>Plan-and-Execute</li><li>Reflexion e self-critique</li><li>Human-in-the-loop patterns</li></ul></div><div><h5>Tool use &amp; function calling</h5><ul><li>Definição de ferramentas (JSON Schema)</li><li>Tool selection e routing</li><li>Execução paralela de ferramentas</li><li>Tratamento de erros e retries</li></ul></div><div><h5>Frameworks</h5><ul><li>LangGraph — grafos de estado</li><li>CrewAI — times de agentes</li><li>AutoGen — conversas multi-agente</li><li>Quando usar cada framework</li></ul></div></div>
+<h5>Recursos</h5><ul class="res"><li><span class="badge paid">PAGO</span><span>deeplearning.ai — AI Agents in LangGraph</span></li><li><span class="badge free">GRATUITO</span><span>CrewAI Documentation — docs.crewai.com</span></li><li><span class="badge free">GRATUITO</span><span>Anthropic — Building Effective Agents — anthropic.com/research/building-effective-agents</span></li><li><span class="badge free">GRATUITO</span><span>LangGraph Documentation — langchain-ai.github.io/langgraph</span></li></ul>
+<p class="mod-k">Módulo 2</p><h3 id="f3-m2">Sistemas multi-agente</h3>
+<div class="cols"><div><h5>Orquestração</h5><ul><li>Orquestrador vs subagentes</li><li>Comunicação entre agentes (MCP)</li><li>Paralelismo e coordenação</li><li>Memória compartilhada</li></ul></div><div><h5>Resiliência</h5><ul><li>Tratamento de loops infinitos</li><li>Timeout e circuit breaker</li><li>Fallback entre agentes</li><li>Checkpoint e recuperação</li></ul></div><div><h5>Model Context Protocol</h5><ul><li>Arquitetura MCP (Anthropic)</li><li>MCP servers disponíveis</li><li>Criando MCP servers custom</li><li>Segurança em ambientes MCP</li></ul></div></div>
+<h5>Recursos</h5><ul class="res"><li><span class="badge free">GRATUITO</span><span>Model Context Protocol — modelcontextprotocol.io</span></li><li><span class="badge free">GRATUITO</span><span>Microsoft AutoGen — microsoft.github.io/autogen</span></li><li><span class="badge paid">PAGO</span><span>deeplearning.ai — Multi AI Agent Systems with CrewAI</span></li><li><span class="badge free">GRATUITO</span><span>LangGraph Multi-Agent Guide — langchain-ai.github.io/langgraph/tutorials</span></li></ul>
+<p class="mod-k">Módulo 3</p><h3 id="f3-m3">Qualidade e confiabilidade de agentes</h3>
+<div class="cols"><div><h5>Avaliação (evals)</h5><ul><li>Evals automáticos e humanos</li><li>Benchmarking de trajetórias</li><li>Métricas: task completion, accuracy</li><li>LLM-as-a-judge para agentes</li></ul></div><div><h5>Observabilidade</h5><ul><li>Trace completo de execução</li><li>Replay de falhas</li><li>Visualização de grafos de agentes</li><li>Monitoramento em produção</li></ul></div><div><h5>SLAs com agentes</h5><ul><li>Definindo SLOs para sistemas agênticos</li><li>Latência fim-a-fim</li><li>Taxa de sucesso e fallback</li><li>Custo por tarefa completada</li></ul></div></div>
+<h5>Recursos</h5><ul class="res"><li><span class="badge free">GRATUITO</span><span>LangSmith Tracing — docs.smith.langchain.com</span></li><li><span class="badge paid">PAGO</span><span>deeplearning.ai — Evaluating and Debugging Generative AI</span></li><li><span class="badge paid">PAGO</span><span>Braintrust — braintrust.dev</span></li><li><span class="badge free">GRATUITO</span><span>AgentBench — github.com/THUDM/AgentBench</span></li></ul>
+<div class="callout tip"><p><strong>Entregável da Fase 3 — Agente funcional em produção</strong></p><p>Agente funcional aplicado a um caso real: ex. agente de triagem de demandas jurídicas ou agente de monitoramento de compliance. Deve incluir: diagrama de arquitetura multi-agente, definição de ferramentas, mecanismo de avaliação, trace de execução e análise de custo por tarefa. Publicar o diagrama de arquitetura no LinkedIn com análise das decisões tomadas.</p></div>
+<section class="phase"><div class="kicker">Fase 4 · Meses 11–14 · 16 semanas</div><h2 id="fase-4">Fase 4 — Liderança de IA em Escala</h2><p>A Fase 4 transforma domínio técnico em influência organizacional. Aqui você desenvolve a capacidade de definir estratégia de IA, estruturar modelos de governança, liderar iniciativas de IA em escala e conquistar as certificações que validam esse nível de maturidade no mercado.</p></section>
+<div class="callout"><p><strong>Resumo da fase — Fase 4 — Liderança estratégica</strong></p><p>Ao concluir esta fase, você será capaz de: desenvolver AI Roadmaps de 18 meses alinhados a objetivos de negócio; estruturar modelos de governança de IA com comitês, processos de aprovação e gestão de risco; aplicar frameworks regulatórios internacionais (EU AI Act, NIST AI RMF) ao contexto financeiro brasileiro; construir business cases de IA apresentáveis a C-level e conselhos; e obter certificações cloud de ML/IA que validam o nível de senioridade no mercado.</p></div>
+<p class="mod-k">Módulo 1</p><h3 id="f4-m1">AI strategy &amp; roadmap</h3>
+<div class="cols"><div><h5>Modelos de maturidade</h5><ul><li>AI Maturity Model (Gartner, CMU)</li><li>Assessment de capacidades atuais</li><li>Roadmap por nível de maturidade</li><li>Quick wins vs investimentos estratégicos</li></ul></div><div><h5>Decisões estratégicas</h5><ul><li>Build vs buy vs fine-tune</li><li>Make vs partner vs acquire</li><li>Plataforma de IA interna vs APIs</li><li>Modelo operacional de IA (CoE vs embedding)</li></ul></div><div><h5>Business case</h5><ul><li>TCO de soluções de IA</li><li>ROI e métricas de impacto</li><li>Apresentação a C-level e conselho</li><li>Gestão de expectativas e riscos</li></ul></div></div>
+<h5>Recursos</h5><ul class="res"><li><span class="badge paid">PAGO</span><span>MIT Sloan — Artificial Intelligence: Implications for Business Strategy</span></li><li><span class="badge free">GRATUITO</span><span>McKinsey — The State of AI (relatório anual)</span></li><li><span class="badge paid">PAGO</span><span>Gartner AI Maturity Model — gartner.com</span></li><li><span class="badge free">GRATUITO</span><span>BCG AI Adoption Framework — bcg.com/capabilities/artificial-intelligence</span></li></ul>
+<p class="mod-k">Módulo 2</p><h3 id="f4-m2">AI governance &amp; risk</h3>
+<div class="cols"><div><h5>Frameworks internacionais</h5><ul><li>EU AI Act — categorias de risco</li><li>NIST AI RMF — Govern, Map, Measure, Manage</li><li>ISO/IEC 42001 — AI Management System</li><li>OECD AI Principles</li></ul></div><div><h5>Governança corporativa</h5><ul><li>Estrutura de comitê de AI</li><li>Processos de aprovação de modelos</li><li>Model cards e datasheets</li><li>AI incident response plan</li></ul></div><div><h5>Risco em finanças</h5><ul><li>Risco de modelo (BCBS 239)</li><li>Viés algorítmico e fair lending</li><li>Explicabilidade para reguladores</li><li>Stress testing de sistemas de IA</li></ul></div></div>
+<h5>Recursos</h5><ul class="res"><li><span class="badge free">GRATUITO</span><span>NIST AI RMF Playbook — airc.nist.gov</span></li><li><span class="badge free">GRATUITO</span><span>ISO/IEC 42001 Overview — iso.org/standard/81230.html</span></li><li><span class="badge free">GRATUITO</span><span>EU AI Act — artificialintelligenceact.eu</span></li><li><span class="badge free">GRATUITO</span><span>BCBS 239 — Principles for effective risk data aggregation</span></li></ul>
+<p class="mod-k">Módulo 3</p><h3 id="f4-m3">Certificações de mercado</h3>
+<div class="tbl-wrap"><table><thead><tr><th>Certificação</th><th>Provedor</th><th>Foco</th><th>Nível</th><th>Custo aprox.</th></tr></thead><tbody><tr><td><strong>AWS Certified Machine Learning – Specialty</strong></td><td>Amazon</td><td>ML em produção na AWS</td><td>Especialista</td><td>USD 300</td></tr><tr><td><strong>Azure AI Engineer Associate (AI-102)</strong></td><td>Microsoft</td><td>Soluções de IA no Azure</td><td>Associado</td><td>USD 165</td></tr><tr><td><strong>Google Cloud Professional ML Engineer</strong></td><td>Google</td><td>MLOps e arquitetura de ML</td><td>Especialista</td><td>USD 200</td></tr><tr><td><strong>Databricks Certified ML Professional</strong></td><td>Databricks</td><td>ML em larga escala</td><td>Profissional</td><td>USD 200</td></tr></tbody></table></div>
+<h5>Recursos</h5><ul class="res"><li><span class="badge free">GRATUITO</span><span>AWS Skill Builder — Machine Learning Path — skillbuilder.aws</span></li><li><span class="badge free">GRATUITO</span><span>Microsoft Learn — AI-102 Path — learn.microsoft.com</span></li><li><span class="badge free">GRATUITO</span><span>Google Cloud Skills Boost — cloudskillsboost.google</span></li><li><span class="badge paid">PAGO</span><span>A Cloud Guru / Pluralsight — ML specialty prep</span></li></ul>
+<div class="callout tip"><p><strong>Entregável da Fase 4 — AI Roadmap executivo</strong></p><p>AI Roadmap de 18 meses para uma área de negócio real, contendo: assessment de maturidade atual, iniciativas priorizadas por impacto e viabilidade, modelo de governança proposto, análise de risco regulatório (BACEN/LGPD/EU AI Act) e business case com TCO e ROI projetado. Apresentável a C-level ou conselho de administração.</p></div>
+<h2 id="referencias">Referências e fontes</h2>
+<p>Todos os recursos abaixo foram referenciados ao longo do plano. Recursos marcados como gratuitos são acessíveis sem custo no momento da elaboração deste documento.</p>
+<h3 id="ref-cursos">Plataformas de cursos</h3><ul class="res"><li><span class="badge paid">PAGO</span><span>deeplearning.ai — Cursos de IA aplicada (ChatGPT, RAG, Agents, LangGraph)</span></li><li><span class="badge free">GRATUITO</span><span>fast.ai — Practical Deep Learning for Coders</span></li><li><span class="badge paid">PAGO</span><span>MIT Sloan Executive Education — AI Strategy</span></li><li><span class="badge paid">PAGO</span><span>Coursera — Machine Learning Specialization (Andrew Ng)</span></li></ul>
+<h3 id="ref-docs">Documentação técnica oficial</h3><ul class="res"><li><span class="badge free">GRATUITO</span><span>Anthropic API &amp; Prompt Engineering — docs.anthropic.com</span></li><li><span class="badge free">GRATUITO</span><span>OpenAI Platform Documentation — platform.openai.com/docs</span></li><li><span class="badge free">GRATUITO</span><span>AWS Bedrock Developer Guide — docs.aws.amazon.com/bedrock</span></li><li><span class="badge free">GRATUITO</span><span>Azure AI Services — learn.microsoft.com/azure/ai-services</span></li><li><span class="badge free">GRATUITO</span><span>Google Cloud AI — cloud.google.com/ai</span></li><li><span class="badge free">GRATUITO</span><span>LangChain Documentation — python.langchain.com</span></li><li><span class="badge free">GRATUITO</span><span>LangGraph Documentation — langchain-ai.github.io/langgraph</span></li><li><span class="badge free">GRATUITO</span><span>CrewAI Documentation — docs.crewai.com</span></li><li><span class="badge free">GRATUITO</span><span>Model Context Protocol — modelcontextprotocol.io</span></li></ul>
+<h3 id="ref-seg">Segurança e governança</h3><ul class="res"><li><span class="badge free">GRATUITO</span><span>OWASP LLM Top 10 — owasp.org/www-project-top-10-for-large-language-model-applications</span></li><li><span class="badge free">GRATUITO</span><span>NIST AI Risk Management Framework — airc.nist.gov</span></li><li><span class="badge free">GRATUITO</span><span>EU AI Act — artificialintelligenceact.eu</span></li><li><span class="badge free">GRATUITO</span><span>ISO/IEC 42001 AI Management Systems — iso.org</span></li><li><span class="badge free">GRATUITO</span><span>Anthropic Responsible Scaling Policy — anthropic.com</span></li></ul>
+<h3 id="ref-tools">Ferramentas e plataformas</h3><ul class="res"><li><span class="badge free">GRATUITO</span><span>LangSmith — Observabilidade de LLMs — smith.langchain.com</span></li><li><span class="badge paid">PAGO</span><span>Arize AI — ML Observability — arize.com</span></li><li><span class="badge paid">PAGO</span><span>Pinecone — Vector Database — pinecone.io</span></li><li><span class="badge free">GRATUITO</span><span>Weaviate — Open-source Vector DB — weaviate.io</span></li><li><span class="badge free">GRATUITO</span><span>RAGAS — RAG Evaluation Framework — docs.ragas.io</span></li><li><span class="badge free">GRATUITO</span><span>LLM Visualization — bbycroft.net/llm</span></li></ul>
+<h3 id="ref-estrat">Referências estratégicas</h3><ul class="res"><li><span class="badge free">GRATUITO</span><span>McKinsey — The State of AI (relatório anual) — mckinsey.com/capabilities/quantumblack/our-insights</span></li><li><span class="badge paid">PAGO</span><span>Gartner — AI Hype Cycle e Magic Quadrant — gartner.com</span></li><li><span class="badge free">GRATUITO</span><span>BCG — AI Adoption Framework — bcg.com/capabilities/artificial-intelligence</span></li><li><span class="badge free">GRATUITO</span><span>Stanford HAI — AI Index Report (anual) — aiindex.stanford.edu</span></li></ul>
+  </article>
+</main>
+</div>
+<a class="fab" href="../../index.html" aria-label="Voltar ao hub">◂ HUB</a>
+<button class="totop" type="button" aria-label="Voltar ao topo">▲</button>
+<script>
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  /* tema */
+  var TK='hub-theme', modes=['auto','light','dark'];
+  function applyTheme(m){ if(m==='auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme',m); var b=$('#theme'); if(b) b.textContent='tema: '+m; }
+  var tm='auto'; try{tm=localStorage.getItem(TK)||'auto'}catch(e){}
+  applyTheme(tm);
+  $('#theme').addEventListener('click',function(){ tm=modes[(modes.indexOf(tm)+1)%3]; try{localStorage.setItem(TK,tm)}catch(e){} applyTheme(tm); });
+  /* menu mobile */
+  var side=$('aside'), scrim=$('.scrim');
+  function menu(o){ side.classList.toggle('open',o); scrim.classList.toggle('open',o); }
+  $('#menu').addEventListener('click',function(){menu(true)}); scrim.addEventListener('click',function(){menu(false)});
+  $$('nav.toc a').forEach(function(a){a.addEventListener('click',function(){menu(false)})});
+  /* filtro do sumário */
+  $('#filter').addEventListener('input',function(e){ var q=e.target.value.trim().toLowerCase(); $$('nav.toc a').forEach(function(a){ a.hidden = q && a.textContent.toLowerCase().indexOf(q)<0; }); });
+  document.addEventListener('keydown',function(e){ if(e.key==='/' && document.activeElement.tagName!=='INPUT'){ e.preventDefault(); if(innerWidth<=980) menu(true); $('#filter').focus(); } });
+  /* progresso + topo */
+  var bar=$('#progress'), top=$('.totop');
+  function onScroll(){ var h=document.documentElement; var p=h.scrollTop/(h.scrollHeight-h.clientHeight||1); bar.style.width=(p*100)+'%'; top.classList.toggle('show',h.scrollTop>900); }
+  addEventListener('scroll',onScroll,{passive:true}); onScroll();
+  top.addEventListener('click',function(){scrollTo({top:0,behavior:'smooth'})});
+  /* scroll spy */
+  var links=$$('nav.toc a'), map={}; links.forEach(function(a){ map[a.getAttribute('href').slice(1)]=a; });
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){ es.forEach(function(en){ if(en.isIntersecting){ links.forEach(function(l){l.classList.remove('on')}); var a=map[en.target.id]; if(a){ a.classList.add('on'); a.scrollIntoView({block:'nearest'}); } } }); },{rootMargin:'-10% 0px -80% 0px'});
+    Object.keys(map).forEach(function(id){ var el=document.getElementById(id); if(el) io.observe(el); });
+  }
+  /* tabelas largas */
+  $$('.tbl-wrap table').forEach(function(t){ var n=t.rows[0]?t.rows[0].cells.length:0; if(n>=5) t.classList.add('wide'); });
+  /* autoavaliação */
+  var tables=$$('table.assess'); if(!tables.length) return;
+  var KEY='hub-assess:'+document.body.dataset.doc, st={};
+  try{ st=JSON.parse(localStorage.getItem(KEY)||'{}') }catch(e){}
+  var OPTS=[['d','Domino','k-d'],['r','Reviso','k-r'],['e','Estudo','k-e']];
+  var cells=[];
+  tables.forEach(function(t,ti){
+    var heads=$$('thead th',t).map(function(th){return th.textContent.trim()});
+    $$('tbody tr',t).forEach(function(tr,ri){
+      $$('td',tr).forEach(function(td,ci){ if(heads[ci]) td.setAttribute('data-l',heads[ci]); });
+      var td=$('td.mark',tr); if(!td) return;
+      var id=ti+'-'+ri; cells.push(id);
+      td.innerHTML='<span class="mk" role="group" aria-label="Autoavaliação">'+OPTS.map(function(o){return '<button type="button" class="'+o[2]+'" data-id="'+id+'" data-v="'+o[0]+'" aria-pressed="'+(st[id]===o[0])+'">'+o[1]+'</button>'}).join('')+'</span>';
+    });
+  });
+  var barEl=document.createElement('div'); barEl.className='assess-bar';
+  var anchor=$('.doc h2'); anchor.parentNode.insertBefore(barEl,anchor);
+  function render(){
+    var c={d:0,r:0,e:0}; cells.forEach(function(id){ if(st[id]) c[st[id]]++; });
+    var n=cells.length, done=c.d+c.r+c.e, w=function(v){return (v/n*100).toFixed(2)+'%'};
+    barEl.innerHTML='<span>Autoavaliação · '+done+'/'+n+'</span><span class="meter"><i style="width:'+w(c.d)+';background:var(--tip)"></i><i style="width:'+w(c.r)+';background:var(--warn)"></i><i style="width:'+w(c.e)+';background:#E5484D"></i></span><span class="k-d"><b>'+c.d+'</b> domino</span><span class="k-r"><b>'+c.r+'</b> reviso</span><span class="k-e"><b>'+c.e+'</b> estudo</span><button class="theme" type="button" id="aclear">limpar</button>';
+  }
+  render();
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('.mk button');
+    if(b){ var id=b.dataset.id, v=b.dataset.v; st[id]=st[id]===v?undefined:v; if(!st[id]) delete st[id];
+      try{localStorage.setItem(KEY,JSON.stringify(st))}catch(_){}
+      $$('button[data-id="'+id+'"]').forEach(function(x){x.setAttribute('aria-pressed',String(x.dataset.v===st[id]))}); render(); return; }
+    if(e.target.id==='aclear'){ if(e.target.dataset.confirm){ st={}; try{localStorage.removeItem(KEY)}catch(_){} $$('.mk button').forEach(function(x){x.setAttribute('aria-pressed','false')}); render(); } else { e.target.dataset.confirm='1'; e.target.textContent='confirmar?'; } }
+  });
+})();
+</script>
+</body>
+</html>
