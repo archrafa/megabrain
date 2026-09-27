@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLM: Informação em Parâmetros</title>
+<meta name="description" content="Como um fato como 'o céu é azul' vira pesos numéricos dentro de um LLM — do embedding ao softmax.">
+<style>
+:root{
+  --bg:#f7f6f2; --surface:#ffffff; --surface-2:#f0eee8; --text:#1d1d1b; --muted:#5f5d57;
+  --border:#e2dfd6; --accent:#2f5bd3; --accent-soft:#e6ecfb; --pos:#1f8a5b; --neg:#c2410c;
+  --code-bg:#f0eee8;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141414; --surface:#1c1c1c; --surface-2:#242424; --text:#ecebe6; --muted:#a3a19a;
+    --border:#2e2e2e; --accent:#7b9cff; --accent-soft:#1f2a47; --pos:#4cc58f; --neg:#f08a5d;
+    --code-bg:#262626;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141414; --surface:#1c1c1c; --surface-2:#242424; --text:#ecebe6; --muted:#a3a19a;
+  --border:#2e2e2e; --accent:#7b9cff; --accent-soft:#1f2a47; --pos:#4cc58f; --neg:#f08a5d;
+  --code-bg:#262626;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:17px/1.65 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:32px 16px 80px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;font-size:13px;color:var(--muted)}
+.topbar a{color:var(--muted);text-decoration:none;letter-spacing:.06em;font-weight:600}
+.topbar a:hover{color:var(--accent)}
+.theme-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:999px;padding:4px 12px;font:inherit;cursor:pointer}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 8px}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.15;margin:0 0 20px;letter-spacing:-.02em}
+h2{font-size:24px;line-height:1.25;margin:56px 0 16px;letter-spacing:-.01em;padding-top:24px;border-top:1px solid var(--border)}
+h2 .n{color:var(--accent);margin-right:8px}
+h3{font-size:18px;margin:32px 0 8px}
+h3 .n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:13px;margin-right:8px;vertical-align:2px}
+p{margin:0 0 16px}
+.lead{font-size:19px;color:var(--muted)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 6px;border-radius:4px}
+.m{font-family:"Cambria Math","Times New Roman",serif;font-style:italic;font-size:1.05em}
+.callout{background:var(--accent-soft);border-left:3px solid var(--accent);padding:14px 18px;border-radius:0 8px 8px 0;margin:20px 0}
+.callout p:last-child{margin:0}
+
+/* fluxo */
+.flow{list-style:none;padding:0;margin:24px 0;counter-reset:s}
+.flow li{position:relative;padding:0 0 24px 52px;counter-increment:s}
+.flow li::before{content:counter(s);position:absolute;left:0;top:0;width:34px;height:34px;border-radius:50%;
+  background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;font-size:15px}
+.flow li::after{content:"";position:absolute;left:16px;top:38px;bottom:4px;width:2px;background:var(--border)}
+.flow li:last-child::after{display:none}
+.flow strong.t{display:block;font-size:17px;margin-bottom:4px}
+
+/* tabela de pesos */
+.table-wrap{overflow-x:auto;margin:20px 0;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;background:var(--surface-2)}
+tr:last-child td{border-bottom:0}
+.w{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;white-space:nowrap}
+.w.pos{color:var(--pos)} .w.neg{color:var(--neg)}
+.bar{position:relative;height:8px;width:120px;background:var(--surface-2);border-radius:4px}
+.bar::before{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--muted);opacity:.5}
+.bar span{position:absolute;top:0;bottom:0;border-radius:4px}
+.bar .p{left:50%;background:var(--pos)} .bar .q{right:50%;background:var(--neg)}
+
+/* camadas */
+.layer{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:4px 20px 12px;margin:16px 0}
+.layer h3{margin-top:16px}
+.layer ul{padding-left:20px;margin:8px 0}
+.layer li{margin:6px 0}
+.layer ul ul{margin:6px 0}
+
+/* softmax */
+.probs{margin:14px 0 4px;display:grid;gap:10px}
+.prob{display:grid;grid-template-columns:72px 1fr 64px;align-items:center;gap:12px;font-size:15px}
+.prob .track{height:10px;background:var(--surface-2);border-radius:5px;overflow:hidden}
+.prob .fill{height:100%;background:var(--accent);border-radius:5px;min-width:2px}
+.prob .v{font-family:ui-monospace,Menlo,Consolas,monospace;text-align:right;color:var(--muted)}
+
+footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--border);font-size:13px;color:var(--muted)}
+@media (max-width:520px){
+  body{font-size:16px}
+  .bar{width:70px}
+  th,td{padding:10px}
+  .prob{grid-template-columns:60px 1fr 56px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <a href="index.html">← RAFAEL//HUB</a>
+    <button class="theme-btn" id="themeBtn" type="button">tema</button>
+  </div>
+
+  <p class="eyebrow">IA · Fundamentos de LLM</p>
+  <h1>Como a informação é convertida em parâmetros em um LLM</h1>
+
+  <p class="lead">No aprendizado de Large Language Models (LLMs), uma informação (como <em>"o céu é azul"</em>) não é armazenada como em um banco de dados relacional, onde existe uma chave e um valor guardados diretamente em uma "gaveta" específica.</p>
+
+  <div class="callout">
+    <p>Em vez de salvar frases prontas, o modelo ajusta <strong>bilhões de números (pesos e vieses)</strong> espalhados por suas camadas matematicamente interconectadas durante o processo de <strong>pré-treinamento</strong>.</p>
+  </div>
+
+  <h2><span class="n">1.</span>Fluxo de absorção do fato ("o céu é azul")</h2>
+
+  <ol class="flow">
+    <li>
+      <strong class="t">Tokenização e vetorização (embeddings)</strong>
+      A frase <em>"o céu é azul"</em> é dividida em tokens e convertida em vetores matemáticos (listas de números) em um espaço multidimensional. Nesses vetores, palavras como "céu", "azul", "nuvem" e "atmosfera" situam-se próximas no espaço vetorial semântico.
+    </li>
+    <li>
+      <strong class="t">Cálculo da predição</strong>
+      Durante o treinamento, o modelo recebe o trecho <em>"o céu é"</em> e tenta prever a próxima palavra. Se prevê "verde", o algoritmo compara o palpite com o texto real do treinamento ("azul"). Essa diferença gera uma margem de erro conhecida como <strong>Função de Perda (Loss)</strong>.
+    </li>
+    <li>
+      <strong class="t">Retropropagação (backpropagation)</strong>
+      Através de cálculo diferencial (gradiente descendente), o erro é distribuído de volta por toda a rede neural. Os pesos que contribuíram para o palpite errado são levemente ajustados para aumentar a probabilidade de "azul" seguir "o céu é" na próxima iteração.
+    </li>
+    <li>
+      <strong class="t">Conhecimento distribuído</strong>
+      Após processar essa associação e textos correlatos (ex: <em>"o céu diurno apresenta tom azulado"</em>, <em>"a dispersão Rayleigh torna o céu azul"</em>) milhões de vezes, a relação entre "céu" e "azul" fica gravada na combinação dos pesos das conexões da rede.
+    </li>
+  </ol>
+
+  <h2><span class="n">2.</span>Exemplo teórico de parâmetro</h2>
+
+  <p>Nenhum parâmetro sozinho armazena a frase completa ou o conceito. A informação está <strong>superposta</strong> na combinação de milhões de pesos.</p>
+  <p>No entanto, em uma matriz de pesos da <strong>camada de Atenção (Attention Mechanism)</strong> ou de uma <strong>camada Feed-Forward (FFN)</strong>, um parâmetro individual é simplesmente um número de ponto flutuante (<em>floating point</em>), como <code>+2.85</code> ou <code>-0.12</code>.</p>
+
+  <h3>Exemplo simplificado de matriz de pesos</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Token de entrada: "céu"</th><th>Peso <span class="m">W</span></th><th></th><th>Efeito no token de saída</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>→ Conexão para <strong>"azul"</strong></td><td class="w pos">+2.85</td><td><div class="bar"><span class="p" style="width:40.7%"></span></div></td><td>Altíssimo aumento na probabilidade</td></tr>
+        <tr><td>→ Conexão para <strong>"limpo"</strong></td><td class="w pos">+1.42</td><td><div class="bar"><span class="p" style="width:20.3%"></span></div></td><td>Moderado aumento na probabilidade</td></tr>
+        <tr><td>→ Conexão para <strong>"verde"</strong></td><td class="w neg">−1.98</td><td><div class="bar"><span class="q" style="width:28.3%"></span></div></td><td>Forte redução na probabilidade</td></tr>
+        <tr><td>→ Conexão para <strong>"carro"</strong></td><td class="w neg">−3.50</td><td><div class="bar"><span class="q" style="width:50%"></span></div></td><td>Probabilidade quase nula</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2><span class="n">3.</span>Detalhamento das camadas de processamento (arquitetura Transformer)</h2>
+
+  <div class="layer">
+    <h3><span class="n">1</span>Camada de Embedding (entrada)</h3>
+    <ul>
+      <li><strong>Token Embedding:</strong> mapeia cada token (ex: <code>"céu"</code>) para um vetor denso de alta dimensão (geralmente entre 4.096 e 12.288 números).</li>
+      <li><strong>Positional Encoding:</strong> soma-se ao vetor de embedding uma informação sobre a posição do token na frase, permitindo distinguir a ordem textual (ex: <code>"o céu é azul"</code> vs <code>"azul é o céu"</code>).</li>
+    </ul>
+  </div>
+
+  <div class="layer">
+    <h3><span class="n">2</span>Camadas de Atenção (Self-Attention / Multi-Head Attention)</h3>
+    <p>Constrói o contexto e os relacionamentos entre palavras da mesma sequência:</p>
+    <ul>
+      <li><strong>Projeções <span class="m">Q, K, V</span> (Query, Key, Value):</strong> cada vetor passa por transformações lineares para gerar três novos vetores:
+        <ul>
+          <li><strong>Query (<span class="m">Q</span>):</strong> o que o token está "procurando" (ex: o token <code>"céu"</code> busca atributos associados).</li>
+          <li><strong>Key (<span class="m">K</span>):</strong> o que o token oferece como identidade (ex: o token <code>"azul"</code> oferece identidade de cor).</li>
+          <li><strong>Value (<span class="m">V</span>):</strong> a informação real transmitida pelo token.</li>
+        </ul>
+      </li>
+      <li><strong>Pontuação de Atenção:</strong> calcula o produto escalar entre <span class="m">Q</span> e <span class="m">K</span>, aplicando a função <em>Softmax</em> para gerar pesos percentuais de afinidade.</li>
+      <li><strong>Multi-Head Attention:</strong> executa o processo de atenção dezenas de vezes em paralelo, capturando diferentes tipos de relações (semânticas, sintáticas etc.).</li>
+    </ul>
+  </div>
+
+  <div class="layer">
+    <h3><span class="n">3</span>Normalização e conexões residuais</h3>
+    <ul>
+      <li><strong>Conexão Residual:</strong> soma a entrada da camada de atenção diretamente à sua saída, prevenindo o problema do gradiente desaparecente e preservando informações das camadas anteriores.</li>
+      <li><strong>Layer Normalization:</strong> estabiliza a escala numérica mantendo média 0 e desvio padrão 1.</li>
+    </ul>
+  </div>
+
+  <div class="layer">
+    <h3><span class="n">4</span>Camada Feed-Forward (FFN / MLP)</h3>
+    <p>Atua como a <strong>memória associativa</strong> de longo prazo do modelo:</p>
+    <ul>
+      <li><strong>Expansão de dimensão:</strong> o vetor entra com dimensão <span class="m">d<sub>model</sub></span> (ex: 4.096), é expandido temporariamente para <span class="m">4 × d<sub>model</sub></span> (ex: 16.384) com funções de ativação não lineares (como <em>SwiGLU</em> ou <em>GELU</em>), e depois comprimido de volta.</li>
+      <li><strong>Gravação de fatos:</strong> é onde o conhecimento factual estático fica retido. Quando o vetor contextualizado de <code>"céu"</code> passa pela FFN, os pesos ativam a projeção do conceito <code>"azul"</code>.</li>
+    </ul>
+  </div>
+
+  <div class="layer">
+    <h3><span class="n">5</span>Camada de saída (Unembedding e Softmax)</h3>
+    <ul>
+      <li><strong>Unembedding (Linear Layer):</strong> multiplica o vetor final refinado por uma matriz para projetá-lo no tamanho total do vocabulário (ex: 128.000 tokens), gerando valores brutos chamados <strong>Logits</strong>.</li>
+      <li><strong>Softmax:</strong> converte os logits em uma distribuição de probabilidade normalizada entre 0% e 100%:</li>
+    </ul>
+    <div class="probs" aria-label="Distribuição de probabilidade do próximo token">
+      <div class="prob"><code>azul</code><div class="track"><div class="fill" style="width:92.4%"></div></div><span class="v">92.4%</span></div>
+      <div class="prob"><code>limpo</code><div class="track"><div class="fill" style="width:4.1%"></div></div><span class="v">4.1%</span></div>
+      <div class="prob"><code>escuro</code><div class="track"><div class="fill" style="width:1.8%"></div></div><span class="v">1.8%</span></div>
+      <div class="prob"><code>verde</code><div class="track"><div class="fill" style="width:0"></div></div><span class="v">0.001%</span></div>
+    </div>
+  </div>
+
+  <footer>RAFAEL//HUB · Estudos de IA</footer>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeBtn'), saved=null;
+  try{ saved=localStorage.getItem('theme'); }catch(e){}
+  if(saved) root.setAttribute('data-theme',saved);
+  function isDark(){
+    var t=root.getAttribute('data-theme');
+    return t ? t==='dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function label(){ btn.textContent = isDark() ? '☀ claro' : '☾ escuro'; }
+  label();
+  btn.addEventListener('click',function(){
+    var next=isDark()?'light':'dark';
+    root.setAttribute('data-theme',next);
+    try{ localStorage.setItem('theme',next); }catch(e){}
+    label();
+  });
+})();
+</script>
+</body>
+</html>
