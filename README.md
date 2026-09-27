@@ -33,7 +33,8 @@ Hub pessoal com as páginas HTML geradas com o Claude: arquitetura, autoavaliaç
     │   ├── matematica-por-tras-dos-llms.html      # álgebra linear, cálculo e probabilidade interativos
     │   ├── arquitetura-ia-do-zero.html            # curso de arquitetura de IA               (de .docx)
     │   ├── visceras-da-ia.html                    # pesos, carregamento e inferência         (de .docx)
-    │   └── montador-de-prompt.html                # montador de prompt estático/volátil
+    │   ├── montador-de-prompt.html                # montador de prompt estático/volátil
+    │   └── aprendizado_llm_parametros.html        # como um fato vira pesos: do embedding ao softmax (de .md)
     ├── negocio/
     │   └── mapa-areas-banco-bian.html             # áreas, processos e domínios de um banco × BIAN
     ├── agro/

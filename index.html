@@ -383,6 +383,11 @@ const PAGES = [
    d:"Passo a passo para escrever as instruções de uma IA sem precisar saber nada técnico. Separa o bloco estático (cacheável) do volátil e monta o prompt pronto para copiar ou baixar em .txt.",
    m:[["8","passos"],["2","blocos"]],
    tags:["Prompt","Cache","Custo","Performance"]},
+  {cat:"ia", t:"Como a informação vira parâmetro em um LLM", href:"pages/ia/aprendizado_llm_parametros.html", date:"2026-09-27",
+   type:"Guia conceitual", icon:"layers",
+   d:"Por que um LLM não guarda \"o céu é azul\" como chave-valor: o fato vira pesos ajustados por loss e backpropagation. Percorre embedding, atenção Q/K/V, residuais, FFN como memória associativa e softmax na saída.",
+   m:[["4","etapas"],["5","camadas"]],
+   tags:["Embeddings","Backpropagation","Self-Attention","FFN","Softmax","Transformer"]},
   {cat:"agro", t:"Mapa de Áreas e Domínios de um Banco × BIAN", href:"pages/negocio/mapa-areas-banco-bian.html",
    type:"Mapa de referência", icon:"map",
    d:"As 22 áreas de um banco brasileiro, de cadastro a controladoria, com processos, entidades de domínio, dependências e service domains BIAN 14.0. Inclui matriz de dependência, sequências ponta a ponta e exemplos ancorados em crédito rural.",
@@ -412,10 +417,7 @@ const PAGES = [
    type:"Plano de estudo", icon:"route",
    d:"Da fundação técnica à liderança estratégica de IA em ambientes regulados: quatro fases com módulos, recursos gratuitos e pagos, exercícios práticos e um entregável de portfólio por fase.",
    m:[["14","meses"],["4","fases"],["20+","recursos"]],
-   tags:["LLMs","RAG","Agentes","Governança","Certificações"]},
-  {cat:"ia", t:"Como a informação é convertida em parâmetros em um LLM", href:"pages/ia/aprendizado_llm_parametros.html", date:"2026-09-27",
-   type:"Ferramenta", icon:"check", d:"Informações sobre como uma informação inserida no prompt é convertida nos parâmetros usados pelos LLM's",
-   m:[["12","itens"]], tags:["ia","IA", "LLM", "Parametros"]}
+   tags:["LLMs","RAG","Agentes","Governança","Certificações"]}
 ];
 
 const ICONS = {
